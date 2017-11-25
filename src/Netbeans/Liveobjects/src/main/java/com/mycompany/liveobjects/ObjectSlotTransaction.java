@@ -29,5 +29,13 @@ public interface ObjectSlotTransaction {
     public void addBlockSlot(int arity, int varCount, List<Instruction> instructions);
 
     public void updateBlockSlot(int arity, int varCount, List<Instruction> instructions);
+
+    public void deleteSlotBlobValue();
+
+    public void setSlotBlobValue(int type, byte[] bytes);
+
+    public void addBlobSlot(int type, byte[] bytes);
+
+    public void updateBlobSlot(int type, byte[] bytes);
     
 }

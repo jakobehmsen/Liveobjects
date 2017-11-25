@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,15 +36,11 @@ public class JDBCObjectTransaction implements ObjectTransaction {
     private PreparedStatement slotInsertStatement;
     private PreparedStatement slotReferenceValueDeleteStatement;
     private PreparedStatement slotReferenceValueInsertStatement;
-    private PreparedStatement slotIntegerValueDeleteStatement;
-    private PreparedStatement slotIntegerValueInsertStatement;
-    private PreparedStatement slotStringValueDeleteStatement;
-    private PreparedStatement slotStringValueInsertStatement;
-    private PreparedStatement slotBlockValueDeleteStatement;
-    private PreparedStatement slotBlockValueInsertStatement;
     private PreparedStatement slotTypeUpdateStatement;
     private PreparedStatement slotInsertObjectStatement;
     private PreparedStatement slotUpdateObjectUsageStatement;
+    private PreparedStatement slotBlobValueDeleteStatement;
+    private PreparedStatement slotBlobValueInsertStatement;
     
     private InstructionSet instructionSet;
 
@@ -59,18 +56,10 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     "DELETE FROM slot_reference WHERE object_holder_id = ? AND symbol = ?");
             slotReferenceValueInsertStatement = connection.prepareStatement(
                     "INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id) VALUES (?, ?, ?)");
-            slotIntegerValueDeleteStatement = connection.prepareStatement(
-                    "DELETE FROM slot_integer WHERE object_holder_id = ? AND symbol = ?");
-            slotIntegerValueInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot_integer (object_holder_id, symbol, value) VALUES (?, ?, ?)");
-            slotStringValueDeleteStatement = connection.prepareStatement(
-                    "DELETE FROM slot_string WHERE object_holder_id = ? AND symbol = ?");
-            slotStringValueInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot_string (object_holder_id, symbol, value) VALUES (?, ?, ?)");
-            slotBlockValueDeleteStatement = connection.prepareStatement(
-                    "DELETE FROM slot_block WHERE object_holder_id = ? AND symbol = ?");
-            slotBlockValueInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot_block (object_holder_id, symbol, value) VALUES (?, ?, ?)");
+            slotBlobValueDeleteStatement = connection.prepareStatement(
+                    "DELETE FROM slot_blob WHERE object_holder_id = ? AND symbol = ?");
+            slotBlobValueInsertStatement = connection.prepareStatement(
+                    "INSERT INTO slot_blob (object_holder_id, symbol, value) VALUES (?, ?, ?)");
             slotTypeUpdateStatement = connection.prepareStatement(
                     "UPDATE slot SET type = ? WHERE object_holder_id = ? AND symbol = ?");
             slotInsertObjectStatement = connection.prepareStatement(
@@ -84,26 +73,14 @@ public class JDBCObjectTransaction implements ObjectTransaction {
     
     private Map<Integer, LObject> readSlots(Environment environment) {
         String query = 
-                "SELECT s.symbol, s.type, r.object_reference_id, null, null, null FROM slot s\n" +
+                "SELECT s.symbol, s.type, r.object_reference_id, null FROM slot s\n" +
                 "   INNER JOIN slot_reference r\n" +
                 "       ON r.object_holder_id = s.object_holder_id\n" +
                 "       AND r.symbol = s.symbol\n" +
                 "   WHERE s.object_holder_id = " + id + "\n" +
                 "UNION ALL\n" +
-                "SELECT s.symbol, s.type, null, i.value, null, null FROM slot s\n" +
-                "   INNER JOIN slot_integer i\n" +
-                "       ON i.object_holder_id = s.object_holder_id\n" +
-                "       AND i.symbol = s.symbol\n" +
-                "   WHERE s.object_holder_id = " + id + "\n" +
-                "UNION ALL\n" +
-                "SELECT s.symbol, s.type, null, null, z.value, null FROM slot s\n" +
-                "   INNER JOIN slot_string z\n" +
-                "       ON z.object_holder_id = s.object_holder_id\n" +
-                "       AND z.symbol = s.symbol\n" +
-                "   WHERE s.object_holder_id = " + id + "\n" +
-                "UNION ALL\n" +
-                "SELECT s.symbol, s.type, null, null, null, b.value FROM slot s\n" +
-                "   INNER JOIN slot_block b\n" +
+                "SELECT s.symbol, s.type, null, b.value FROM slot s\n" +
+                "   INNER JOIN slot_blob b\n" +
                 "       ON b.object_holder_id = s.object_holder_id\n" +
                 "       AND b.symbol = s.symbol\n" +
                 "   WHERE s.object_holder_id = " + id + "\n" +
@@ -117,6 +94,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                 String selector = resultSet.getString(1);
                 int type = resultSet.getInt(2);
                 LObject object = null;
+                byte[] bytes = resultSet.getBytes(4);
                 
                 switch(type) {
                     case SLOT_TYPE_REFERENCE:
@@ -124,15 +102,16 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                         object = new DBLObject(new JDBCObjectTransaction(connection, instructionSet, objectReferenceId));
                         break;
                     case SLOT_TYPE_INTEGER: {
-                        int value = resultSet.getInt(4);
+                        ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+                        int value = wrapped.getInt();
                         object = new IntegerLObject(value);
                         break;
                     } case SLOT_TYPE_STRING: {
-                        String value = resultSet.getString(5);
+                        String value = new String(bytes); //resultSet.getString(5);
                         object = new StringLObject(value);
                         break;
                     } case SLOT_TYPE_BLOCK: {
-                        byte[] value = resultSet.getBytes(6);
+                        byte[] value = bytes;//resultSet.getBytes(6);
                         ByteArrayInputStream inputStream = new ByteArrayInputStream(value);
                         DataInputStream dataInputStream = new DataInputStream(inputStream);
                         int arity = dataInputStream.readInt();
@@ -194,30 +173,14 @@ public class JDBCObjectTransaction implements ObjectTransaction {
         ObjectSlotTransaction slotTransaction = new ObjectSlotTransaction() {
             @Override
             public void deleteSlotIntegerValue() {
-                try {
-                    slotIntegerValueDeleteStatement.setInt(1, id);
-                    slotIntegerValueDeleteStatement.setString(2, selector.getValue());
-                    slotIntegerValueDeleteStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                deleteSlotBlobValue();
             }
 
             @Override
             public void setSlotIntegerValue(int value) {
-                try {
-                    slotIntegerValueInsertStatement.setInt(1, id);
-                    slotIntegerValueInsertStatement.setString(2, selector.getValue());
-                    slotIntegerValueInsertStatement.setInt(3, value);
-                    slotIntegerValueInsertStatement.execute();
-                    
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector.getValue());
-                    slotTypeUpdateStatement.setInt(3, SLOT_TYPE_INTEGER);
-                    slotTypeUpdateStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                ByteBuffer buffer = ByteBuffer.allocate(4);
+                buffer.putInt(value);
+                setSlotBlobValue(SLOT_TYPE_INTEGER, buffer.array());
             }
 
             @Override
@@ -250,92 +213,36 @@ public class JDBCObjectTransaction implements ObjectTransaction {
 
             @Override
             public void addIntegerSlot(int value) {
-                try {
-                    slotInsertStatement.setInt(1, id);
-                    slotInsertStatement.setString(2, selector.getValue());
-                    slotInsertStatement.setInt(3, SLOT_TYPE_INTEGER);
-                    slotInsertStatement.execute();
-                    
-                    slotIntegerValueInsertStatement.setInt(1, id);
-                    slotIntegerValueInsertStatement.setString(2, selector.getValue());
-                    slotIntegerValueInsertStatement.setInt(3, value);
-                    slotIntegerValueInsertStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                ByteBuffer buffer = ByteBuffer.allocate(4);
+                buffer.putInt(value);
+                addBlobSlot(SLOT_TYPE_INTEGER, buffer.array());
             }
 
             @Override
             public void updateIntegerSlot(int value) {
-                try {
-                    slotIntegerValueInsertStatement.setInt(1, id);
-                    slotIntegerValueInsertStatement.setString(2, selector.getValue());
-                    slotIntegerValueInsertStatement.setInt(3, value);
-                    slotIntegerValueInsertStatement.execute();
-                    
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector.getValue());
-                    slotTypeUpdateStatement.setInt(3, SLOT_TYPE_INTEGER);
-                    slotTypeUpdateStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                ByteBuffer buffer = ByteBuffer.allocate(4);
+                buffer.putInt(value);
+                updateBlobSlot(SLOT_TYPE_INTEGER, buffer.array());
             }
 
             @Override
             public void addStringSlot(String value) {
-                try {
-                    slotInsertStatement.setInt(1, id);
-                    slotInsertStatement.setString(2, selector.getValue());
-                    slotInsertStatement.setInt(3, SLOT_TYPE_STRING);
-                    slotInsertStatement.execute();
-                    
-                    slotStringValueInsertStatement.setInt(1, id);
-                    slotStringValueInsertStatement.setString(2, selector.getValue());
-                    slotStringValueInsertStatement.setString(3, value);
-                    slotStringValueInsertStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                addBlobSlot(SLOT_TYPE_STRING, value.getBytes());
             }
 
             @Override
             public void deleteStringSlot(String value) {
-                try {
-                    slotStringValueDeleteStatement.setInt(1, id);
-                    slotStringValueDeleteStatement.setString(2, selector.getValue());
-                    slotStringValueDeleteStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                deleteSlotBlobValue();
             }
 
             @Override
             public void updateStringSlot(String value) {
-                try {
-                    slotStringValueInsertStatement.setInt(1, id);
-                    slotStringValueInsertStatement.setString(2, selector.getValue());
-                    slotStringValueInsertStatement.setString(3, value);
-                    slotStringValueInsertStatement.execute();
-                    
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector.getValue());
-                    slotTypeUpdateStatement.setInt(3, SLOT_TYPE_STRING);
-                    slotTypeUpdateStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                updateBlobSlot(SLOT_TYPE_STRING, value.getBytes());
             }
 
             @Override
             public void deleteSlotBlockValue() {
-                try {
-                    slotBlockValueDeleteStatement.setInt(1, id);
-                    slotBlockValueDeleteStatement.setString(2, selector.getValue());
-                    slotBlockValueDeleteStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                deleteSlotBlobValue();
             }
             
             private byte[] createBlockValue(int arity, int varCount, List<Instruction> instructions) throws IOException {
@@ -359,18 +266,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
             public void setSlotBlockValue(int arity, int varCount, List<Instruction> instructions) {
                 try {
                     byte[] value = createBlockValue(arity, varCount, instructions);
-                    
-                    slotBlockValueInsertStatement.setInt(1, id);
-                    slotBlockValueInsertStatement.setString(2, selector.getValue());
-                    slotBlockValueInsertStatement.setBytes(3, value);
-                    slotBlockValueInsertStatement.execute();
-                    
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector.getValue());
-                    slotTypeUpdateStatement.setInt(3, SLOT_TYPE_BLOCK);
-                    slotTypeUpdateStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    setSlotBlobValue(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
                     Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -380,18 +276,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
             public void addBlockSlot(int arity, int varCount, List<Instruction> instructions) {
                 try {
                     byte[] value = createBlockValue(arity, varCount, instructions);
-                    
-                    slotInsertStatement.setInt(1, id);
-                    slotInsertStatement.setString(2, selector.getValue());
-                    slotInsertStatement.setInt(3, SLOT_TYPE_BLOCK);
-                    slotInsertStatement.execute();
-                    
-                    slotBlockValueInsertStatement.setInt(1, id);
-                    slotBlockValueInsertStatement.setString(2, selector.getValue());
-                    slotBlockValueInsertStatement.setBytes(3, value);
-                    slotBlockValueInsertStatement.execute();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    addBlobSlot(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
                     Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -401,19 +286,76 @@ public class JDBCObjectTransaction implements ObjectTransaction {
             public void updateBlockSlot(int arity, int varCount, List<Instruction> instructions) {
                 try {
                     byte[] value = createBlockValue(arity, varCount, instructions);
+                    updateBlobSlot(SLOT_TYPE_BLOCK, value);
+                } catch (IOException ex) {
+                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            @Override
+            public void deleteSlotBlobValue() {
+                try {
+                    slotBlobValueDeleteStatement.setInt(1, id);
+                    slotBlobValueDeleteStatement.setString(2, selector.getValue());
+                    slotBlobValueDeleteStatement.execute();
+                } catch (SQLException ex) {
+                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            @Override
+            public void setSlotBlobValue(int type, byte[] bytes) {
+                try {
+                    byte[] value = bytes;
                     
-                    slotBlockValueInsertStatement.setInt(1, id);
-                    slotBlockValueInsertStatement.setString(2, selector.getValue());
-                    slotBlockValueInsertStatement.setBytes(3, value);
-                    slotBlockValueInsertStatement.execute();
+                    slotBlobValueInsertStatement.setInt(1, id);
+                    slotBlobValueInsertStatement.setString(2, selector.getValue());
+                    slotBlobValueInsertStatement.setBytes(3, value);
+                    slotBlobValueInsertStatement.execute();
                     
                     slotTypeUpdateStatement.setInt(1, id);
                     slotTypeUpdateStatement.setString(2, selector.getValue());
-                    slotTypeUpdateStatement.setInt(3, SLOT_TYPE_BLOCK);
+                    slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
                     Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
+                }
+            }
+
+            @Override
+            public void addBlobSlot(int type, byte[] bytes) {
+                try {
+                    byte[] value = bytes;
+                    
+                    slotInsertStatement.setInt(1, id);
+                    slotInsertStatement.setString(2, selector.getValue());
+                    slotInsertStatement.setInt(3, type);
+                    slotInsertStatement.execute();
+                    
+                    slotBlobValueInsertStatement.setInt(1, id);
+                    slotBlobValueInsertStatement.setString(2, selector.getValue());
+                    slotBlobValueInsertStatement.setBytes(3, value);
+                    slotBlobValueInsertStatement.execute();
+                } catch (SQLException ex) {
+                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            @Override
+            public void updateBlobSlot(int type, byte[] bytes) {
+                try {
+                    byte[] value = bytes;
+                    
+                    slotBlobValueInsertStatement.setInt(1, id);
+                    slotBlobValueInsertStatement.setString(2, selector.getValue());
+                    slotBlobValueInsertStatement.setBytes(3, value);
+                    slotBlobValueInsertStatement.execute();
+                    
+                    slotTypeUpdateStatement.setInt(1, id);
+                    slotTypeUpdateStatement.setString(2, selector.getValue());
+                    slotTypeUpdateStatement.setInt(3, type);
+                    slotTypeUpdateStatement.execute();
+                } catch (SQLException ex) {
                     Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
