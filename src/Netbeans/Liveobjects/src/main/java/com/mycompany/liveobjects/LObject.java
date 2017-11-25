@@ -6,9 +6,9 @@ public interface LObject {
     void setSlotValue(ObjectSlotTransaction slotTransaction);
     void addSlot(ObjectSlotTransaction slotTransaction);
     void updateSlot(ObjectSlotTransaction slotTransaction);
-    LObject cloneObject();
+    LObject cloneObject(Environment environment);
 
-    void nowUsedFrom(int id);
+    void nowUsedFrom(int id, Environment environment);
     void nowUnusedFrom(int id);
     
     LObject resolve(int selector, Environment environment);

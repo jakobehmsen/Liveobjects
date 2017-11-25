@@ -34,12 +34,12 @@ public class IntegerLObject implements LObject {
     }
 
     @Override
-    public LObject cloneObject() {
+    public LObject cloneObject(Environment environment) {
         return this;
     }
 
     @Override
-    public void nowUsedFrom(int id) {
+    public void nowUsedFrom(int id, Environment environment) {
         
     }
 

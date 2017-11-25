@@ -46,14 +46,24 @@ public class DefaultEnvironment implements Environment {
     }
     
     private Hashtable<String, Integer> stringToSymbolCodeMap;
+    private Hashtable<Integer, String> symbolCodeToStringMap;
 
     @Override
     public int getSymbolCode(String str) {
-        return stringToSymbolCodeMap.computeIfAbsent(str, k -> stringToSymbolCodeMap.size());
+        Integer symbolCode = stringToSymbolCodeMap.get(str);
+        
+        if(symbolCode == null) {
+            symbolCode = stringToSymbolCodeMap.size();
+            stringToSymbolCodeMap.put(str, symbolCode);
+            symbolCodeToStringMap.put(symbolCode, str);
+        }
+        
+        return symbolCode;
     }
 
     private void initSymbolTable() {
         stringToSymbolCodeMap = new Hashtable<>();
+        symbolCodeToStringMap = new Hashtable<>();
         
         this.dispatcher.registerSymbols(this);
         
@@ -82,5 +92,10 @@ public class DefaultEnvironment implements Environment {
     @Override
     public World getWorld() {
         return world;
+    }
+
+    @Override
+    public String getSymbolString(int symbolCode) {
+        return symbolCodeToStringMap.get(symbolCode);
     }
 }

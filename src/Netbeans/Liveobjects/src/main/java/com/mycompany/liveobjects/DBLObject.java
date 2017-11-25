@@ -45,12 +45,14 @@ public class DBLObject implements LObject {
 
     @Override
     public void addSlot(ObjectSlotTransaction slotTransaction) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        transaction.addSlot(slotTransaction);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void updateSlot(ObjectSlotTransaction slotTransaction) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        transaction.updateSlot(slotTransaction);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void close() throws IOException {
@@ -58,13 +60,13 @@ public class DBLObject implements LObject {
     }
 
     @Override
-    public LObject cloneObject() {
-        return new DBLObject(transaction.cloneObject());
+    public LObject cloneObject(Environment environment) {
+        return new DBLObject(transaction.cloneObject(environment, this));
     }
 
     @Override
-    public void nowUsedFrom(int id) {
-        transaction.nowUsedFrom(id);
+    public void nowUsedFrom(int id, Environment environment) {
+        transaction.nowUsedFrom(id, environment);
     }
 
     @Override

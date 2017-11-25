@@ -49,12 +49,12 @@ public class Block implements LObject {
     }
 
     @Override
-    public LObject cloneObject() {
+    public LObject cloneObject(Environment environment) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void nowUsedFrom(int id) {
+    public void nowUsedFrom(int id, Environment environment) {
         
     }
 

@@ -234,21 +234,6 @@ public class Instructions {
         }
     };
 
-    public static Instruction cloneObject() {
-        return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().cloneObject();
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return cloneObjectDescriptor;
-            }
-        };
-    }
-
     public static Instruction send(final int selector, final int arity) {
         return new Instruction() {
             @Override

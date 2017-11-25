@@ -9,8 +9,6 @@ public interface Frame {
     public void loadInteger(int i);
 
     public void loadString(String str);
-    
-    public void cloneObject();
 
     public void loadThis();
 

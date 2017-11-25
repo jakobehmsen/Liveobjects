@@ -37,5 +37,9 @@ public interface ObjectSlotTransaction {
     public void addBlobSlot(int type, byte[] bytes);
 
     public void updateBlobSlot(int type, byte[] bytes);
+
+    public void addSlotReference(int id);
+
+    public void updateSlotReference(int id);
     
 }

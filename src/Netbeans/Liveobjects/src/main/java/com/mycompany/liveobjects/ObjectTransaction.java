@@ -12,14 +12,18 @@ public interface ObjectTransaction {
 
     public void close();
 
-    public ObjectTransaction cloneObject();
+    public ObjectTransaction cloneObject(Environment environment, LObject self);
 
-    public void nowUsedFrom(int id);
+    public void nowUsedFrom(int id, Environment environment);
 
     public void nowUnusedFrom(int id);
 
     public void send(int selector, LObject[] arguments, Environment environment, LObject receiver);
 
     public LObject resolve(int selector, Environment environment);
+
+    public void addSlot(ObjectSlotTransaction slotTransaction);
+
+    public void updateSlot(ObjectSlotTransaction slotTransaction);
     
 }

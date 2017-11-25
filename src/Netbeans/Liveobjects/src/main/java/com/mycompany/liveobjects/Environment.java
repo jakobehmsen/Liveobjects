@@ -25,4 +25,6 @@ public interface Environment {
     void addSymbol(int symbolCode, String string);
 
     World getWorld();
+
+    public String getSymbolString(int symbolCode);
 }

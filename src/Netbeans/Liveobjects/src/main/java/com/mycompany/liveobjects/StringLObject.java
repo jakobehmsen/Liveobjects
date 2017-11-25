@@ -38,12 +38,12 @@ public class StringLObject implements LObject {
     }
 
     @Override
-    public LObject cloneObject() {
+    public LObject cloneObject(Environment environment) {
         return this;
     }
 
     @Override
-    public void nowUsedFrom(int id) {
+    public void nowUsedFrom(int id, Environment environment) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

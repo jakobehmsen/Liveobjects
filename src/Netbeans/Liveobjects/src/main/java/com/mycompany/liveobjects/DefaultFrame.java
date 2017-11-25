@@ -38,12 +38,6 @@ public class DefaultFrame implements Frame {
     }
 
     @Override
-    public void cloneObject() {
-        LObject obj = pop();
-        load(obj.cloneObject());
-    }
-
-    @Override
     public void loadThis() {
         load(stack.get(0));
     }
