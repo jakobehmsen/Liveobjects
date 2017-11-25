@@ -47,10 +47,12 @@ public class JDBCObjectTransaction implements ObjectTransaction {
     private PreparedStatement slotBlobValueInsertStatement;
     
     private InstructionSet instructionSet;
+    private ObjectLoader objectLoader;
 
-    public JDBCObjectTransaction(Connection connection, InstructionSet instructionSet, int id) {
+    public JDBCObjectTransaction(Connection connection, InstructionSet instructionSet, ObjectLoader objectLoader, int id) {
         this.connection = connection;
         this.instructionSet = instructionSet;
+        this.objectLoader = objectLoader;
         this.id = id;
         
         try {
@@ -106,8 +108,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     case SLOT_TYPE_REFERENCE:
                         int objectReferenceId = resultSet.getInt(3);
                         referenceType = resultSet.getInt(4);
-                        // TODO: Use object cache for looking up the same object with the same id
-                        object = new DBLObject(new JDBCObjectTransaction(connection, instructionSet, objectReferenceId));
+                        object = objectLoader.load(objectReferenceId);
                         break;
                     case SLOT_TYPE_INTEGER: {
                         ByteBuffer wrapped = ByteBuffer.wrap(bytes);
@@ -687,7 +688,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
 
     @Override
     public ObjectTransaction cloneObject(Environment environment, LObject self) {
-        JDBCObjectTransaction clone = new JDBCObjectTransaction(connection, instructionSet, 0);
+        JDBCObjectTransaction clone = new JDBCObjectTransaction(connection, instructionSet, objectLoader, 0);
         
         clone.setParentSlot(environment.getSymbolCode("parent"), self, environment);
         

@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
 public interface World {
-    DBLObject getRoot();
+    LObject getRoot();
     LObject getIntegerPrototype();
 }
