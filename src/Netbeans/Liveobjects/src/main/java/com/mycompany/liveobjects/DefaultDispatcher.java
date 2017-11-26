@@ -9,6 +9,16 @@ public class DefaultDispatcher implements Dispatcher {
     private Hashtable<Integer, String> primitiveSelectors = new Hashtable<>();
 
     {
+        addPrimitive("clone", (receiver, arguments, environment) -> {
+            LObject value = receiver.cloneObject(environment);
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("evaluateAs:", (receiver, arguments, environment) -> {
+            LObject receiverArg = arguments[0];
+            Block blockReceiver = (Block)receiver;
+            blockReceiver.evaluate(receiverArg, new LObject[0], environment);
+        });
         addPrimitive("getSlot:", (receiver, arguments, environment) -> {
             LObject value = receiver.getSlot(environment, arguments);
             environment.currentFrame().load(value);
