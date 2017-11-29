@@ -57,6 +57,7 @@ public class Main {
         instructionSet.registerInstruction(11, Instructions.retDescriptor);
         instructionSet.registerInstruction(12, Instructions.loadIntegerDescriptor);
         instructionSet.registerInstruction(13, Instructions.sendDescriptor);
+        instructionSet.registerInstruction(14, Instructions.LoadContext.descriptor);
         
         World world = new JDBCWorld(connection, instructionSet);
         
@@ -102,8 +103,9 @@ public class Main {
                 
                 connection.commit();
                 
-                String result = environment.currentFrame().peek().toString();
-                resultTextPane.setText(result);
+                LObject result = environment.currentFrame().peek();
+                String resultAsString = result.toString();
+                resultTextPane.setText(resultAsString);
             } catch (SQLException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } catch (PrimitiveErrorException ex) {

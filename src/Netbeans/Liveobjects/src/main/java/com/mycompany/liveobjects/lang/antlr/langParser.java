@@ -1,4 +1,4 @@
-// Generated from /home/jakob/github/ideas/classpoolmod/src/NetBeans/liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
+// Generated from /home/jakob/github/Liveobjects/src/Netbeans/Liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
 package com.mycompany.liveobjects.lang.antlr;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -15,25 +15,25 @@ public class langParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		KW_SELF=1, SELF_ASSIGN=2, FRAME_ASSIGN=3, PIPE=4, OPEN_PAR=5, CLOSE_PAR=6, 
-		OPEN_SQ=7, CLOSE_SQ=8, COLON=9, DOT=10, BIN_OP=11, ID=12, NUMBER=13, STRING=14, 
-		WS=15, SINGLE_LINE_COMMENT=16, MULTI_LINE_COMMENT=17;
+		KW_SELF=1, KW_THIS_CONTEXT=2, SELF_ASSIGN=3, FRAME_ASSIGN=4, PIPE=5, OPEN_PAR=6, 
+		CLOSE_PAR=7, OPEN_SQ=8, CLOSE_SQ=9, COLON=10, DOT=11, BIN_OP=12, ID=13, 
+		NUMBER=14, STRING=15, WS=16, SINGLE_LINE_COMMENT=17, MULTI_LINE_COMMENT=18;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'self'", "':='", "'='", "'|'", "'('", "')'", "'['", "']'", 
-		"':'", "'.'", "BIN_OP", "ID", "NUMBER", "STRING", "WS", "SINGLE_LINE_COMMENT", 
-		"MULTI_LINE_COMMENT"
+		"<INVALID>", "'self'", "'thisContext'", "':='", "'='", "'|'", "'('", "')'", 
+		"'['", "']'", "':'", "'.'", "BIN_OP", "ID", "NUMBER", "STRING", "WS", 
+		"SINGLE_LINE_COMMENT", "MULTI_LINE_COMMENT"
 	};
 	public static final int
 		RULE_expressions = 0, RULE_expression = 1, RULE_assignment = 2, RULE_expression1 = 3, 
 		RULE_keyAndArg = 4, RULE_expression2 = 5, RULE_binaryMessage = 6, RULE_expression3 = 7, 
 		RULE_unaryMessage = 8, RULE_expression4 = 9, RULE_number = 10, RULE_string = 11, 
 		RULE_identifier = 12, RULE_block = 13, RULE_blockParams = 14, RULE_embeddedExpression = 15, 
-		RULE_self = 16;
+		RULE_self = 16, RULE_thisContext = 17;
 	public static final String[] ruleNames = {
 		"expressions", "expression", "assignment", "expression1", "keyAndArg", 
 		"expression2", "binaryMessage", "expression3", "unaryMessage", "expression4", 
 		"number", "string", "identifier", "block", "blockParams", "embeddedExpression", 
-		"self"
+		"self", "thisContext"
 	};
 
 	@Override
@@ -77,16 +77,16 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(37);
+			setState(39);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_SELF) | (1L << OPEN_PAR) | (1L << OPEN_SQ) | (1L << ID) | (1L << NUMBER) | (1L << STRING))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_SELF) | (1L << KW_THIS_CONTEXT) | (1L << OPEN_PAR) | (1L << OPEN_SQ) | (1L << ID) | (1L << NUMBER) | (1L << STRING))) != 0)) {
 				{
 				{
-				setState(34); expression();
+				setState(36); expression();
 				}
 				}
-				setState(39);
+				setState(41);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -125,19 +125,19 @@ public class langParser extends Parser {
 		ExpressionContext _localctx = new ExpressionContext(_ctx, getState());
 		enterRule(_localctx, 2, RULE_expression);
 		try {
-			setState(42);
+			setState(44);
 			switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(40); assignment();
+				setState(42); assignment();
 				}
 				break;
 
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(41); expression1();
+				setState(43); expression1();
 				}
 				break;
 			}
@@ -179,15 +179,15 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(44); match(ID);
-			setState(45);
+			setState(46); match(ID);
+			setState(47);
 			((AssignmentContext)_localctx).op = _input.LT(1);
 			_la = _input.LA(1);
 			if ( !(_la==SELF_ASSIGN || _la==FRAME_ASSIGN) ) {
 				((AssignmentContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 			}
 			consume();
-			setState(46); expression();
+			setState(48); expression();
 			}
 		}
 		catch (RecognitionException re) {
@@ -229,19 +229,19 @@ public class langParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(48); expression2();
-			setState(52);
+			setState(50); expression2();
+			setState(54);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			while ( _alt!=2 && _alt!=-1 ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(49); keyAndArg();
+					setState(51); keyAndArg();
 					}
 					} 
 				}
-				setState(54);
+				setState(56);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			}
@@ -281,9 +281,9 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(55); match(ID);
-			setState(56); match(COLON);
-			setState(57); expression2();
+			setState(57); match(ID);
+			setState(58); match(COLON);
+			setState(59); expression2();
 			}
 		}
 		catch (RecognitionException re) {
@@ -325,17 +325,17 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(59); expression3();
-			setState(63);
+			setState(61); expression3();
+			setState(65);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==BIN_OP) {
 				{
 				{
-				setState(60); binaryMessage();
+				setState(62); binaryMessage();
 				}
 				}
-				setState(65);
+				setState(67);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -374,8 +374,8 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(66); match(BIN_OP);
-			setState(67); expression3();
+			setState(68); match(BIN_OP);
+			setState(69); expression3();
 			}
 		}
 		catch (RecognitionException re) {
@@ -417,17 +417,17 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(69); expression4();
-			setState(73);
+			setState(71); expression4();
+			setState(75);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==DOT) {
 				{
 				{
-				setState(70); unaryMessage();
+				setState(72); unaryMessage();
 				}
 				}
-				setState(75);
+				setState(77);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -464,8 +464,8 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(76); match(DOT);
-			setState(77); match(ID);
+			setState(78); match(DOT);
+			setState(79); match(ID);
 			}
 		}
 		catch (RecognitionException re) {
@@ -495,6 +495,9 @@ public class langParser extends Parser {
 		public BlockContext block() {
 			return getRuleContext(BlockContext.class,0);
 		}
+		public ThisContextContext thisContext() {
+			return getRuleContext(ThisContextContext.class,0);
+		}
 		public SelfContext self() {
 			return getRuleContext(SelfContext.class,0);
 		}
@@ -513,42 +516,48 @@ public class langParser extends Parser {
 		Expression4Context _localctx = new Expression4Context(_ctx, getState());
 		enterRule(_localctx, 18, RULE_expression4);
 		try {
-			setState(85);
+			setState(88);
 			switch (_input.LA(1)) {
 			case NUMBER:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(79); number();
+				setState(81); number();
 				}
 				break;
 			case STRING:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(80); string();
+				setState(82); string();
 				}
 				break;
 			case ID:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(81); identifier();
+				setState(83); identifier();
 				}
 				break;
 			case OPEN_SQ:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(82); block();
+				setState(84); block();
 				}
 				break;
 			case OPEN_PAR:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(83); embeddedExpression();
+				setState(85); embeddedExpression();
 				}
 				break;
 			case KW_SELF:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(84); self();
+				setState(86); self();
+				}
+				break;
+			case KW_THIS_CONTEXT:
+				enterOuterAlt(_localctx, 7);
+				{
+				setState(87); thisContext();
 				}
 				break;
 			default:
@@ -585,7 +594,7 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(87); match(NUMBER);
+			setState(90); match(NUMBER);
 			}
 		}
 		catch (RecognitionException re) {
@@ -618,7 +627,7 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(89); match(STRING);
+			setState(92); match(STRING);
 			}
 		}
 		catch (RecognitionException re) {
@@ -651,7 +660,7 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(91); match(ID);
+			setState(94); match(ID);
 			}
 		}
 		catch (RecognitionException re) {
@@ -691,17 +700,17 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(93); match(OPEN_SQ);
-			setState(95);
+			setState(96); match(OPEN_SQ);
+			setState(98);
 			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 			case 1:
 				{
-				setState(94); blockParams();
+				setState(97); blockParams();
 				}
 				break;
 			}
-			setState(97); expressions();
-			setState(98); match(CLOSE_SQ);
+			setState(100); expressions();
+			setState(101); match(CLOSE_SQ);
 			}
 		}
 		catch (RecognitionException re) {
@@ -739,20 +748,20 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(101); 
+			setState(104); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(100); match(ID);
+				setState(103); match(ID);
 				}
 				}
-				setState(103); 
+				setState(106); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==ID );
-			setState(105); match(PIPE);
+			setState(108); match(PIPE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -789,9 +798,9 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(107); match(OPEN_PAR);
-			setState(108); expression();
-			setState(109); match(CLOSE_PAR);
+			setState(110); match(OPEN_PAR);
+			setState(111); expression();
+			setState(112); match(CLOSE_PAR);
 			}
 		}
 		catch (RecognitionException re) {
@@ -824,7 +833,40 @@ public class langParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(111); match(KW_SELF);
+			setState(114); match(KW_SELF);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class ThisContextContext extends ParserRuleContext {
+		public TerminalNode KW_THIS_CONTEXT() { return getToken(langParser.KW_THIS_CONTEXT, 0); }
+		public ThisContextContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_thisContext; }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof langVisitor ) return ((langVisitor<? extends T>)visitor).visitThisContext(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final ThisContextContext thisContext() throws RecognitionException {
+		ThisContextContext _localctx = new ThisContextContext(_ctx, getState());
+		enterRule(_localctx, 34, RULE_thisContext);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(116); match(KW_THIS_CONTEXT);
 			}
 		}
 		catch (RecognitionException re) {
@@ -839,33 +881,34 @@ public class langParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\3\23t\4\2\t\2\4\3\t"+
+		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\3\24y\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4"+
-		"\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\3\2\7"+
-		"\2&\n\2\f\2\16\2)\13\2\3\3\3\3\5\3-\n\3\3\4\3\4\3\4\3\4\3\5\3\5\7\5\65"+
-		"\n\5\f\5\16\58\13\5\3\6\3\6\3\6\3\6\3\7\3\7\7\7@\n\7\f\7\16\7C\13\7\3"+
-		"\b\3\b\3\b\3\t\3\t\7\tJ\n\t\f\t\16\tM\13\t\3\n\3\n\3\n\3\13\3\13\3\13"+
-		"\3\13\3\13\3\13\5\13X\n\13\3\f\3\f\3\r\3\r\3\16\3\16\3\17\3\17\5\17b\n"+
-		"\17\3\17\3\17\3\17\3\20\6\20h\n\20\r\20\16\20i\3\20\3\20\3\21\3\21\3\21"+
-		"\3\21\3\22\3\22\3\22\2\23\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"\2"+
-		"\3\3\2\4\5n\2\'\3\2\2\2\4,\3\2\2\2\6.\3\2\2\2\b\62\3\2\2\2\n9\3\2\2\2"+
-		"\f=\3\2\2\2\16D\3\2\2\2\20G\3\2\2\2\22N\3\2\2\2\24W\3\2\2\2\26Y\3\2\2"+
-		"\2\30[\3\2\2\2\32]\3\2\2\2\34_\3\2\2\2\36g\3\2\2\2 m\3\2\2\2\"q\3\2\2"+
-		"\2$&\5\4\3\2%$\3\2\2\2&)\3\2\2\2\'%\3\2\2\2\'(\3\2\2\2(\3\3\2\2\2)\'\3"+
-		"\2\2\2*-\5\6\4\2+-\5\b\5\2,*\3\2\2\2,+\3\2\2\2-\5\3\2\2\2./\7\16\2\2/"+
-		"\60\t\2\2\2\60\61\5\4\3\2\61\7\3\2\2\2\62\66\5\f\7\2\63\65\5\n\6\2\64"+
-		"\63\3\2\2\2\658\3\2\2\2\66\64\3\2\2\2\66\67\3\2\2\2\67\t\3\2\2\28\66\3"+
-		"\2\2\29:\7\16\2\2:;\7\13\2\2;<\5\f\7\2<\13\3\2\2\2=A\5\20\t\2>@\5\16\b"+
-		"\2?>\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2\2\2B\r\3\2\2\2CA\3\2\2\2DE\7\r"+
-		"\2\2EF\5\20\t\2F\17\3\2\2\2GK\5\24\13\2HJ\5\22\n\2IH\3\2\2\2JM\3\2\2\2"+
-		"KI\3\2\2\2KL\3\2\2\2L\21\3\2\2\2MK\3\2\2\2NO\7\f\2\2OP\7\16\2\2P\23\3"+
-		"\2\2\2QX\5\26\f\2RX\5\30\r\2SX\5\32\16\2TX\5\34\17\2UX\5 \21\2VX\5\"\22"+
-		"\2WQ\3\2\2\2WR\3\2\2\2WS\3\2\2\2WT\3\2\2\2WU\3\2\2\2WV\3\2\2\2X\25\3\2"+
-		"\2\2YZ\7\17\2\2Z\27\3\2\2\2[\\\7\20\2\2\\\31\3\2\2\2]^\7\16\2\2^\33\3"+
-		"\2\2\2_a\7\t\2\2`b\5\36\20\2a`\3\2\2\2ab\3\2\2\2bc\3\2\2\2cd\5\2\2\2d"+
-		"e\7\n\2\2e\35\3\2\2\2fh\7\16\2\2gf\3\2\2\2hi\3\2\2\2ig\3\2\2\2ij\3\2\2"+
-		"\2jk\3\2\2\2kl\7\6\2\2l\37\3\2\2\2mn\7\7\2\2no\5\4\3\2op\7\b\2\2p!\3\2"+
-		"\2\2qr\7\3\2\2r#\3\2\2\2\n\',\66AKWai";
+		"\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23"+
+		"\t\23\3\2\7\2(\n\2\f\2\16\2+\13\2\3\3\3\3\5\3/\n\3\3\4\3\4\3\4\3\4\3\5"+
+		"\3\5\7\5\67\n\5\f\5\16\5:\13\5\3\6\3\6\3\6\3\6\3\7\3\7\7\7B\n\7\f\7\16"+
+		"\7E\13\7\3\b\3\b\3\b\3\t\3\t\7\tL\n\t\f\t\16\tO\13\t\3\n\3\n\3\n\3\13"+
+		"\3\13\3\13\3\13\3\13\3\13\3\13\5\13[\n\13\3\f\3\f\3\r\3\r\3\16\3\16\3"+
+		"\17\3\17\5\17e\n\17\3\17\3\17\3\17\3\20\6\20k\n\20\r\20\16\20l\3\20\3"+
+		"\20\3\21\3\21\3\21\3\21\3\22\3\22\3\23\3\23\3\23\2\24\2\4\6\b\n\f\16\20"+
+		"\22\24\26\30\32\34\36 \"$\2\3\3\2\5\6s\2)\3\2\2\2\4.\3\2\2\2\6\60\3\2"+
+		"\2\2\b\64\3\2\2\2\n;\3\2\2\2\f?\3\2\2\2\16F\3\2\2\2\20I\3\2\2\2\22P\3"+
+		"\2\2\2\24Z\3\2\2\2\26\\\3\2\2\2\30^\3\2\2\2\32`\3\2\2\2\34b\3\2\2\2\36"+
+		"j\3\2\2\2 p\3\2\2\2\"t\3\2\2\2$v\3\2\2\2&(\5\4\3\2\'&\3\2\2\2(+\3\2\2"+
+		"\2)\'\3\2\2\2)*\3\2\2\2*\3\3\2\2\2+)\3\2\2\2,/\5\6\4\2-/\5\b\5\2.,\3\2"+
+		"\2\2.-\3\2\2\2/\5\3\2\2\2\60\61\7\17\2\2\61\62\t\2\2\2\62\63\5\4\3\2\63"+
+		"\7\3\2\2\2\648\5\f\7\2\65\67\5\n\6\2\66\65\3\2\2\2\67:\3\2\2\28\66\3\2"+
+		"\2\289\3\2\2\29\t\3\2\2\2:8\3\2\2\2;<\7\17\2\2<=\7\f\2\2=>\5\f\7\2>\13"+
+		"\3\2\2\2?C\5\20\t\2@B\5\16\b\2A@\3\2\2\2BE\3\2\2\2CA\3\2\2\2CD\3\2\2\2"+
+		"D\r\3\2\2\2EC\3\2\2\2FG\7\16\2\2GH\5\20\t\2H\17\3\2\2\2IM\5\24\13\2JL"+
+		"\5\22\n\2KJ\3\2\2\2LO\3\2\2\2MK\3\2\2\2MN\3\2\2\2N\21\3\2\2\2OM\3\2\2"+
+		"\2PQ\7\r\2\2QR\7\17\2\2R\23\3\2\2\2S[\5\26\f\2T[\5\30\r\2U[\5\32\16\2"+
+		"V[\5\34\17\2W[\5 \21\2X[\5\"\22\2Y[\5$\23\2ZS\3\2\2\2ZT\3\2\2\2ZU\3\2"+
+		"\2\2ZV\3\2\2\2ZW\3\2\2\2ZX\3\2\2\2ZY\3\2\2\2[\25\3\2\2\2\\]\7\20\2\2]"+
+		"\27\3\2\2\2^_\7\21\2\2_\31\3\2\2\2`a\7\17\2\2a\33\3\2\2\2bd\7\n\2\2ce"+
+		"\5\36\20\2dc\3\2\2\2de\3\2\2\2ef\3\2\2\2fg\5\2\2\2gh\7\13\2\2h\35\3\2"+
+		"\2\2ik\7\17\2\2ji\3\2\2\2kl\3\2\2\2lj\3\2\2\2lm\3\2\2\2mn\3\2\2\2no\7"+
+		"\7\2\2o\37\3\2\2\2pq\7\b\2\2qr\5\4\3\2rs\7\t\2\2s!\3\2\2\2tu\7\3\2\2u"+
+		"#\3\2\2\2vw\7\4\2\2w%\3\2\2\2\n).8CMZdl";
 	public static final ATN _ATN =
 		ATNSimulator.deserialize(_serializedATN.toCharArray());
 	static {

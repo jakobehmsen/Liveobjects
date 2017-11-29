@@ -33,4 +33,8 @@ public interface Frame {
     public void allocate(int localCount);
     
     public void handlePrimitiveError(Environment environment, LObject error);
+    
+    public void resumeWith(Environment environment, LObject result);
+
+    public void loadContext();
 }

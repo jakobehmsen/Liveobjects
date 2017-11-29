@@ -169,6 +169,11 @@ public class Parser {
             public Compiler visitSelf(langParser.SelfContext ctx) {
                 return compileCtx -> Expressions.self();
             }
+
+            @Override
+            public Compiler visitThisContext(langParser.ThisContextContext ctx) {
+                return compileCtx -> Expressions.thisContext();
+            }
         });
     }
 }

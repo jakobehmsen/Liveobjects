@@ -62,6 +62,20 @@ public class Expressions {
         };
     }
     
+    public static Expression thisContext() {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        instructions.add(Instructions.loadContext());
+                    }
+                };
+            }
+        };
+    }
+    
     public static Expression setSlot(final Expression target, final String symbol, final Expression value) {
         return messageSend(target, PrimitiveSelectors.SET_SLOT_SELECTOR, Arrays.asList(Expressions.string(symbol), value));
     }

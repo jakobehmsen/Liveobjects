@@ -31,6 +31,35 @@ public class Instructions {
         }
     };
     
+    public static class LoadContext implements Instruction {
+        public static InstructionDescriptor descriptor = new InstructionDescriptor() {
+            @Override
+            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+                
+            }
+
+            @Override
+            public Instruction readInstruction(InputStream inputStream) throws IOException {
+                return new LoadContext();
+            }
+        };
+        
+        @Override
+        public void execute(Environment environment) {
+            environment.currentFrame().loadContext();
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return descriptor;
+        }
+    }
+
+    public static Instruction loadContext() {
+        return new LoadContext();
+    }
+    
     public static class Dup implements Instruction {
         @Override
         public void execute(Environment environment) {
@@ -430,9 +459,8 @@ public class Instructions {
         @Override
         public void execute(Environment environment) {
             Frame sender = environment.currentFrame().sender();
-            sender.load(environment.currentFrame().pop());
-            sender.incIP();
-            environment.currentFrame(sender);
+            LObject result = environment.currentFrame().pop();
+            sender.resumeWith(environment, result);
         }
 
         @Override

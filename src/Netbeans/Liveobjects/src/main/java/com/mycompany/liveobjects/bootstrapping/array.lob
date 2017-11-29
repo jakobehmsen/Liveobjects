@@ -1,0 +1,11 @@
+Array := self.clone
+Array.setSlot: "at:put:" to: [anIndex anObject|
+    self setSlot: anIndex to: anObject
+]
+Array.setSlot: "at:" to: [anIndex|
+    self getSlot: anIndex
+]
+Array.setSlot: "ofLength:" to: [anInteger|
+    array := self.clone
+    array setSlot: "length" to: anInteger
+]

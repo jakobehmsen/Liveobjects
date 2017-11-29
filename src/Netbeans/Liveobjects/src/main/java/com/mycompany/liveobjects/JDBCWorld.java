@@ -8,17 +8,19 @@ public class JDBCWorld implements World {
     private Connection connection;
     private int rootObjectId;
     private int integerPrototypeId;
+    private int framePrototypeId;
     private Hashtable<Integer, LObject> objectCache;
 
     public JDBCWorld(Connection connection, InstructionSet instructionSet) {
-        this(connection, instructionSet, 1, 2);
+        this(connection, instructionSet, 1, 2, 3);
     }
 
-    public JDBCWorld(Connection connection, InstructionSet instructionSet, int rootObjectId, int integerPrototypeId) {
+    public JDBCWorld(Connection connection, InstructionSet instructionSet, int rootObjectId, int integerPrototypeId, int framePrototypeId) {
         this.connection = connection;
         this.instructionSet = instructionSet;
         this.rootObjectId = rootObjectId;
         this.integerPrototypeId = integerPrototypeId;
+        this.framePrototypeId = framePrototypeId;
         objectCache = new Hashtable<>();
     }
     
@@ -40,5 +42,10 @@ public class JDBCWorld implements World {
     @Override
     public LObject getIntegerPrototype() {
         return getObjectLoader().load(integerPrototypeId);
+    }
+
+    @Override
+    public LObject getFramePrototype() {
+        return getObjectLoader().load(framePrototypeId);
     }
 }

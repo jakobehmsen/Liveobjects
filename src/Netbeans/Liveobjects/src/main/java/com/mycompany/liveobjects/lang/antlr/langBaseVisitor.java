@@ -1,4 +1,4 @@
-// Generated from /home/jakob/github/ideas/classpoolmod/src/NetBeans/liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
+// Generated from /home/jakob/github/Liveobjects/src/Netbeans/Liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
 package com.mycompany.liveobjects.lang.antlr;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -91,6 +91,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitExpression3(@NotNull langParser.Expression3Context ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitThisContext(@NotNull langParser.ThisContextContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

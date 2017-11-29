@@ -2,7 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.Stack;
 
-public class DefaultFrame implements Frame {
+public class DefaultFrame implements Frame, LObject {
     private DefaultFrame sender;
     private Instruction[] instructions;
     private int ip;
@@ -99,5 +99,63 @@ public class DefaultFrame implements Frame {
     @Override
     public void handlePrimitiveError(Environment environment, LObject error) {
         throw new PrimitiveErrorException(error);
+    }
+
+    @Override
+    public void resumeWith(Environment environment, LObject result) {
+        load(result);
+        incIP();
+        environment.currentFrame(this);
+    }
+
+    @Override
+    public void loadContext() {
+        load(this);
+    }
+
+    @Override
+    public void send(int selector, LObject[] arguments, Environment environment) {
+        Block behavior = (Block)resolve(selector, environment);
+        behavior.evaluate(this, arguments, environment);
+    }
+
+    @Override
+    public void deleteSlotValue(ObjectSlotTransaction slotTransaction) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setSlotValue(ObjectSlotTransaction slotTransaction) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void addSlot(ObjectSlotTransaction slotTransaction) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateSlot(ObjectSlotTransaction slotTransaction) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public LObject cloneObject(Environment environment) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void nowUsedFrom(int id, Environment environment) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void nowUnusedFrom(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public LObject resolve(int selector, Environment environment) {
+        return environment.getWorld().getFramePrototype().resolve(selector, environment);
     }
 }

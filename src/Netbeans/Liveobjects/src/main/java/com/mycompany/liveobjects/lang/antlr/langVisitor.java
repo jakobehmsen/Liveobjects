@@ -1,4 +1,4 @@
-// Generated from /home/jakob/github/ideas/classpoolmod/src/NetBeans/liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
+// Generated from /home/jakob/github/Liveobjects/src/Netbeans/Liveobjects/src/main/java/com/mycompany/liveobjects/lang/antlr/lang.g4 by ANTLR 4.1
 package com.mycompany.liveobjects.lang.antlr;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -80,6 +80,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpression3(@NotNull langParser.Expression3Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#thisContext}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisContext(@NotNull langParser.ThisContextContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#expression1}.

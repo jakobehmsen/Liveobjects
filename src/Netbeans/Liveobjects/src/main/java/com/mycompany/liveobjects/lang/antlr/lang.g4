@@ -10,7 +10,7 @@ binaryMessage       : BIN_OP expression3;
 expression3         : expression4 unaryMessage*;
 unaryMessage        : DOT ID;
 expression4         : number | string | identifier | block | 
-                      embeddedExpression | self;
+                      embeddedExpression | self | thisContext;
 number              : NUMBER;
 string              : STRING;
 identifier          : ID;
@@ -18,8 +18,10 @@ block               : OPEN_SQ blockParams? expressions CLOSE_SQ;
 blockParams         : ID+ PIPE;
 embeddedExpression  : OPEN_PAR expression CLOSE_PAR;
 self                : KW_SELF;
+thisContext         : KW_THIS_CONTEXT;
 
 KW_SELF: 'self';
+KW_THIS_CONTEXT: 'thisContext';
 SELF_ASSIGN: ':=';
 FRAME_ASSIGN: '=';
 PIPE: '|';
