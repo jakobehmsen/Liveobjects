@@ -12,6 +12,7 @@ package com.mycompany.liveobjects;
 public interface Environment {
     Frame currentFrame();
     void pushFrame(Instruction[] instructions);
+    void pushFrame(Instruction[] instructions, Frame sender);
     void popFrame();
 
     void finish();

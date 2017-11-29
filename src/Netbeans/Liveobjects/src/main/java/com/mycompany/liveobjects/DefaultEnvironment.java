@@ -28,6 +28,11 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    public void pushFrame(Instruction[] instructions, Frame sender) {
+        currentFrame = new DefaultFrame(sender, instructions);
+    }
+
+    @Override
     public void popFrame() {
         currentFrame = (DefaultFrame) currentFrame.sender();
     }

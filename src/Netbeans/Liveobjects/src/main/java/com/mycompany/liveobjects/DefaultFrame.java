@@ -3,12 +3,12 @@ package com.mycompany.liveobjects;
 import java.util.Stack;
 
 public class DefaultFrame implements Frame, LObject {
-    private DefaultFrame sender;
+    private Frame sender;
     private Instruction[] instructions;
     private int ip;
     private Stack<LObject> stack = new Stack<>();
 
-    public DefaultFrame(DefaultFrame sender, Instruction[] instructions) {
+    public DefaultFrame(Frame sender, Instruction[] instructions) {
         this.sender = sender;
         this.instructions = instructions;
     }

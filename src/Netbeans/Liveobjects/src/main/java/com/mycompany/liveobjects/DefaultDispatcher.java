@@ -19,6 +19,12 @@ public class DefaultDispatcher implements Dispatcher {
             Block blockReceiver = (Block)receiver;
             blockReceiver.evaluate(receiverArg, new LObject[0], environment);
         });
+        addPrimitive("evaluateAs:from:", (receiver, arguments, environment) -> {
+            LObject receiverArg = arguments[1];
+            LObject senderArg = arguments[0];
+            Block blockReceiver = (Block)receiver;
+            blockReceiver.evaluate(receiverArg, new LObject[0], environment, (Frame) senderArg);
+        });
         addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
             LObject result = arguments[0];
             ((DefaultFrame)receiver).resumeWith(environment, result);

@@ -72,6 +72,15 @@ public class Block implements LObject {
         environment.currentFrame().allocate(varCount);
     }
 
+    public void evaluate(LObject receiver, LObject[] arguments, Environment environment, Frame sender) {
+        environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]), sender);
+        environment.currentFrame().load(receiver);
+        for (LObject argument : arguments) {
+            environment.currentFrame().load(argument);
+        }
+        environment.currentFrame().allocate(varCount);
+    }
+
     @Override
     public LObject resolve(int selector, Environment environment) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
