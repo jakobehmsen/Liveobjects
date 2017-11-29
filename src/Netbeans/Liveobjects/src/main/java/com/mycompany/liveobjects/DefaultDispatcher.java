@@ -19,6 +19,10 @@ public class DefaultDispatcher implements Dispatcher {
             Block blockReceiver = (Block)receiver;
             blockReceiver.evaluate(receiverArg, new LObject[0], environment);
         });
+        addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
+            LObject result = arguments[0];
+            ((DefaultFrame)receiver).resumeWith(environment, result);
+        });
         addPrimitive("getSlot:", (receiver, arguments, environment) -> {
             LObject value = receiver.getSlot(environment, arguments);
             environment.currentFrame().load(value);
