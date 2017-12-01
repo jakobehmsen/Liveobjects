@@ -458,9 +458,9 @@ public class Instructions {
     public static class RetInstruction implements Instruction {
         @Override
         public void execute(Environment environment) {
-            Frame sender = environment.currentFrame().sender();
+            LObject sender = environment.currentFrame().sender();
             LObject result = environment.currentFrame().pop();
-            sender.resumeWith(environment, result);
+            environment.getDispatcher().sendResumeWithInRet(sender, result, environment);
         }
 
         @Override

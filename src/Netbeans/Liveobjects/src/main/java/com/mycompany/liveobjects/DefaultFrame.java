@@ -3,12 +3,12 @@ package com.mycompany.liveobjects;
 import java.util.Stack;
 
 public class DefaultFrame implements Frame, LObject {
-    private Frame sender;
+    private LObject sender;
     private Instruction[] instructions;
     private int ip;
     private Stack<LObject> stack = new Stack<>();
 
-    public DefaultFrame(Frame sender, Instruction[] instructions) {
+    public DefaultFrame(LObject sender, Instruction[] instructions) {
         this.sender = sender;
         this.instructions = instructions;
     }
@@ -75,7 +75,7 @@ public class DefaultFrame implements Frame, LObject {
     }
 
     @Override
-    public Frame sender() {
+    public LObject sender() {
         return sender;
     }
 

@@ -12,7 +12,7 @@ package com.mycompany.liveobjects;
 public interface Environment {
     Frame currentFrame();
     void pushFrame(Instruction[] instructions);
-    void pushFrame(Instruction[] instructions, Frame sender);
+    void pushFrame(Instruction[] instructions, LObject sender);
     void popFrame();
 
     void finish();
@@ -28,4 +28,6 @@ public interface Environment {
     World getWorld();
 
     public String getSymbolString(int symbolCode);
+
+    public Dispatcher getDispatcher();
 }

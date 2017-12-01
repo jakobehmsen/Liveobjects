@@ -23,16 +23,12 @@ public class DefaultDispatcher implements Dispatcher {
             LObject receiverArg = arguments[1];
             LObject senderArg = arguments[0];
             Block blockReceiver = (Block)receiver;
-            blockReceiver.evaluate(receiverArg, new LObject[0], environment, (Frame) senderArg);
+            blockReceiver.evaluate(receiverArg, new LObject[0], environment, senderArg);
         });
         addPrimitive("sender", (receiver, arguments, environment) -> {
             LObject value = (LObject) ((DefaultFrame)receiver).sender();
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
-        });
-        addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
-            LObject result = arguments[0];
-            ((DefaultFrame)receiver).resumeWith(environment, result);
         });
         addPrimitive("getSlot:", (receiver, arguments, environment) -> {
             LObject value = receiver.getSlot(environment, arguments);
@@ -48,6 +44,21 @@ public class DefaultDispatcher implements Dispatcher {
             LObject value = environment.getWorld().getIntegerPrototype();
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
+        });
+        addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
+            //sendResumeWith(receiver, arguments[0], environment);
+            if(receiver instanceof Frame) {
+                ((Frame)receiver).resumeWith(environment, arguments[0]);
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("resumeWith:"));
+            }
+        });
+        addPrimitive("handlePrimitiveError:at:", (receiver, arguments, environment) -> {
+            if(receiver instanceof Frame) {
+                ((Frame)receiver).handlePrimitiveError(environment, arguments[0]);
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
+            }
         });
         addIntegerBiFunction("addi:", (lhs, rhs) -> lhs + rhs);
         addIntegerBiFunction("subi:", (lhs, rhs) -> lhs - rhs);
@@ -81,9 +92,16 @@ public class DefaultDispatcher implements Dispatcher {
         if(primitive != null) {
             primitive.invoke(receiver, arguments, environment);
         } else {
-            // Could simply resolve the behavior and invoke it
-            receiver.send(selector, arguments, environment);
+            /*// Could simply resolve the behavior and invoke it
+            receiver.send(selector, arguments, environment);*/
+            
+            resolveAndSend(receiver, arguments, environment, selector);
         }
+    }
+    
+    private void resolveAndSend(LObject receiver, LObject[] arguments, Environment environment, int selector) {
+        // Could simply resolve the behavior and invoke it
+        receiver.send(selector, arguments, environment);
     }
 
     @Override
@@ -92,5 +110,18 @@ public class DefaultDispatcher implements Dispatcher {
             String string = primitiveSelectors.get(symbolCode);
             environment.addSymbol(symbolCode, string);
         });
+    }
+
+    @Override
+    public void sendResumeWithInRet(LObject receiver /*Is always sender of current frame*/, LObject result, Environment environment) {
+        if(receiver instanceof Frame) {
+            ((Frame)receiver).resumeWith(environment, result);
+        } else {
+            environment.currentFrame(new DefaultFrame(environment.currentFrame().sender(), new Instruction[] {
+                Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
+                Instructions.finish()
+            }));
+            resolveAndSend(receiver, new LObject[]{result}, environment, environment.getSymbolCode("resumeWith:"));
+        }
     }
 }

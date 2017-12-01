@@ -24,7 +24,7 @@ public interface Frame {
 
     public void replaceInstruction(Instruction instruction);
 
-    public Frame sender();
+    public LObject sender();
 
     public void dup();
 

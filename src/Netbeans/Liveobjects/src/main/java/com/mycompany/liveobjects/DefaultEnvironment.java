@@ -28,7 +28,7 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
-    public void pushFrame(Instruction[] instructions, Frame sender) {
+    public void pushFrame(Instruction[] instructions, LObject sender) {
         currentFrame = new DefaultFrame(sender, instructions);
     }
 
@@ -102,5 +102,10 @@ public class DefaultEnvironment implements Environment {
     @Override
     public String getSymbolString(int symbolCode) {
         return symbolCodeToStringMap.get(symbolCode);
+    }
+
+    @Override
+    public Dispatcher getDispatcher() {
+        return dispatcher;
     }
 }

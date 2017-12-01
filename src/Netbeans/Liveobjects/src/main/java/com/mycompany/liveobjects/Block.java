@@ -72,7 +72,7 @@ public class Block implements LObject {
         environment.currentFrame().allocate(varCount);
     }
 
-    public void evaluate(LObject receiver, LObject[] arguments, Environment environment, Frame sender) {
+    public void evaluate(LObject receiver, LObject[] arguments, Environment environment, LObject sender) {
         environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]), sender);
         environment.currentFrame().load(receiver);
         for (LObject argument : arguments) {
