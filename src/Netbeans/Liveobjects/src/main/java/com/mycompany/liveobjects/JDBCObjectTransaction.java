@@ -770,7 +770,12 @@ public class JDBCObjectTransaction implements ObjectTransaction {
         ensureSlotsRead(environment);
         
         Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(receiver, arguments, environment);
+        if(behavior != null) {
+            behavior.evaluate(receiver, arguments, environment);
+        } else {
+            String symbol = environment.getSymbolString(selector);
+            environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Could not resolve symbol '" + symbol + "'."));
+        }
     }
 
     @Override
@@ -787,8 +792,6 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                 return value;
         }
         
-        // Throw some sort of error?
-        //environment.currentFrame().handlePrimitiveError(environment, value);
         return null;
     }
 
@@ -800,6 +803,8 @@ public class JDBCObjectTransaction implements ObjectTransaction {
 
     private LObject setParentSlot(int symbolCode, LObject parent, Environment environment) {
         //ensureSlotsRead(environment);
+        
+        // Should test that parent isn't child of this
         
         return setSlot(environment, REFERENCE_TYPE_PARENT, symbolCode, parent);
         

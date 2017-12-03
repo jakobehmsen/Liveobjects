@@ -125,7 +125,8 @@ public class DefaultDispatcher implements Dispatcher {
         }
     }
     
-    private void handlePrimitiveError(Environment environment, LObject error) {
+    @Override
+    public void handlePrimitiveError(Environment environment, LObject error) {
         LObject sender = environment.currentFrame().sender();
         if(sender instanceof Frame) {
             ((Frame)sender).handlePrimitiveError(environment, error);
