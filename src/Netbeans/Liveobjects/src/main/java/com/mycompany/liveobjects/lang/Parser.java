@@ -32,7 +32,7 @@ public class Parser {
         
         Compiler expressionCompiler = parse(expressionsCtx);
         
-        return compileCtx -> Expressions.program(expressionCompiler.compile(compileCtx));
+        return compileCtx -> Expressions.ret(expressionCompiler.compile(compileCtx));
     }
 
     private Compiler parse(ParseTree parseCtx) {

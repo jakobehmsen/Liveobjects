@@ -59,8 +59,6 @@ public class Main {
         instructionSet.registerInstruction(13, Instructions.sendDescriptor);
         instructionSet.registerInstruction(14, Instructions.LoadContext.descriptor);
         
-        World world = new JDBCWorld(connection, instructionSet);
-        
         Dispatcher dispatcher = new DefaultDispatcher();
         
         String src2 = 
@@ -84,6 +82,8 @@ public class Main {
         
         srcTextPane.registerKeyboardAction(e -> {
             try {
+                World world = new JDBCWorld(connection, instructionSet);
+                
                 String src = srcTextPane.getText();
                 DefaultCompileContext compileContext = new DefaultCompileContext();
                 compileContext.declareLocal("self");
@@ -92,8 +92,11 @@ public class Main {
                 ArrayList<Instruction> instructions = new ArrayList<>();
                 expression.compile(new DefaultExpressionCompileContext(), true).emit(instructions);
                 
-                DefaultEnvironment environment = new DefaultEnvironment(world, dispatcher,
-                        instructions.toArray(new Instruction[instructions.size()]));
+                DefaultEnvironment environment = new DefaultEnvironment(world, dispatcher, new Instruction[] {
+                    Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
+                    Instructions.finish()
+                });
+                environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
                 environment.currentFrame().load(world.getRoot());
                 environment.currentFrame().allocate(compileContext.localCount() - 1);
                 
