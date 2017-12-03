@@ -81,7 +81,7 @@ public class DefaultDispatcher implements Dispatcher {
                 environment.currentFrame().loadInteger(value);
                 environment.currentFrame().incIP();
             } else {
-                environment.currentFrame().handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));
+                handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));
             }
         });
     }
@@ -122,6 +122,19 @@ public class DefaultDispatcher implements Dispatcher {
                 Instructions.finish()
             }));
             resolveAndSend(receiver, new LObject[]{result}, environment, environment.getSymbolCode("resumeWith:"));
+        }
+    }
+    
+    private void handlePrimitiveError(Environment environment, LObject error) {
+        LObject sender = environment.currentFrame().sender();
+        if(sender instanceof Frame) {
+            ((Frame)sender).handlePrimitiveError(environment, error);
+        } else {
+            environment.currentFrame(new DefaultFrame(environment.currentFrame().sender(), new Instruction[] {
+                Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
+                Instructions.finish()
+            }));
+            resolveAndSend(sender, new LObject[]{error, (LObject)environment.currentFrame()}, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
         }
     }
 }
