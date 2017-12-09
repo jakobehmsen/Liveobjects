@@ -12,27 +12,6 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link langParser#blockParams}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBlockParams(@NotNull langParser.BlockParamsContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#identifier}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIdentifier(@NotNull langParser.IdentifierContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression(@NotNull langParser.ExpressionContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link langParser#string}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -40,25 +19,11 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitString(@NotNull langParser.StringContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link langParser#assignment}.
+	 * Visit a parse tree produced by {@link langParser#kwSelector}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAssignment(@NotNull langParser.AssignmentContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#expression4}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression4(@NotNull langParser.Expression4Context ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#expression2}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression2(@NotNull langParser.Expression2Context ctx);
+	T visitKwSelector(@NotNull langParser.KwSelectorContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#unaryMessage}.
@@ -68,39 +33,11 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitUnaryMessage(@NotNull langParser.UnaryMessageContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link langParser#expressions}.
+	 * Visit a parse tree produced by {@link langParser#binarySelector}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpressions(@NotNull langParser.ExpressionsContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#expression3}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression3(@NotNull langParser.Expression3Context ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#thisContext}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitThisContext(@NotNull langParser.ThisContextContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#expression1}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression1(@NotNull langParser.Expression1Context ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#binaryMessage}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBinaryMessage(@NotNull langParser.BinaryMessageContext ctx);
+	T visitBinarySelector(@NotNull langParser.BinarySelectorContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#number}.
@@ -124,11 +61,11 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitEmbeddedExpression(@NotNull langParser.EmbeddedExpressionContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link langParser#self}.
+	 * Visit a parse tree produced by {@link langParser#behaviorSelector}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSelf(@NotNull langParser.SelfContext ctx);
+	T visitBehaviorSelector(@NotNull langParser.BehaviorSelectorContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#block}.
@@ -136,4 +73,130 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlock(@NotNull langParser.BlockContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#behaviorBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBehaviorBody(@NotNull langParser.BehaviorBodyContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#blockParams}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlockParams(@NotNull langParser.BlockParamsContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#identifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentifier(@NotNull langParser.IdentifierContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression(@NotNull langParser.ExpressionContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#unarySelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnarySelector(@NotNull langParser.UnarySelectorContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#assignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssignment(@NotNull langParser.AssignmentContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#kwSelectorParam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKwSelectorParam(@NotNull langParser.KwSelectorParamContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#behaviorAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBehaviorAssignment(@NotNull langParser.BehaviorAssignmentContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expression4}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression4(@NotNull langParser.Expression4Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expression2}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression2(@NotNull langParser.Expression2Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expressions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressions(@NotNull langParser.ExpressionsContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expression3}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression3(@NotNull langParser.Expression3Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#kwSelectorKW}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKwSelectorKW(@NotNull langParser.KwSelectorKWContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#thisContext}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitThisContext(@NotNull langParser.ThisContextContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#simpleAssignment}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimpleAssignment(@NotNull langParser.SimpleAssignmentContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#expression1}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression1(@NotNull langParser.Expression1Context ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#binaryMessage}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryMessage(@NotNull langParser.BinaryMessageContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#self}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSelf(@NotNull langParser.SelfContext ctx);
 }

@@ -12,6 +12,7 @@ import com.mycompany.liveobjects.lang.antlr.langLexer;
 import com.mycompany.liveobjects.lang.antlr.langParser;
 import com.mycompany.liveobjects.lang.antlr.langParser.ExpressionsContext;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,7 +46,7 @@ public class Parser {
             }
             
             @Override
-            public Compiler visitAssignment(langParser.AssignmentContext ctx) {
+            public Compiler visitSimpleAssignment(langParser.SimpleAssignmentContext ctx) {
                 String id = ctx.ID().getText();
                 String operator = ctx.op.getText();
                 Compiler valueCompiler = parse(ctx.expression());
@@ -64,6 +65,74 @@ public class Parser {
                             return Expressions.setSlot(Expressions.self(), id, valueExpression);
                         }
                     }
+                };
+            }
+
+            @Override
+            public Compiler visitBehaviorAssignment(langParser.BehaviorAssignmentContext ctx) {
+                MessageProtocol messageProtocol = ctx.selector.accept(new langBaseVisitor<MessageProtocol>() {
+                    @Override
+                    public MessageProtocol visitKwSelector(langParser.KwSelectorContext ctx) {
+                        String selector = ctx.kwSelectorKW().stream().map(kw -> kw.getText()).collect(Collectors.joining());
+                        List<String> parameters = ctx.kwSelectorParam().stream().map(p -> p.getText()).collect(Collectors.toList());
+                        
+                        return new MessageProtocol() {
+                            @Override
+                            public String getSelector() {
+                                return selector;
+                            }
+
+                            @Override
+                            public List<String> getParameters() {
+                                return parameters;
+                            }
+                        };
+                    }
+
+                    @Override
+                    public MessageProtocol visitUnarySelector(langParser.UnarySelectorContext ctx) {
+                        String selector = ctx.ID().getText();
+                        
+                        return new MessageProtocol() {
+                            @Override
+                            public String getSelector() {
+                                return selector;
+                            }
+
+                            @Override
+                            public List<String> getParameters() {
+                                return Collections.emptyList();
+                            }
+                        };
+                    }
+
+                    @Override
+                    public MessageProtocol visitBinarySelector(langParser.BinarySelectorContext ctx) {
+                        String selector = ctx.BIN_OP().getText();
+                        List<String> parameters = Arrays.asList(ctx.ID().getText());
+                        
+                        return new MessageProtocol() {
+                            @Override
+                            public String getSelector() {
+                                return selector;
+                            }
+
+                            @Override
+                            public List<String> getParameters() {
+                                return parameters;
+                            }
+                        };
+                    }
+                });
+                
+                Compiler bodyCompiler = parse(ctx.behaviorBody());
+                
+                return compileCtx -> {
+                    List<String> locals = Stream.concat(Arrays.asList("self").stream(), messageProtocol.getParameters().stream()).collect(Collectors.toList());
+                    CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals);
+                    Expression bodyExpression = Expressions.ret(bodyCompiler.compile(behaviorCompilerCtx));
+                    Expression blockExpression = Expressions.block(messageProtocol.getParameters().size(), behaviorCompilerCtx.localCount() - messageProtocol.getParameters().size(), bodyExpression);
+                    return Expressions.setSlot(Expressions.self(), messageProtocol.getSelector(), blockExpression);
                 };
             }
 

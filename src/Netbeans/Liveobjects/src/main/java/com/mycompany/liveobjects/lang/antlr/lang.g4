@@ -2,7 +2,16 @@ grammar lang;
 
 expressions         : expression*;
 expression          : assignment | expression1;
-assignment          : ID op=(SELF_ASSIGN | FRAME_ASSIGN) expression;
+assignment          : simpleAssignment | behaviorAssignment;
+simpleAssignment    : ID op=(SELF_ASSIGN | FRAME_ASSIGN) expression;
+behaviorAssignment  : PROTOCOL selector=behaviorSelector behaviorBody;
+behaviorSelector    : kwSelector | unarySelector | binarySelector;
+kwSelector          : (kwSelectorKW kwSelectorParam)+;
+kwSelectorKW        : ID COLON;
+kwSelectorParam     : ID;
+unarySelector       : ID;
+binarySelector      : BIN_OP ID;
+behaviorBody        : expression;
 expression1         : expression2 keyAndArg*;
 keyAndArg           : ID COLON expression2;
 expression2         : expression3 binaryMessage*;
@@ -20,6 +29,7 @@ embeddedExpression  : OPEN_PAR expression CLOSE_PAR;
 self                : KW_SELF;
 thisContext         : KW_THIS_CONTEXT;
 
+PROTOCOL: '§';
 KW_SELF: 'self';
 KW_THIS_CONTEXT: 'thisContext';
 SELF_ASSIGN: ':=';
