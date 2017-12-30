@@ -6,7 +6,6 @@
 package com.mycompany.liveobjects.lang;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -14,7 +13,16 @@ import java.util.List;
  * @author jakob
  */
 public class DefaultCompileContext implements CompileContext {
+    private CompileContext outerContext;
     private ArrayList<String> locals = new ArrayList<>();
+
+    public DefaultCompileContext() {
+        this(null);
+    }
+
+    public DefaultCompileContext(CompileContext outerContext) {
+        this.outerContext = outerContext;
+    }
 
     @Override
     public boolean isLocal(String str) {
@@ -39,11 +47,33 @@ public class DefaultCompileContext implements CompileContext {
     }
 
     @Override
-    public CompileContext newForBlock(List<String> params) {
-        CompileContext compileContext = new DefaultCompileContext();
+    public CompileContext newForBlock(List<String> params, boolean isClosed) {
+        CompileContext compileContext = new DefaultCompileContext(isClosed ? this : null);
         
         params.forEach(x -> compileContext.declareLocal(x));
         
         return compileContext;
+    }
+
+    @Override
+    public int distanceToLocal(String str) {
+        if(isLocal(str)) {
+            return 0;
+        } else if(outerContext != null){
+            return outerContext.distanceToLocal(str) + 1;
+        }
+        
+        return -1;
+    }
+
+    @Override
+    public CompileContext atContext(int distanceToLocal) {
+        if(distanceToLocal == 0) {
+            return this;
+        } else if(outerContext != null){
+            return outerContext.atContext(distanceToLocal - 1);
+        }
+        
+        return null;
     }
 }

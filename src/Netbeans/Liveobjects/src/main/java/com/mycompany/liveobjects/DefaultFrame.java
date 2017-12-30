@@ -7,6 +7,13 @@ public class DefaultFrame implements Frame, LObject {
     private Instruction[] instructions;
     private int ip;
     private Stack<LObject> stack = new Stack<>();
+    private Frame lexicalContext;
+
+    public DefaultFrame(LObject sender, Instruction[] instructions, Frame lexicalContext) {
+        this.sender = sender;
+        this.instructions = instructions;
+        this.lexicalContext = lexicalContext;
+    }
 
     public DefaultFrame(LObject sender, Instruction[] instructions) {
         this.sender = sender;
@@ -157,5 +164,23 @@ public class DefaultFrame implements Frame, LObject {
     @Override
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getFramePrototype().resolve(selector, environment);
+    }
+
+    @Override
+    public LObject getDistant(int contextDistance, int ordinal) {
+        if(contextDistance == 0) {
+            return stack.get(ordinal);
+        } else {
+            return lexicalContext.getDistant(contextDistance - 1, ordinal);
+        }
+    }
+
+    @Override
+    public void setDistant(int contextDistance, int ordinal, LObject value) {
+        if(contextDistance == 0) {
+            stack.set(ordinal, value);
+        } else {
+            lexicalContext.setDistant(contextDistance - 1, ordinal, value);
+        }
     }
 }

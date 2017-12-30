@@ -30,4 +30,6 @@ public interface Environment {
     public String getSymbolString(int symbolCode);
 
     public Dispatcher getDispatcher();
+
+    public void pushFrameClosure(Instruction[] instructions, Frame lexicalContext);
 }

@@ -37,4 +37,8 @@ public interface Frame {
     public void resumeWith(Environment environment, LObject result);
 
     public void loadContext();
+
+    public LObject getDistant(int contextDistance, int ordinal);
+
+    public void setDistant(int contextDistance, int ordinal, LObject value);
 }

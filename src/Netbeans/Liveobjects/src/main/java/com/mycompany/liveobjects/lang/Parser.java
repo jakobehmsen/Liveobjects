@@ -54,16 +54,29 @@ public class Parser {
                 return compileCtx -> {
                     Expression valueExpression = valueCompiler.compile(compileCtx);
                     if(operator.equals("=")) {
-                        compileCtx.declareLocal(id);
-                        int ordinal = compileCtx.getLocalOrdinal(id);
-                        return Expressions.setLocal(ordinal, valueExpression);
-                    } else {
-                        if(compileCtx.isLocal(id)) {
+                        int distanceToLocal = compileCtx.distanceToLocal(id);
+                        if(distanceToLocal != -1) {
+                            int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);
+                            return Expressions.setLocal(distanceToLocal, ordinal, valueExpression);
+                        } else {
+                            compileCtx.declareLocal(id);
                             int ordinal = compileCtx.getLocalOrdinal(id);
-                            return Expressions.setLocal(ordinal, valueExpression);
+                            return Expressions.setLocal(0, ordinal, valueExpression);
+                        }
+                        
+                        /*compileCtx.declareLocal(id);
+                        int ordinal = compileCtx.getLocalOrdinal(id);
+                        return Expressions.setLocal(0, ordinal, valueExpression);*/
+                    } else {
+                        /*int distanceToLocal = compileCtx.distanceToLocal(id);
+                        if(distanceToLocal != -1) {
+                            //int ordinal = compileCtx.getLocalOrdinal(id);
+                            int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);
+                            return Expressions.setLocal(distanceToLocal, ordinal, valueExpression);
                         } else {
                             return Expressions.setSlot(Expressions.self(), id, valueExpression);
-                        }
+                        }*/
+                        return Expressions.setSlot(Expressions.self(), id, valueExpression);
                     }
                 };
             }
@@ -129,7 +142,7 @@ public class Parser {
                 
                 return compileCtx -> {
                     List<String> locals = Stream.concat(Arrays.asList("self").stream(), messageProtocol.getParameters().stream()).collect(Collectors.toList());
-                    CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals);
+                    CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals, false);
                     Expression bodyExpression = Expressions.ret(bodyCompiler.compile(behaviorCompilerCtx));
                     Expression blockExpression = Expressions.block(messageProtocol.getParameters().size(), behaviorCompilerCtx.localCount() - messageProtocol.getParameters().size(), bodyExpression);
                     return Expressions.setSlot(Expressions.self(), messageProtocol.getSelector(), blockExpression);
@@ -192,9 +205,10 @@ public class Parser {
                 String id = ctx.ID().getText();
                 
                 return compileCtx -> {
-                    if(compileCtx.isLocal(id)) {
-                        int ordinal = compileCtx.getLocalOrdinal(id);
-                        return Expressions.getLocal(ordinal);
+                    int distanceToLocal = compileCtx.distanceToLocal(id);
+                    if(distanceToLocal != -1) {
+                        int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);
+                        return Expressions.getLocal(distanceToLocal, ordinal);
                     } else {
                         return Expressions.getSlot(Expressions.self(), id);
                     }
@@ -220,12 +234,13 @@ public class Parser {
             public Compiler visitBlock(langParser.BlockContext ctx) {
                 Compiler bodyCompiler = parse(ctx.expressions());
                 List<String> params = ctx.blockParams() != null ? ctx.blockParams().ID().stream().map(x -> x.getText()).collect(Collectors.toList()) : Arrays.asList();
-                List<String> locals = Stream.concat(Arrays.asList("self").stream(), params.stream()).collect(Collectors.toList());
+                List<String> locals = params;//Stream.concat(Arrays.asList("self").stream(), params.stream()).collect(Collectors.toList());
                 return compileCtx -> {
-                    CompileContext bodyCompileContext = compileCtx.newForBlock(locals);
+                    CompileContext bodyCompileContext = compileCtx.newForBlock(locals, true);
                     Expression bodyExpression = bodyCompiler.compile(bodyCompileContext);
                     bodyExpression = Expressions.ret(bodyExpression);
-                    return Expressions.block(params.size(), bodyCompileContext.localCount() - params.size(), bodyExpression);
+                    Expression blockExpression = Expressions.block(params.size(), bodyCompileContext.localCount() - params.size(), bodyExpression);
+                    return Expressions.closure(blockExpression);
                 };
             }
 
@@ -236,7 +251,16 @@ public class Parser {
 
             @Override
             public Compiler visitSelf(langParser.SelfContext ctx) {
-                return compileCtx -> Expressions.self();
+                return compileCtx -> {
+                    String selfId = "self";
+                    int distanceToLocal = compileCtx.distanceToLocal(selfId);
+                    if(distanceToLocal != -1) {
+                        int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(selfId);
+                        return Expressions.getLocal(distanceToLocal, ordinal);
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
+                };
             }
 
             @Override

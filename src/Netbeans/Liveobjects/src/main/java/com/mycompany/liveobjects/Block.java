@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author jakob
  */
-public class Block implements LObject {
+public class Block implements LObject, Behavior {
     private int arity;
     private int varCount;
     private List<Instruction> instructions;
@@ -61,6 +61,20 @@ public class Block implements LObject {
     @Override
     public void nowUnusedFrom(int id) {
         
+    }
+
+    @Override
+    public void invoke(LObject receiver, LObject[] arguments, Environment environment) {
+        evaluate(receiver, arguments, environment);
+    }
+
+    public void evaluateAsClosure(LObject receiver, LObject[] arguments, Environment environment, Frame lexicalContext) {
+        environment.pushFrameClosure(instructions.toArray(new Instruction[instructions.size()]), lexicalContext);
+        //environment.currentFrame().load(receiver);
+        for (LObject argument : arguments) {
+            environment.currentFrame().load(argument);
+        }
+        environment.currentFrame().allocate(varCount);
     }
 
     public void evaluate(LObject receiver, LObject[] arguments, Environment environment) {

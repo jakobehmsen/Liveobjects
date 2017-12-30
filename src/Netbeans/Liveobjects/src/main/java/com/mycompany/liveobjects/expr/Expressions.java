@@ -121,14 +121,18 @@ public class Expressions {
         };
     }
 
-    public static Expression getLocal(final int ordinal) {
+    public static Expression getLocal(int contextDistance, final int ordinal) {
         return new Expression() {
             @Override
             public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadLocal(ordinal));
+                        if(contextDistance == 0) {
+                            instructions.add(Instructions.loadLocal(ordinal));
+                        } else {
+                            instructions.add(Instructions.loadContextLocal(contextDistance, ordinal));
+                        }
                     }
                 };
             }
@@ -158,7 +162,7 @@ public class Expressions {
         };
     }
 
-    public static Expression setLocal(int ordinal, Expression valueExpression) {
+    public static Expression setLocal(int contextDistance, int ordinal, Expression valueExpression) {
         return new Expression() {
             @Override
             public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
@@ -171,7 +175,12 @@ public class Expressions {
                         if(asExpression) {
                             instructions.add(Instructions.dup());
                         }
-                        instructions.add(Instructions.storeLocal(ordinal));
+                            
+                        if(contextDistance == 0) {
+                            instructions.add(Instructions.storeLocal(ordinal));
+                        } else {
+                            instructions.add(Instructions.storeDistant(contextDistance, ordinal));
+                        }
                     }
                 };
             }
@@ -209,6 +218,27 @@ public class Expressions {
                     public void emit(List<Instruction> instructions) {
                         valueEmitter.emit(instructions);
                         instructions.add(Instructions.ret());
+                    }
+                };
+            }
+        };
+    }
+
+    public static Expression closure(Expression blockExpression) {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                Emitter blockEmitter = blockExpression.compile(ctx, true);
+                
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        blockEmitter.emit(instructions);
+                        instructions.add(Instructions.closure());
+                        
+                        if(!asExpression) {
+                            instructions.add(Instructions.pop());
+                        }
                     }
                 };
             }

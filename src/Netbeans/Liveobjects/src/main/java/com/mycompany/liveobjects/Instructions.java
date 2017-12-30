@@ -18,6 +18,124 @@ import java.util.List;
  * @author jakob
  */
 public class Instructions {
+    public static InstructionDescriptor closureDescriptor = new InstructionDescriptor() {
+        @Override
+        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+            
+        }
+
+        @Override
+        public Instruction readInstruction(InputStream inputStream) throws IOException {
+            return new Closure();
+        }
+    };
+    
+    private static class Closure implements Instruction {
+        @Override
+        public void execute(Environment environment) {
+            Block block = (Block) environment.currentFrame().pop();
+            Frame frame = environment.currentFrame();
+            com.mycompany.liveobjects.Closure closure = new com.mycompany.liveobjects.Closure(frame, block);
+            environment.currentFrame().load(closure);
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return closureDescriptor;
+        }
+    }
+
+    public static Instruction closure() {
+        return new Closure();
+    }
+    
+    public static InstructionDescriptor storeContextLocalDescriptor = new InstructionDescriptor() {
+        @Override
+        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeInt(((StoreContextLocal)instruction).contextDistance);
+            dataOutputStream.writeInt(((StoreContextLocal)instruction).ordinal);
+        }
+
+        @Override
+        public Instruction readInstruction(InputStream inputStream) throws IOException {
+            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            int contextDistance = dataInputStream.readInt();
+            int ordinal = dataInputStream.readInt();
+            return new StoreContextLocal(contextDistance, ordinal);
+        }
+    };
+    
+    private static class StoreContextLocal implements Instruction {
+        private int contextDistance;
+        private int ordinal;
+
+        public StoreContextLocal(int contextDistance, int ordinal) {
+            this.contextDistance = contextDistance;
+            this.ordinal = ordinal;
+        }
+        
+        @Override
+        public void execute(Environment environment) {
+            LObject distantValue = environment.currentFrame().pop();
+            environment.currentFrame().setDistant(contextDistance, ordinal, distantValue);
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return storeContextLocalDescriptor;
+        }
+    }
+
+    public static Instruction storeDistant(int contextDistance, int ordinal) {
+        return new StoreContextLocal(contextDistance, ordinal);
+    }
+    
+    public static InstructionDescriptor loadContextLocalDescriptor = new InstructionDescriptor() {
+        @Override
+        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeInt(((LoadContextLocal)instruction).contextDistance);
+            dataOutputStream.writeInt(((LoadContextLocal)instruction).ordinal);
+        }
+
+        @Override
+        public Instruction readInstruction(InputStream inputStream) throws IOException {
+            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            int contextDistance = dataInputStream.readInt();
+            int ordinal = dataInputStream.readInt();
+            return new LoadContextLocal(contextDistance, ordinal);
+        }
+    };
+    
+    private static class LoadContextLocal implements Instruction {
+        private int contextDistance;
+        private int ordinal;
+
+        public LoadContextLocal(int contextDistance, int ordinal) {
+            this.contextDistance = contextDistance;
+            this.ordinal = ordinal;
+        }
+        
+        @Override
+        public void execute(Environment environment) {
+            LObject distantValue = environment.currentFrame().getDistant(contextDistance, ordinal);
+            environment.currentFrame().load(distantValue);
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return loadContextLocalDescriptor;
+        }
+    }
+
+    public static Instruction loadContextLocal(int contextDistance, int ordinal) {
+        return new LoadContextLocal(contextDistance, ordinal);
+    }
+    
     public static InstructionDescriptor loadLocalDescriptor = new InstructionDescriptor() {
         @Override
         public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {

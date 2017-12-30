@@ -33,6 +33,11 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
+    public void pushFrameClosure(Instruction[] instructions, Frame lexicalContext) {
+        currentFrame = new DefaultFrame(currentFrame, instructions, lexicalContext);
+    }
+
+    @Override
     public void popFrame() {
         currentFrame = (DefaultFrame) currentFrame.sender();
     }
