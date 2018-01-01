@@ -18,13 +18,17 @@ public class Closure implements LObject, Behavior {
         this.block = block;
     }
     
-    public void evaluate(LObject receiver, LObject[] arguments, Environment environment) {
+    public void evaluateAs(LObject receiver, LObject[] arguments, Environment environment) {
         block.evaluateAsClosure(receiver, arguments, environment, frame);
+    }
+    
+    public void evaluate(LObject[] arguments, Environment environment) {
+        block.evaluateAsClosure(frame.getDistant(0, 0), arguments, environment, frame);
     }
 
     @Override
     public void invoke(LObject receiver, LObject[] arguments, Environment environment) {
-        evaluate(receiver, arguments, environment);
+        evaluateAs(receiver, arguments, environment);
     }
 
     @Override

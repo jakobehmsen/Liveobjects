@@ -19,6 +19,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitString(@NotNull langParser.StringContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link langParser#bool}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBool(@NotNull langParser.BoolContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#kwSelector}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -45,6 +52,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumber(@NotNull langParser.NumberContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#boolTrue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolTrue(@NotNull langParser.BoolTrueContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#keyAndArg}.
@@ -108,6 +122,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUnarySelector(@NotNull langParser.UnarySelectorContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#boolFalse}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolFalse(@NotNull langParser.BoolFalseContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#assignment}.

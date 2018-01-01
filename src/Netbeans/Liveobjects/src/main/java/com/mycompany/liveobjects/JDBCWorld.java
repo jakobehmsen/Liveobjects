@@ -10,19 +10,26 @@ public class JDBCWorld implements World {
     private int integerPrototypeId;
     private int framePrototypeId;
     private int closurePrototypeId;
+    private int trueId;
+    private int falseId;
     private Hashtable<Integer, LObject> objectCache;
 
     public JDBCWorld(Connection connection, InstructionSet instructionSet) {
-        this(connection, instructionSet, 1, 2, 3, 4);
+        this(connection, instructionSet, 1, 2, 3, 4, 5, 6);
     }
 
-    public JDBCWorld(Connection connection, InstructionSet instructionSet, int rootObjectId, int integerPrototypeId, int framePrototypeId, int closurePrototypeId) {
+    public JDBCWorld(Connection connection, InstructionSet instructionSet, 
+            int rootObjectId, int integerPrototypeId, 
+            int framePrototypeId, int closurePrototypeId,
+            int trueId, int falseId) {
         this.connection = connection;
         this.instructionSet = instructionSet;
         this.rootObjectId = rootObjectId;
         this.integerPrototypeId = integerPrototypeId;
         this.framePrototypeId = framePrototypeId;
         this.closurePrototypeId = closurePrototypeId;
+        this.trueId = trueId;
+        this.falseId = falseId;
         objectCache = new Hashtable<>();
     }
     
@@ -54,5 +61,15 @@ public class JDBCWorld implements World {
     @Override
     public LObject getClosurePrototype() {
         return getObjectLoader().load(closurePrototypeId);
+    }
+
+    @Override
+    public LObject getTrue() {
+        return getObjectLoader().load(trueId);
+    }
+
+    @Override
+    public LObject getFalse() {
+        return getObjectLoader().load(falseId);
     }
 }

@@ -244,4 +244,18 @@ public class Expressions {
             }
         };
     }
+    
+    public static Expression bool(boolean value) {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        instructions.add(Instructions.loadBool(value));
+                    }
+                };
+            }
+        };
+    }
 }

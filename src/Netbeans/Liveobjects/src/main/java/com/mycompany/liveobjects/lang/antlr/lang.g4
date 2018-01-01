@@ -19,7 +19,8 @@ binaryMessage       : BIN_OP expression3;
 expression3         : expression4 unaryMessage*;
 unaryMessage        : DOT ID;
 expression4         : number | string | identifier | block | 
-                      embeddedExpression | self | thisContext;
+                      embeddedExpression | self | thisContext |
+                      bool;
 number              : NUMBER;
 string              : STRING;
 identifier          : ID;
@@ -28,9 +29,14 @@ blockParams         : ID+ PIPE;
 embeddedExpression  : OPEN_PAR expression CLOSE_PAR;
 self                : KW_SELF;
 thisContext         : KW_THIS_CONTEXT;
+bool                : boolTrue | boolFalse;
+boolTrue            : KW_TRUE;
+boolFalse           : KW_FALSE;
 
 PROTOCOL: '§';
 KW_SELF: 'self';
+KW_TRUE: 'true';
+KW_FALSE: 'false';
 KW_THIS_CONTEXT: 'thisContext';
 SELF_ASSIGN: ':=';
 FRAME_ASSIGN: '=';

@@ -18,6 +18,45 @@ import java.util.List;
  * @author jakob
  */
 public class Instructions {
+    public static InstructionDescriptor loadBoolDescriptor = new InstructionDescriptor() {
+        @Override
+        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeBoolean(((LoadBool)instruction).value);
+        }
+
+        @Override
+        public Instruction readInstruction(InputStream inputStream) throws IOException {
+            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            boolean value = dataInputStream.readBoolean();
+            return new LoadBool(value);
+        }
+    };
+    
+    private static class LoadBool implements Instruction {
+        private boolean value;
+
+        public LoadBool(boolean value) {
+            this.value = value;
+        }
+
+        @Override
+        public void execute(Environment environment) {
+            LObject bool = value ? environment.getWorld().getTrue() : environment.getWorld().getFalse();
+            environment.currentFrame().load(bool);
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return loadBoolDescriptor;
+        }
+    }
+    
+    public static Instruction loadBool(boolean value) {
+        return new LoadBool(value);
+    }
+    
     public static InstructionDescriptor closureDescriptor = new InstructionDescriptor() {
         @Override
         public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {

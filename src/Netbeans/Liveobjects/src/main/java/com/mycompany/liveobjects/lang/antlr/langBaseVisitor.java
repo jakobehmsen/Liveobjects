@@ -26,6 +26,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitBool(@NotNull langParser.BoolContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitKwSelector(@NotNull langParser.KwSelectorContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -51,6 +59,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitNumber(@NotNull langParser.NumberContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitBoolTrue(@NotNull langParser.BoolTrueContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -123,6 +139,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitUnarySelector(@NotNull langParser.UnarySelectorContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitBoolFalse(@NotNull langParser.BoolFalseContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

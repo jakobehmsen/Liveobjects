@@ -234,7 +234,7 @@ public class Parser {
             public Compiler visitBlock(langParser.BlockContext ctx) {
                 Compiler bodyCompiler = parse(ctx.expressions());
                 List<String> params = ctx.blockParams() != null ? ctx.blockParams().ID().stream().map(x -> x.getText()).collect(Collectors.toList()) : Arrays.asList();
-                List<String> locals = params;//Stream.concat(Arrays.asList("self").stream(), params.stream()).collect(Collectors.toList());
+                List<String> locals = Stream.concat(Arrays.asList("self").stream(), params.stream()).collect(Collectors.toList());
                 return compileCtx -> {
                     CompileContext bodyCompileContext = compileCtx.newForBlock(locals, true);
                     Expression bodyExpression = bodyCompiler.compile(bodyCompileContext);
@@ -266,6 +266,16 @@ public class Parser {
             @Override
             public Compiler visitThisContext(langParser.ThisContextContext ctx) {
                 return compileCtx -> Expressions.thisContext();
+            }
+
+            @Override
+            public Compiler visitBoolTrue(langParser.BoolTrueContext ctx) {
+                return compileCtx -> Expressions.bool(true);
+            }
+
+            @Override
+            public Compiler visitBoolFalse(langParser.BoolFalseContext ctx) {
+                return compileCtx -> Expressions.bool(false);
             }
         });
     }

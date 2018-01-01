@@ -14,6 +14,10 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
+        addPrimitive("evaluate", (receiver, arguments, environment) -> {
+            Closure blockReceiver = (Closure)receiver;
+            blockReceiver.evaluate(new LObject[0], environment);
+        });
         addPrimitive("evaluateAs:", (receiver, arguments, environment) -> {
             LObject receiverArg = arguments[0];
             Behavior blockReceiver = (Behavior)receiver;

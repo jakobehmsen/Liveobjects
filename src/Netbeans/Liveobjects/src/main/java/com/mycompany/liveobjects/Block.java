@@ -70,11 +70,11 @@ public class Block implements LObject, Behavior {
 
     public void evaluateAsClosure(LObject receiver, LObject[] arguments, Environment environment, Frame lexicalContext) {
         environment.pushFrameClosure(instructions.toArray(new Instruction[instructions.size()]), lexicalContext);
-        //environment.currentFrame().load(receiver);
+        environment.currentFrame().load(receiver);
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount);
+        environment.currentFrame().allocate(varCount - 1);
     }
 
     public void evaluate(LObject receiver, LObject[] arguments, Environment environment) {
@@ -83,7 +83,7 @@ public class Block implements LObject, Behavior {
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount);
+        environment.currentFrame().allocate(varCount - 1);
     }
 
     public void evaluate(LObject receiver, LObject[] arguments, Environment environment, LObject sender) {
@@ -92,7 +92,7 @@ public class Block implements LObject, Behavior {
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount);
+        environment.currentFrame().allocate(varCount - 1);
     }
 
     @Override

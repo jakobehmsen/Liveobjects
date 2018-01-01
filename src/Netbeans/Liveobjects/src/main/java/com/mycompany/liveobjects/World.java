@@ -5,4 +5,6 @@ public interface World {
     LObject getIntegerPrototype();
     LObject getFramePrototype();
     LObject getClosurePrototype();
+    LObject getTrue();
+    LObject getFalse();
 }
