@@ -38,7 +38,7 @@ public class JDBCWorld implements World {
             @Override
             public LObject load(int id) {
                 return objectCache.computeIfAbsent(id, i -> 
-                    new DBLObject(new JDBCObjectTransaction(connection, instructionSet, this, id)));
+                    new JDBCObject(connection, instructionSet, this, id));
             }
         };
     }

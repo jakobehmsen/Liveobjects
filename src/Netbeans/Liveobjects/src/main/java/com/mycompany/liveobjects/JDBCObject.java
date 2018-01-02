@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.mycompany.liveobjects;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +23,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class JDBCObjectTransaction implements ObjectTransaction {
+/**
+ *
+ * @author jakob
+ */
+public class JDBCObject implements LObject {
+
     public static final int SLOT_TYPE_REFERENCE = 0;
     public static final int SLOT_TYPE_INTEGER = 1;
     public static final int SLOT_TYPE_STRING = 2;
@@ -49,7 +59,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
     private InstructionSet instructionSet;
     private ObjectLoader objectLoader;
 
-    public JDBCObjectTransaction(Connection connection, InstructionSet instructionSet, ObjectLoader objectLoader, int id) {
+    public JDBCObject(Connection connection, InstructionSet instructionSet, ObjectLoader objectLoader, int id) {
         this.connection = connection;
         this.instructionSet = instructionSet;
         this.objectLoader = objectLoader;
@@ -73,7 +83,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
             slotUpdateObjectUsageStatement = connection.prepareStatement(
                     "UPDATE object SET usage = ? WHERE id = ?");
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -149,9 +159,9 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -201,7 +211,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotReferenceValueDeleteStatement.setString(2, selector.getValue());
                     slotReferenceValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -218,7 +228,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotTypeUpdateStatement.setInt(3, SLOT_TYPE_INTEGER);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -266,7 +276,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     try {
                         instructionSet.writeInstruction(i, outputStream);
                     } catch (IOException ex) {
-                        Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
 
@@ -279,7 +289,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     setSlotBlobValue(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -289,7 +299,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     addBlobSlot(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -299,7 +309,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     updateBlobSlot(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -310,7 +320,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotBlobValueDeleteStatement.setString(2, selector.getValue());
                     slotBlobValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -329,7 +339,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -348,7 +358,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotBlobValueInsertStatement.setBytes(3, value);
                     slotBlobValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -367,7 +377,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -444,65 +454,65 @@ public class JDBCObjectTransaction implements ObjectTransaction {
             @Override
             public void deleteSlotReferenceValue(int id) {
                 try {
-                    slotReferenceValueDeleteStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotReferenceValueDeleteStatement.setInt(1, JDBCObject.this.id);
                     slotReferenceValueDeleteStatement.setString(2, selector);
                     slotReferenceValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
             @Override
             public void setSlotReferenceValue(int id) {
                 try {
-                    slotReferenceValueInsertStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotReferenceValueInsertStatement.setInt(1, JDBCObject.this.id);
                     slotReferenceValueInsertStatement.setString(2, selector);
                     slotReferenceValueInsertStatement.setInt(3, id);
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                     
-                    slotTypeUpdateStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotTypeUpdateStatement.setInt(1, JDBCObject.this.id);
                     slotTypeUpdateStatement.setString(2, selector);
                     slotTypeUpdateStatement.setInt(3, SLOT_TYPE_REFERENCE);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
             @Override
             public void addSlotReference(int id) {
                 try {
-                    slotInsertStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotInsertStatement.setInt(1, JDBCObject.this.id);
                     slotInsertStatement.setString(2, selector);
                     slotInsertStatement.setInt(3, SLOT_TYPE_REFERENCE);
                     slotInsertStatement.execute();
                     
-                    slotReferenceValueInsertStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotReferenceValueInsertStatement.setInt(1, JDBCObject.this.id);
                     slotReferenceValueInsertStatement.setString(2, selector);
                     slotReferenceValueInsertStatement.setInt(3, id);
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
             @Override
             public void updateSlotReference(int id) {
                 try {
-                    slotReferenceValueInsertStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotReferenceValueInsertStatement.setInt(1, JDBCObject.this.id);
                     slotReferenceValueInsertStatement.setString(2, selector);
                     slotReferenceValueInsertStatement.setInt(3, id);
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                     
-                    slotTypeUpdateStatement.setInt(1, JDBCObjectTransaction.this.id);
+                    slotTypeUpdateStatement.setInt(1, JDBCObject.this.id);
                     slotTypeUpdateStatement.setString(2, selector);
                     slotTypeUpdateStatement.setInt(3, SLOT_TYPE_REFERENCE);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -550,7 +560,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     try {
                         instructionSet.writeInstruction(i, outputStream);
                     } catch (IOException ex) {
-                        Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
 
@@ -563,7 +573,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     setSlotBlobValue(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -573,7 +583,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     addBlobSlot(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -583,7 +593,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     updateBlobSlot(SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -594,7 +604,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotBlobValueDeleteStatement.setString(2, selector);
                     slotBlobValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -613,7 +623,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -632,7 +642,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotBlobValueInsertStatement.setBytes(3, value);
                     slotBlobValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -651,7 +661,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -677,20 +687,19 @@ public class JDBCObjectTransaction implements ObjectTransaction {
         slotTransaction.updateSlotReference(id);
     }
 
-    @Override
     public void close() {
         try {
             connection.close();
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
-    public ObjectTransaction cloneObject(Environment environment, LObject self) {
-        JDBCObjectTransaction clone = new JDBCObjectTransaction(connection, instructionSet, objectLoader, 0);
+    public LObject cloneObject(Environment environment) {
+        JDBCObject clone = new JDBCObject(connection, instructionSet, objectLoader, 0);
         
-        clone.setParentSlot(environment.getSymbolCode("parent"), self, environment);
+        clone.setParentSlot(environment.getSymbolCode("parent"), this, environment);
         
         return clone;
     }
@@ -724,7 +733,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                     value.addSlot(objectSlotTransaction);
                 });
             } catch (SQLException ex) {
-                Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
             }
         }/* else if(parentReferer != id) {
             try {
@@ -733,7 +742,7 @@ public class JDBCObjectTransaction implements ObjectTransaction {
                 slotUpdateObjectUsageStatement.setInt(1, usage);
                 slotUpdateObjectUsageStatement.execute();
             } catch (SQLException ex) {
-                Logger.getLogger(JDBCObjectTransaction.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
             }
         }*/
     }
@@ -766,12 +775,12 @@ public class JDBCObjectTransaction implements ObjectTransaction {
     }
 
     @Override
-    public void send(int selector, LObject[] arguments, Environment environment, LObject receiver) {
+    public void send(int selector, LObject[] arguments, Environment environment) {
         ensureSlotsRead(environment);
         
         Block behavior = (Block)resolve(selector, environment);
         if(behavior != null) {
-            behavior.evaluate(receiver, arguments, environment);
+            behavior.evaluate(this, arguments, environment);
         } else {
             String symbol = environment.getSymbolString(selector);
             environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Could not resolve symbol '" + symbol + "'."));
