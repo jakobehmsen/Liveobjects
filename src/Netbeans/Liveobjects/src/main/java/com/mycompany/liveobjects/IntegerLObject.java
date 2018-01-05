@@ -19,11 +19,6 @@ public class IntegerLObject implements LObject {
     }
 
     @Override
-    public void setSlotValue(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.setSlotIntegerValue(value);
-    }
-
-    @Override
     public void addSlot(ObjectSlotTransaction slotTransaction) {
         slotTransaction.addIntegerSlot(value);
     }

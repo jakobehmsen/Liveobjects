@@ -23,11 +23,6 @@ public class StringLObject implements LObject {
     }
 
     @Override
-    public void setSlotValue(ObjectSlotTransaction slotTransaction) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void addSlot(ObjectSlotTransaction slotTransaction) {
         slotTransaction.addStringSlot(value);
     }

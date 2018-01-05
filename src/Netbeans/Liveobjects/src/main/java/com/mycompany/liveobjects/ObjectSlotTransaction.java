@@ -6,11 +6,7 @@ public interface ObjectSlotTransaction {
 
     public void deleteSlotIntegerValue();
 
-    public void setSlotIntegerValue(int value);
-
     public void deleteSlotReferenceValue(int id);
-
-    public void setSlotReferenceValue(int id);
 
     public void addIntegerSlot(int value);
 
@@ -24,15 +20,11 @@ public interface ObjectSlotTransaction {
 
     public void deleteSlotBlockValue();
 
-    public void setSlotBlockValue(int arity, int varCount, List<Instruction> instructions);
-
     public void addBlockSlot(int arity, int varCount, List<Instruction> instructions);
 
     public void updateBlockSlot(int arity, int varCount, List<Instruction> instructions);
 
     public void deleteSlotBlobValue();
-
-    public void setSlotBlobValue(int type, byte[] bytes);
 
     public void addBlobSlot(int type, byte[] bytes);
 

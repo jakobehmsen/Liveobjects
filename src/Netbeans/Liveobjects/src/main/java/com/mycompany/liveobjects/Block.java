@@ -34,11 +34,6 @@ public class Block implements LObject, Behavior {
     }
 
     @Override
-    public void setSlotValue(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.setSlotBlockValue(arity, varCount, instructions);
-    }
-
-    @Override
     public void addSlot(ObjectSlotTransaction slotTransaction) {
         slotTransaction.addBlockSlot(arity, varCount, instructions);
     }

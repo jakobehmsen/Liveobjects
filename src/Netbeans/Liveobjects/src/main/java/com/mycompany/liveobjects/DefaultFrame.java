@@ -132,11 +132,6 @@ public class DefaultFrame implements Frame, LObject {
     }
 
     @Override
-    public void setSlotValue(ObjectSlotTransaction slotTransaction) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void addSlot(ObjectSlotTransaction slotTransaction) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
