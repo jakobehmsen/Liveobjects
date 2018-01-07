@@ -79,7 +79,7 @@ public class JDBCObjectStore implements ObjectStore {
             }
 
             @Override
-            public void addSlotReference(int id) {
+            public void addSlotReference(int otherId) {
                 try {
                     slotInsertStatement.setInt(1, id);
                     slotInsertStatement.setString(2, selector);
@@ -88,7 +88,7 @@ public class JDBCObjectStore implements ObjectStore {
                     
                     slotReferenceValueInsertStatement.setInt(1, id);
                     slotReferenceValueInsertStatement.setString(2, selector);
-                    slotReferenceValueInsertStatement.setInt(3, id);
+                    slotReferenceValueInsertStatement.setInt(3, otherId);
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                 } catch (SQLException ex) {
@@ -97,11 +97,11 @@ public class JDBCObjectStore implements ObjectStore {
             }
 
             @Override
-            public void updateSlotReference(int id) {
+            public void updateSlotReference(int otherId) {
                 try {
                     slotReferenceValueInsertStatement.setInt(1, id);
                     slotReferenceValueInsertStatement.setString(2, selector);
-                    slotReferenceValueInsertStatement.setInt(3, id);
+                    slotReferenceValueInsertStatement.setInt(3, otherId);
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                     
