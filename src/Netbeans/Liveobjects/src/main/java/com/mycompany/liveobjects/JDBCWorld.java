@@ -13,6 +13,8 @@ public class JDBCWorld implements World {
     private int trueId;
     private int falseId;
     private Hashtable<Integer, LObject> objectCache;
+    
+    private ObjectLoader objectLoader;
 
     public JDBCWorld(Connection connection, InstructionSet instructionSet) {
         this(connection, instructionSet, 1, 2, 3, 4, 5, 6);
@@ -31,16 +33,20 @@ public class JDBCWorld implements World {
         this.trueId = trueId;
         this.falseId = falseId;
         objectCache = new Hashtable<>();
-    }
-    
-    private ObjectLoader getObjectLoader() {
-        return new ObjectLoader() {
+        
+        objectLoader = new ObjectLoader() {
+            private ObjectStore objectSlotTransactionFactory = new JDBCObjectStore(connection, instructionSet, this);
+
             @Override
             public LObject load(int id) {
                 return objectCache.computeIfAbsent(id, i -> 
-                    new JDBCObject(connection, instructionSet, this, id));
+                    new JDBCObject(objectSlotTransactionFactory, id));
             }
         };
+    }
+    
+    private ObjectLoader getObjectLoader() {
+        return objectLoader;
     }
 
     @Override
