@@ -330,12 +330,16 @@ public class JDBCObjectStore implements ObjectStore {
 
             // Persist all slots
             slots.forEach((symbolCode, value) -> {
+                value.nowUsedFrom(id, environment);
+                
                 String selector = environment.getSymbolString(symbolCode);
                 ObjectSlotTransaction objectSlotTransaction = 
                         createObjectSlotTransaction(generatedId, selector, ObjectStore.REFERENCE_TYPE_NORMAL);
                 value.addSlot(objectSlotTransaction);
             });
             parentSlots.forEach((symbolCode, value) -> {
+                value.nowUsedFrom(id, environment);
+                
                 String selector = environment.getSymbolString(symbolCode);
                 ObjectSlotTransaction objectSlotTransaction = 
                         createObjectSlotTransaction(generatedId, selector, ObjectStore.REFERENCE_TYPE_PARENT);
