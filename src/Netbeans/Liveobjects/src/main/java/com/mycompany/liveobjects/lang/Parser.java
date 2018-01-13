@@ -171,10 +171,17 @@ public class Parser {
 
             @Override
             public Compiler visitExpression1(langParser.Expression1Context ctx) {
-                Compiler expr2Compiler = parse(ctx.expression2());
-                
                 if(ctx.keyAndArg().size() > 0) {
                     String selector = ctx.keyAndArg().stream().map(x -> x.ID().getText() + ":").collect(Collectors.joining());
+                    
+                    List<ParseTree> argumentCtxs = ctx.keyAndArg().stream().map(x -> x.expression2()).collect(Collectors.toList());
+                    Compiler replacement = replaceMessageSend(ctx.expression2(), selector, argumentCtxs);
+                    
+                    if(replacement != null) {
+                        return replacement;
+                    }
+                    
+                    Compiler expr2Compiler = parse(ctx.expression2());
                     List<Compiler> argumentCompilers = ctx.keyAndArg().stream().map(x -> parse(x.expression2())).collect(Collectors.toList());
                     
                     return compileCtx -> {
@@ -184,7 +191,31 @@ public class Parser {
                     };
                 }
                 
-                return expr2Compiler;
+                return parse(ctx.expression2());
+            }
+            
+            private Compiler replaceMessageSend(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                switch(selector) {
+                    case "extend:":
+                        return replaceExtend(targetCtx, selector, argumentCtxs);
+                }
+                
+                return null;
+            }
+
+            private Compiler replaceExtend(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                Compiler targetCompiler = parse(targetCtx);
+                
+                langParser.ObjectLiteralContext objectLiteralCtx = argumentCtxs.get(0).accept(new langBaseVisitor<langParser.ObjectLiteralContext>() {
+                    @Override
+                    public langParser.ObjectLiteralContext visitObjectLiteral(langParser.ObjectLiteralContext ctx) {
+                        return ctx;
+                    }
+                });
+                
+                Map<String, Compiler> slotCompilers = parseObjectLiteralSlotCompilers(objectLiteralCtx);
+                
+                return extendCompiler(targetCompiler, slotCompilers);
             }
 
             @Override
@@ -300,6 +331,25 @@ public class Parser {
 
             @Override
             public Compiler visitObjectLiteral(langParser.ObjectLiteralContext ctx) {
+                Map<String, Compiler> slotCompilers = parseObjectLiteralSlotCompilers(ctx);
+                
+                return extendCompiler(
+                    compileContext -> Expressions.messageSend(Expressions.root(), "clone", Arrays.asList()),
+                    slotCompilers
+                );
+            }
+            
+            private Compiler extendCompiler(Compiler targetCompiler, Map<String, Compiler> slotCompilers) {
+                return compileCtx -> {
+                    Expression target = targetCompiler.compile(compileCtx);
+                    List<Expression> setSlotExpressions = slotCompilers.entrySet().stream()
+                        .map(x -> Expressions.setSlot(Expressions.top(), x.getKey(), x.getValue().compile(compileCtx)))
+                        .collect(Collectors.toList());
+                    return Expressions.cascade(target, setSlotExpressions);
+                };
+            }
+            
+            private Map<String, Compiler> parseObjectLiteralSlotCompilers(langParser.ObjectLiteralContext ctx) {
                 Hashtable<String, Compiler> slotCompilers  = new Hashtable<>();
                         
                 ctx.objectSlot().forEach(objectSlot -> {
@@ -321,13 +371,7 @@ public class Parser {
                     slotCompilers.put(messageProtocol.getSelector(), slotValueCompiler);
                 });
                 
-                return compileCtx -> {
-                    Expression target = Expressions.messageSend(Expressions.root(), "clone", Arrays.asList());
-                    List<Expression> setSlotExpressions = slotCompilers.entrySet().stream()
-                        .map(x -> Expressions.setSlot(Expressions.top(), x.getKey(), x.getValue().compile(compileCtx)))
-                        .collect(Collectors.toList());
-                    return Expressions.cascade(target, setSlotExpressions);
-                };
+                return slotCompilers;
             }
         });
     }
