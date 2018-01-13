@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.liveobjects.lang;
 
 import com.mycompany.liveobjects.expr.Expression;
@@ -22,10 +17,6 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-/**
- *
- * @author jakob
- */
 public class Parser {
     public Compiler parse(String src) {
         langLexer lexer = new langLexer(new ANTLRInputStream(src));
@@ -65,19 +56,7 @@ public class Parser {
                             int ordinal = compileCtx.getLocalOrdinal(id);
                             return Expressions.setLocal(0, ordinal, valueExpression);
                         }
-                        
-                        /*compileCtx.declareLocal(id);
-                        int ordinal = compileCtx.getLocalOrdinal(id);
-                        return Expressions.setLocal(0, ordinal, valueExpression);*/
                     } else {
-                        /*int distanceToLocal = compileCtx.distanceToLocal(id);
-                        if(distanceToLocal != -1) {
-                            //int ordinal = compileCtx.getLocalOrdinal(id);
-                            int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);
-                            return Expressions.setLocal(distanceToLocal, ordinal, valueExpression);
-                        } else {
-                            return Expressions.setSlot(Expressions.self(), id, valueExpression);
-                        }*/
                         return Expressions.setSlot(Expressions.self(), id, valueExpression);
                     }
                 };
@@ -145,16 +124,6 @@ public class Parser {
                 MessageProtocol messageProtocol = parseMessageProtocol(ctx.selector);
                 
                 return parseBehavior(ctx.behaviorBody(), messageProtocol);
-                
-                /*Compiler bodyCompiler = parse(ctx.behaviorBody());
-                
-                return compileCtx -> {
-                    List<String> locals = Stream.concat(Arrays.asList("self").stream(), messageProtocol.getParameters().stream()).collect(Collectors.toList());
-                    CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals, false);
-                    Expression bodyExpression = Expressions.ret(bodyCompiler.compile(behaviorCompilerCtx));
-                    Expression blockExpression = Expressions.block(messageProtocol.getParameters().size(), behaviorCompilerCtx.localCount() - messageProtocol.getParameters().size(), bodyExpression);
-                    return Expressions.setSlot(Expressions.self(), messageProtocol.getSelector(), blockExpression);
-                };*/
             }
             
             private Compiler parseBehavior(ParseTree behaviorBodyCtx, MessageProtocol messageProtocol) {
