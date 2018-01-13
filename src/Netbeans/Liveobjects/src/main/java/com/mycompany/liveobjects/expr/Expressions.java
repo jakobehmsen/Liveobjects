@@ -258,4 +258,60 @@ public class Expressions {
             }
         };
     }
+    
+    public static Expression root() {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        if(asExpression) {
+                            instructions.add(Instructions.root());
+                        }
+                    }
+                };
+            }
+        };
+    }
+    
+    public static Expression top() {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        if(asExpression) {
+                            instructions.add(Instructions.top());
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    public static Expression cascade(Expression targetExpression, List<Expression> expressions) {
+        return new Expression() {
+            @Override
+            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+                Emitter targetEmitter = targetExpression.compile(ctx, asExpression);
+                List<Emitter> emitters = expressions.stream()
+                    .map(e -> e.compile(ctx, false))
+                    .collect(Collectors.toList());
+                
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        targetEmitter.emit(instructions);
+                        emitters.forEach(e -> e.emit(instructions));
+                        
+                        if(!asExpression) {
+                            instructions.add(Instructions.pop());
+                        }
+                    }
+                };
+            }
+        };
+    }
 }

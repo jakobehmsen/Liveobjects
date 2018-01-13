@@ -12,6 +12,13 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	/**
+	 * Visit a parse tree produced by {@link langParser#objectSlotUnquotedValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectSlotUnquotedValue(@NotNull langParser.ObjectSlotUnquotedValueContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#string}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -31,6 +38,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitKwSelector(@NotNull langParser.KwSelectorContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#objectSlot}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectSlot(@NotNull langParser.ObjectSlotContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#unaryMessage}.
@@ -115,6 +129,20 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpression(@NotNull langParser.ExpressionContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#objectSlotValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectSlotValue(@NotNull langParser.ObjectSlotValueContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#objectLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectLiteral(@NotNull langParser.ObjectLiteralContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#unarySelector}.
@@ -220,4 +248,11 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSelf(@NotNull langParser.SelfContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#objectSlotQuotedValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectSlotQuotedValue(@NotNull langParser.ObjectSlotQuotedValueContext ctx);
 }

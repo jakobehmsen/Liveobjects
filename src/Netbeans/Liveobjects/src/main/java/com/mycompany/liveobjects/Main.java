@@ -58,6 +58,8 @@ public class Main {
         instructionSet.registerInstruction(12, Instructions.loadIntegerDescriptor);
         instructionSet.registerInstruction(13, Instructions.sendDescriptor);
         instructionSet.registerInstruction(14, Instructions.LoadContext.descriptor);
+        instructionSet.registerInstruction(15, Instructions.Root.DESCRIPTOR);
+        instructionSet.registerInstruction(16, Instructions.Top.DESCRIPTOR);
         
         Dispatcher dispatcher = new DefaultDispatcher();
         

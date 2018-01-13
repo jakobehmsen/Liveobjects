@@ -13,7 +13,9 @@ import com.mycompany.liveobjects.lang.antlr.langParser;
 import com.mycompany.liveobjects.lang.antlr.langParser.ExpressionsContext;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -80,10 +82,9 @@ public class Parser {
                     }
                 };
             }
-
-            @Override
-            public Compiler visitBehaviorAssignment(langParser.BehaviorAssignmentContext ctx) {
-                MessageProtocol messageProtocol = ctx.selector.accept(new langBaseVisitor<MessageProtocol>() {
+            
+            private MessageProtocol parseMessageProtocol(langParser.BehaviorSelectorContext ctx) {
+                return ctx.accept(new langBaseVisitor<MessageProtocol>() {
                     @Override
                     public MessageProtocol visitKwSelector(langParser.KwSelectorContext ctx) {
                         String selector = ctx.kwSelectorKW().stream().map(kw -> kw.getText()).collect(Collectors.joining());
@@ -137,8 +138,27 @@ public class Parser {
                         };
                     }
                 });
+            }
+
+            @Override
+            public Compiler visitBehaviorAssignment(langParser.BehaviorAssignmentContext ctx) {
+                MessageProtocol messageProtocol = parseMessageProtocol(ctx.selector);
                 
-                Compiler bodyCompiler = parse(ctx.behaviorBody());
+                return parseBehavior(ctx.behaviorBody(), messageProtocol);
+                
+                /*Compiler bodyCompiler = parse(ctx.behaviorBody());
+                
+                return compileCtx -> {
+                    List<String> locals = Stream.concat(Arrays.asList("self").stream(), messageProtocol.getParameters().stream()).collect(Collectors.toList());
+                    CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals, false);
+                    Expression bodyExpression = Expressions.ret(bodyCompiler.compile(behaviorCompilerCtx));
+                    Expression blockExpression = Expressions.block(messageProtocol.getParameters().size(), behaviorCompilerCtx.localCount() - messageProtocol.getParameters().size(), bodyExpression);
+                    return Expressions.setSlot(Expressions.self(), messageProtocol.getSelector(), blockExpression);
+                };*/
+            }
+            
+            private Compiler parseBehavior(ParseTree behaviorBodyCtx, MessageProtocol messageProtocol) {
+                Compiler bodyCompiler = parse(behaviorBodyCtx);
                 
                 return compileCtx -> {
                     List<String> locals = Stream.concat(Arrays.asList("self").stream(), messageProtocol.getParameters().stream()).collect(Collectors.toList());
@@ -276,6 +296,38 @@ public class Parser {
             @Override
             public Compiler visitBoolFalse(langParser.BoolFalseContext ctx) {
                 return compileCtx -> Expressions.bool(false);
+            }
+
+            @Override
+            public Compiler visitObjectLiteral(langParser.ObjectLiteralContext ctx) {
+                Hashtable<String, Compiler> slotCompilers  = new Hashtable<>();
+                        
+                ctx.objectSlot().forEach(objectSlot -> {
+                    MessageProtocol messageProtocol = parseMessageProtocol(objectSlot.behaviorSelector());
+                    
+                    Compiler slotValueCompiler = objectSlot.objectSlotValue().accept(new langBaseVisitor<Compiler>() {
+                        @Override
+                        public Compiler visitObjectSlotQuotedValue(langParser.ObjectSlotQuotedValueContext ctx) {
+                            return parseBehavior(ctx.expressions(), messageProtocol);
+                        }
+
+                        @Override
+                        public Compiler visitObjectSlotUnquotedValue(langParser.ObjectSlotUnquotedValueContext ctx) {
+                            Compiler compiler = parse(ctx.expression1());
+                            return compiler;
+                        }
+                    });
+                    
+                    slotCompilers.put(messageProtocol.getSelector(), slotValueCompiler);
+                });
+                
+                return compileCtx -> {
+                    Expression target = Expressions.messageSend(Expressions.root(), "clone", Arrays.asList());
+                    List<Expression> setSlotExpressions = slotCompilers.entrySet().stream()
+                        .map(x -> Expressions.setSlot(Expressions.top(), x.getKey(), x.getValue().compile(compileCtx)))
+                        .collect(Collectors.toList());
+                    return Expressions.cascade(target, setSlotExpressions);
+                };
             }
         });
     }

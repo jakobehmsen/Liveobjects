@@ -18,6 +18,65 @@ import java.util.List;
  * @author jakob
  */
 public class Instructions {
+    public static class Top implements Instruction {
+        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
+            @Override
+            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+                
+            }
+
+            @Override
+            public Instruction readInstruction(InputStream inputStream) throws IOException {
+                return new Top();
+            }
+        };
+
+        @Override
+        public void execute(Environment environment) {
+            environment.currentFrame().dup();
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return DESCRIPTOR;
+        }
+    }
+
+    public static Instruction top() {
+        return new Top();
+    }
+    
+    public static class Root implements Instruction {
+        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
+            @Override
+            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+                
+            }
+
+            @Override
+            public Instruction readInstruction(InputStream inputStream) throws IOException {
+                return new Root();
+            }
+        };
+        
+        @Override
+        public void execute(Environment environment) {
+            LObject root = environment.getWorld().getRoot();
+            environment.currentFrame().load(root);
+            environment.currentFrame().incIP();
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return DESCRIPTOR;
+        }   
+    }
+    
+    public static Instruction root() {
+        return new Root();
+    }
+    
     public static InstructionDescriptor loadBoolDescriptor = new InstructionDescriptor() {
         @Override
         public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
