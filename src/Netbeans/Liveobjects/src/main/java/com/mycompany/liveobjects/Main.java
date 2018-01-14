@@ -28,21 +28,9 @@ import javax.swing.KeyStroke;
 
 public class Main {
     public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {
-        Properties properties = new Properties();
+        Configuration configuration = Configuration.load();
         
-        properties.load(new FileInputStream("config.properties"));
-        
-        String username = properties.getProperty("database.username");
-        String password = properties.getProperty("database.password");
-        
-        String dbName = properties.getProperty("database.schema");
-        String dbHost = properties.getProperty("database.host");
-        String url = "jdbc:mysql://" + dbHost + "/" + dbName + "?useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=true";
-        
-        Connection connection = DriverManager.getConnection(url, username, password);
-        connection.setSchema(dbName);
-        
-        connection.setAutoCommit(false);
+        Connection connection = configuration.createConnection();
         
         MutableInstructionSet instructionSet = new MutableInstructionSet();
         
