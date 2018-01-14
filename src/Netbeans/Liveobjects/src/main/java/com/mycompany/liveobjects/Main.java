@@ -1,8 +1,6 @@
 package com.mycompany.liveobjects;
 
 import com.mycompany.liveobjects.expr.Expression;
-import com.mycompany.liveobjects.expr.Expressions;
-import com.mycompany.liveobjects.lang.CompileContext;
 import com.mycompany.liveobjects.lang.DefaultCompileContext;
 import com.mycompany.liveobjects.lang.Parser;
 import java.awt.BorderLayout;
@@ -18,11 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Properties;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
@@ -63,19 +57,6 @@ public class Main {
         instructionSet.registerInstruction(16, Instructions.Top.DESCRIPTOR);
         
         Dispatcher dispatcher = new DefaultDispatcher();
-        
-        String src2 = 
-            /*"y := 88\n" + 
-            "self setSlot: \"y\" to: 89\n" + 
-            "y\n" +*/
-            //"self setSlot: \"myBehavior2\" to: [\"Hello world\"]\n" + 
-            //"self.myBehavior2\n" + 
-            //"self setSlot: \"myBehavior2:\" to: [x|\"HW\"]\n" + 
-            //"self myBehavior2: \"Hello World2\"\n" + 
-            //"self getSlot: \"myBehavior2\"\n" + 
-            //"2 muli: 3" + 
-            "self setSlot: \"square:\" to: [x|x muli: 2]\n" + 
-            "";
         
         JFrame frame = new JFrame("Liveobjects");
         
