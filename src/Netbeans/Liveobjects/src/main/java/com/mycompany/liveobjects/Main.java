@@ -6,6 +6,7 @@ import com.mycompany.liveobjects.lang.CompileContext;
 import com.mycompany.liveobjects.lang.DefaultCompileContext;
 import com.mycompany.liveobjects.lang.Parser;
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -78,8 +79,11 @@ public class Main {
         
         JFrame frame = new JFrame("Liveobjects");
         
+        Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
         JTextPane srcTextPane = new JTextPane();
+        srcTextPane.setFont(font);
         JTextPane resultTextPane = new JTextPane();
+        resultTextPane.setFont(font);
         resultTextPane.setEditable(false);
         
         srcTextPane.registerKeyboardAction(e -> {
