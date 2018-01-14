@@ -202,14 +202,6 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitBehaviorAssignment(@NotNull langParser.BehaviorAssignmentContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
 	@Override public T visitExpression4(@NotNull langParser.Expression4Context ctx) { return visitChildren(ctx); }
 
 	/**
@@ -251,14 +243,6 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitThisContext(@NotNull langParser.ThisContextContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
-	@Override public T visitSimpleAssignment(@NotNull langParser.SimpleAssignmentContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

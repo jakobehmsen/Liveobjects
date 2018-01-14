@@ -2,9 +2,7 @@ grammar lang;
 
 expressions             : expression*;
 expression              : assignment | expression1;
-assignment              : simpleAssignment | behaviorAssignment;
-simpleAssignment        : ID op=(SELF_ASSIGN | FRAME_ASSIGN) expression;
-behaviorAssignment      : PROTOCOL selector=behaviorSelector behaviorBody;
+assignment              : ID op=(SELF_ASSIGN | FRAME_ASSIGN) expression;
 behaviorSelector        : kwSelector | unarySelector | binarySelector;
 kwSelector              : (kwSelectorKW kwSelectorParam)+;
 kwSelectorKW            : ID COLON;
@@ -19,8 +17,8 @@ binaryMessage           : BIN_OP expression3;
 expression3             : expression4 unaryMessage*;
 unaryMessage            : DOT ID;
 expression4             : number | string | identifier | block | 
-                        embeddedExpression | self | thisContext |
-                        bool | objectLiteral;
+                          embeddedExpression | self | thisContext |
+                          bool | objectLiteral;
 number                  : NUMBER;
 string                  : STRING;
 identifier              : ID;
@@ -38,7 +36,6 @@ objectSlotValue         : objectSlotUnquotedValue | objectSlotQuotedValue;
 objectSlotUnquotedValue : FRAME_ASSIGN expression1;
 objectSlotQuotedValue   : OPEN_BRA expressions CLOSE_BRA;
 
-PROTOCOL: '§';
 KW_SELF: 'self';
 KW_TRUE: 'true';
 KW_FALSE: 'false';

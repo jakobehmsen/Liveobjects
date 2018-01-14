@@ -173,13 +173,6 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitKwSelectorParam(@NotNull langParser.KwSelectorParamContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link langParser#behaviorAssignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBehaviorAssignment(@NotNull langParser.BehaviorAssignmentContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link langParser#expression4}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -220,13 +213,6 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitThisContext(@NotNull langParser.ThisContextContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#simpleAssignment}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleAssignment(@NotNull langParser.SimpleAssignmentContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#expression1}.

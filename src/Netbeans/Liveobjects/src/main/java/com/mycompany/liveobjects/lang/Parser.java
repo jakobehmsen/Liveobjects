@@ -39,7 +39,7 @@ public class Parser {
             }
             
             @Override
-            public Compiler visitSimpleAssignment(langParser.SimpleAssignmentContext ctx) {
+            public Compiler visitAssignment(langParser.AssignmentContext ctx) {
                 String id = ctx.ID().getText();
                 String operator = ctx.op.getText();
                 Compiler valueCompiler = parse(ctx.expression());
@@ -117,13 +117,6 @@ public class Parser {
                         };
                     }
                 });
-            }
-
-            @Override
-            public Compiler visitBehaviorAssignment(langParser.BehaviorAssignmentContext ctx) {
-                MessageProtocol messageProtocol = parseMessageProtocol(ctx.selector);
-                
-                return parseBehavior(ctx.behaviorBody(), messageProtocol);
             }
             
             private Compiler parseBehavior(ParseTree behaviorBodyCtx, MessageProtocol messageProtocol) {
