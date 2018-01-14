@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.liveobjects;
 
 import java.io.DataInputStream;
@@ -10,13 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author jakob
- */
 public class Instructions {
     public static class Top implements Instruction {
         public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
@@ -350,19 +340,6 @@ public class Instructions {
     
     public static Instruction loadLocal(final int i) {
         return new LoadLocal(i);
-        
-        /*return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().load(i);
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return loadLocalDescriptor;
-            }
-        };*/
     }
     
     public static InstructionDescriptor loadStringDescriptor = new InstructionDescriptor() {
@@ -401,19 +378,6 @@ public class Instructions {
 
     public static Instruction loadString(final String str) {
         return new LoadString(str);
-        
-        /*return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().loadString(str);
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return loadStringDescriptor;
-            }
-        };*/
     }
     
     public static InstructionDescriptor loadIntegerDescriptor = new InstructionDescriptor() {
@@ -440,8 +404,8 @@ public class Instructions {
 
         @Override
         public void execute(Environment environment) {
-                environment.currentFrame().loadInteger(i);
-                environment.currentFrame().incIP();
+            environment.currentFrame().loadInteger(i);
+            environment.currentFrame().incIP();
         }
 
         @Override
@@ -452,19 +416,6 @@ public class Instructions {
 
     public static Instruction loadInteger(final int i) {
         return new LoadInteger(i);
-        
-        /*return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().loadInteger(i);
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return loadIntegerDescriptor;
-            }
-        };*/
     }
     
     public static InstructionDescriptor cloneObjectDescriptor = new InstructionDescriptor() {
@@ -487,7 +438,6 @@ public class Instructions {
                 environment.currentFrame().popInto(arguments, arity);
                 LObject receiver = environment.currentFrame().pop();
                 environment.send(receiver, selector, arguments);
-                //receiver.send(selector, arguments, environment);
             }
 
             @Override
@@ -536,18 +486,6 @@ public class Instructions {
 
     public static Instruction send(String selector, int arity) {
         return new Send(selector, arity);
-        /*return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                int symbolCode = environment.getSymbolCode(selector);
-                environment.currentFrame().replaceInstruction(Instructions.send(symbolCode, arity));
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return sendDescriptor;
-            }
-        };*/
     }
     
     public static InstructionDescriptor finishDescriptor = new InstructionDescriptor() {
@@ -687,20 +625,5 @@ public class Instructions {
 
     public static Instruction ret() {
         return new RetInstruction();
-        
-        /*return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                Frame sender = environment.currentFrame().sender();
-                sender.load(environment.currentFrame().pop());
-                sender.incIP();
-                environment.currentFrame(sender);
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return retDescriptor;
-            }
-        };*/
     }
 }
