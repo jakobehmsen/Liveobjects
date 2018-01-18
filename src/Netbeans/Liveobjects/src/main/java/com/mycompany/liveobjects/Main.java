@@ -2,6 +2,7 @@ package com.mycompany.liveobjects;
 
 import com.mycompany.liveobjects.expr.Expression;
 import com.mycompany.liveobjects.lang.DefaultCompileContext;
+import com.mycompany.liveobjects.lang.ErrorHandler;
 import com.mycompany.liveobjects.lang.Parser;
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -59,28 +61,44 @@ public class Main {
                 String src = srcTextPane.getText();
                 DefaultCompileContext compileContext = new DefaultCompileContext();
                 compileContext.declareLocal("self");
-                Expression expression = new Parser().parse(src).compile(compileContext);
                 
-                ArrayList<Instruction> instructions = new ArrayList<>();
-                expression.compile(new DefaultExpressionCompileContext(), true).emit(instructions);
+                ArrayList<String> syntaxErrors = new ArrayList<>();
+                com.mycompany.liveobjects.lang.Compiler compiler = new Parser()
+                    .setErrorHandler(new ErrorHandler() {
+                        @Override
+                        public void syntaxError(int line, int column, String message) {
+                            syntaxErrors.add(line + "," + column + ": " + message);
+                        }
+                    })
+                    .parse(src);
                 
-                DefaultEnvironment environment = new DefaultEnvironment(world, dispatcher, new Instruction[] {
-                    Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
-                    Instructions.finish()
-                });
-                environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
-                environment.currentFrame().load(world.getRoot());
-                environment.currentFrame().allocate(compileContext.localCount() - 1);
-                
-                while(!environment.finished()) {
-                    environment.executeNext();
+                if(syntaxErrors.size() > 0) {
+                    String resultAsString = syntaxErrors.stream().collect(Collectors.joining("\n"));
+                    resultTextPane.setText(resultAsString);
+                } else {
+                    Expression expression = compiler.compile(compileContext);
+
+                    ArrayList<Instruction> instructions = new ArrayList<>();
+                    expression.compile(new DefaultExpressionCompileContext(), true).emit(instructions);
+
+                    DefaultEnvironment environment = new DefaultEnvironment(world, dispatcher, new Instruction[] {
+                        Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
+                        Instructions.finish()
+                    });
+                    environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
+                    environment.currentFrame().load(world.getRoot());
+                    environment.currentFrame().allocate(compileContext.localCount() - 1);
+
+                    while(!environment.finished()) {
+                        environment.executeNext();
+                    }
+
+                    connection.commit();
+
+                    LObject result = environment.currentFrame().peek();
+                    String resultAsString = result.toString();
+                    resultTextPane.setText(resultAsString);
                 }
-                
-                connection.commit();
-                
-                LObject result = environment.currentFrame().peek();
-                String resultAsString = result.toString();
-                resultTextPane.setText(resultAsString);
             } catch (SQLException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } catch (PrimitiveErrorException ex) {

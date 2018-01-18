@@ -7,21 +7,68 @@ import com.mycompany.liveobjects.lang.antlr.langLexer;
 import com.mycompany.liveobjects.lang.antlr.langParser;
 import com.mycompany.liveobjects.lang.antlr.langParser.ExpressionsContext;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class Parser {
+    private ErrorHandler errorHandler;
+    
+    public Parser() {
+        setErrorHandler(new ErrorHandler() {
+            @Override
+            public void syntaxError(int line, int column, String message) {
+                
+            }
+        });
+    }
+
+    public final Parser setErrorHandler(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+        return this;
+    }
+    
     public Compiler parse(String src) {
         langLexer lexer = new langLexer(new ANTLRInputStream(src));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         langParser parser = new langParser(tokens);
+        
+        parser.addErrorListener(new ANTLRErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
+                errorHandler.syntaxError(i, i1, string);
+            }
+
+            @Override
+            public void reportAmbiguity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
+                
+            }
+
+            @Override
+            public void reportAttemptingFullContext(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
+                
+            }
+
+            @Override
+            public void reportContextSensitivity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
+                
+            }
+        });
+        
         ExpressionsContext expressionsCtx = parser.expressions();
         
         Compiler expressionCompiler = parse(expressionsCtx);
