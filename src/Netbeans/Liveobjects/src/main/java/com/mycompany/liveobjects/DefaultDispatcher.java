@@ -44,11 +44,38 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
-        addPrimitive("getIntegerPrototype", (receiver, arguments, environment) -> {
+        
+        addPrimitive("primRoot", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getRoot();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primIntegerProto", (receiver, arguments, environment) -> {
             LObject value = environment.getWorld().getIntegerPrototype();
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
+        addPrimitive("primFrameProto", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getFramePrototype();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primClosureProto", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getClosurePrototype();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primTrue", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getTrue();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primFalse", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getFalse();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        
         addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
             //sendResumeWith(receiver, arguments[0], environment);
             if(receiver instanceof Frame) {
