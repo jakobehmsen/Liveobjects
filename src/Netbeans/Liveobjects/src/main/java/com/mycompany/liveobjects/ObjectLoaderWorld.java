@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public class JDBCWorld implements World {
+public class ObjectLoaderWorld implements World {
     private int rootObjectId;
     private int integerPrototypeId;
     private int framePrototypeId;
@@ -10,11 +10,11 @@ public class JDBCWorld implements World {
     private int arrayPrototypeId;    
     private ObjectLoader objectLoader;
 
-    public JDBCWorld(ObjectLoader objectLoader) {
+    public ObjectLoaderWorld(ObjectLoader objectLoader) {
         this(objectLoader, 1, 2, 3, 4, 5, 6, 7);
     }
 
-    public JDBCWorld(ObjectLoader objectLoader, 
+    public ObjectLoaderWorld(ObjectLoader objectLoader, 
             int rootObjectId, int integerPrototypeId, 
             int framePrototypeId, int closurePrototypeId,
             int trueId, int falseId, int arrayPrototypeId) {

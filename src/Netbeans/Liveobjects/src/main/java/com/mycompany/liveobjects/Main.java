@@ -56,7 +56,7 @@ public class Main {
             try {
                 LazyObjectLoader objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connection, instructionSet, ol));
                 Dispatcher dispatcher = new DefaultDispatcher(objectLoader);
-                World world = new JDBCWorld(objectLoader);
+                World world = new ObjectLoaderWorld(objectLoader);
                 
                 String src = srcTextPane.getText();
                 DefaultCompileContext compileContext = new DefaultCompileContext();
