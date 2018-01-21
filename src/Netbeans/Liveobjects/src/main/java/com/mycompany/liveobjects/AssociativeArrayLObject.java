@@ -3,11 +3,11 @@ package com.mycompany.liveobjects;
 import java.util.Hashtable;
 import java.util.Map;
 
-public class AssociativeArrayObject extends IdentityLObject {
+public class AssociativeArrayLObject extends IdentityLObject {
     private Map<Integer, LObject> slots;
     private Map<Integer, LObject> parentSlots;
 
-    public AssociativeArrayObject(ObjectStore objectStore, int id) {
+    public AssociativeArrayLObject(ObjectStore objectStore, int id) {
         super(id, objectStore);
     }
     

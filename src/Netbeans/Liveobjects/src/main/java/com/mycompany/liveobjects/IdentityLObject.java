@@ -26,7 +26,7 @@ public abstract class IdentityLObject implements LObject {
 
     @Override
     public LObject cloneObject(Environment environment) {
-        AssociativeArrayObject clone = objectStore.newAssociativeArray();
+        AssociativeArrayLObject clone = objectStore.newAssociativeArray();
         
         clone.setParentSlot(environment.getSymbolCode("parent"), this, environment);
         

@@ -21,5 +21,5 @@ public interface ObjectStore {
 
     public ArrayLObject newArray(int length);
 
-    public AssociativeArrayObject newAssociativeArray();
+    public AssociativeArrayLObject newAssociativeArray();
 }

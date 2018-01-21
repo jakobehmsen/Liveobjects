@@ -58,7 +58,7 @@ public class JDBCObjectStore implements ObjectStore {
             slotSelectObjectTypeStatement = connection.prepareStatement(
                     "SELECT type FROM object WHERE id = ?");
         } catch (SQLException ex) {
-            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -77,7 +77,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotReferenceValueDeleteStatement.setString(2, selector);
                     slotReferenceValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -95,7 +95,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -113,7 +113,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotTypeUpdateStatement.setInt(3, JDBCObjectStore.SLOT_TYPE_REFERENCE);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -161,7 +161,7 @@ public class JDBCObjectStore implements ObjectStore {
                     try {
                         instructionSet.writeInstruction(i, outputStream);
                     } catch (IOException ex) {
-                        Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
 
@@ -174,7 +174,7 @@ public class JDBCObjectStore implements ObjectStore {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     addBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -184,7 +184,7 @@ public class JDBCObjectStore implements ObjectStore {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     updateBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -195,7 +195,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotBlobValueDeleteStatement.setString(2, selector);
                     slotBlobValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -214,7 +214,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotBlobValueInsertStatement.setBytes(3, value);
                     slotBlobValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -233,7 +233,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -310,7 +310,7 @@ public class JDBCObjectStore implements ObjectStore {
                 }
             }
         } catch (SQLException | IOException ex) {
-            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -352,7 +352,7 @@ public class JDBCObjectStore implements ObjectStore {
             
             return generatedId;
         } catch (SQLException ex) {
-            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return -1;
@@ -368,7 +368,7 @@ public class JDBCObjectStore implements ObjectStore {
                 
                 switch(type) {
                     case ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY:
-                        return new AssociativeArrayObject(this, id);
+                        return new AssociativeArrayLObject(this, id);
                     case ObjectStore.OBJECT_TYPE_ARRAY:
                         return new ArrayLObject(this, id);
                 }
@@ -386,7 +386,7 @@ public class JDBCObjectStore implements ObjectStore {
     }
 
     @Override
-    public AssociativeArrayObject newAssociativeArray() {
-        return new AssociativeArrayObject(this, 0);
+    public AssociativeArrayLObject newAssociativeArray() {
+        return new AssociativeArrayLObject(this, 0);
     }
 }
