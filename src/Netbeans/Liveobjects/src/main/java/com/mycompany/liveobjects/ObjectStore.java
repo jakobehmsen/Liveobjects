@@ -20,4 +20,6 @@ public interface ObjectStore {
     public LObject load(int id);
 
     public ArrayLObject newArray(int length);
+
+    public AssociativeArrayObject newAssociativeArray();
 }

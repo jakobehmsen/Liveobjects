@@ -1,20 +1,14 @@
 package com.mycompany.liveobjects;
 
-import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class AssociativeArrayObject implements LObject {
-    private int id;
+public class AssociativeArrayObject extends IdentityLObject {
     private Map<Integer, LObject> slots;
     private Map<Integer, LObject> parentSlots;
-    private ObjectStore objectStore;
 
     public AssociativeArrayObject(ObjectStore objectStore, int id) {
-        this.id = id;
-        this.objectStore = objectStore;
+        super(id, objectStore);
     }
     
     private void readSlots(Environment environment) {
@@ -86,38 +80,6 @@ public class AssociativeArrayObject implements LObject {
     }
 
     @Override
-    public void deleteSlotValue(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.deleteSlotReferenceValue(id);
-    }
-
-    @Override
-    public void addSlot(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.addSlotReference(id);
-    }
-
-    @Override
-    public void updateSlot(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.updateSlotReference(id);
-    }
-
-    public void close() {
-        try {
-            objectStore.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public LObject cloneObject(Environment environment) {
-        AssociativeArrayObject clone = new AssociativeArrayObject(objectStore, 0);
-        
-        clone.setParentSlot(environment.getSymbolCode("parent"), this, environment);
-        
-        return clone;
-    }
-
-    @Override
     public void nowUsedFrom(int id, Environment environment) {
         if(this.id == 0) {
             this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY);
@@ -165,7 +127,7 @@ public class AssociativeArrayObject implements LObject {
         }
     }
 
-    private LObject setParentSlot(int symbolCode, LObject parent, Environment environment) {
+    public LObject setParentSlot(int symbolCode, LObject parent, Environment environment) {
         // Should test that parent isn't child of this
         
         return setSlot(environment, ObjectStore.REFERENCE_TYPE_PARENT, symbolCode, parent);

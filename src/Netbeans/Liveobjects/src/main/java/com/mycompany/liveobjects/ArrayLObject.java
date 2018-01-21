@@ -2,18 +2,16 @@ package com.mycompany.liveobjects;
 
 import java.util.Hashtable;
 
-public class ArrayLObject implements LObject {
-    private int id;
-    private ObjectStore objectStore;
+public class ArrayLObject extends IdentityLObject {
     private LObject[] items;
 
     public ArrayLObject(ObjectStore objectStore, int id) {
-        this.id = id;
+        super(id, objectStore);
         this.objectStore = objectStore;
     }
 
     public ArrayLObject(ObjectStore objectStore, int id, LObject[] items) {
-        this.id = id;
+        super(id, objectStore);
         this.objectStore = objectStore;
         this.items = items;
     }
@@ -85,26 +83,6 @@ public class ArrayLObject implements LObject {
     public void send(int selector, LObject[] arguments, Environment environment) {
         Block behavior = (Block)resolve(selector, environment);
         behavior.evaluate(this, arguments, environment);
-    }
-
-    @Override
-    public void deleteSlotValue(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.deleteSlotReferenceValue(id);
-    }
-
-    @Override
-    public void addSlot(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.addSlotReference(id);
-    }
-
-    @Override
-    public void updateSlot(ObjectSlotTransaction slotTransaction) {
-        slotTransaction.updateSlotReference(id);
-    }
-
-    @Override
-    public LObject cloneObject(Environment environment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

@@ -384,4 +384,9 @@ public class JDBCObjectStore implements ObjectStore {
     public ArrayLObject newArray(int value) {
         return new ArrayLObject(this, 0, new LObject[value]);
     }
+
+    @Override
+    public AssociativeArrayObject newAssociativeArray() {
+        return new AssociativeArrayObject(this, 0);
+    }
 }
