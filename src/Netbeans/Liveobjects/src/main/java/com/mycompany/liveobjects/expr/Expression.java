@@ -10,5 +10,5 @@ package com.mycompany.liveobjects.expr;
  * @author jakob
  */
 public interface Expression {
-    Emitter compile(ExpressionCompileContext ctx, boolean asExpression);
+    Emitter compile(boolean asExpression);
 }

@@ -23,7 +23,7 @@ public class Expressions {
     public static Expression integer(final int i) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -37,7 +37,7 @@ public class Expressions {
     public static Expression string(final String str) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -51,7 +51,7 @@ public class Expressions {
     public static Expression self() {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -65,7 +65,7 @@ public class Expressions {
     public static Expression thisContext() {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -87,11 +87,10 @@ public class Expressions {
     public static Expression sequence(List<Expression> items) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 List<Emitter> emitters = 
-                    Stream.concat(
-                        items.stream().limit(items.size() - 1).map(x -> x.compile(ctx, false)),
-                        Arrays.asList(items.get(items.size() - 1).compile(ctx, asExpression)).stream()
+                    Stream.concat(items.stream().limit(items.size() - 1).map(x -> x.compile(false)),
+                        Arrays.asList(items.get(items.size() - 1).compile(asExpression)).stream()
                     ).collect(Collectors.toList());
                 
                 return new Emitter() {
@@ -107,8 +106,8 @@ public class Expressions {
     public static Expression program(Expression code) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter codeEmitter = code.compile(ctx, true);
+            public Emitter compile(boolean asExpression) {
+                Emitter codeEmitter = code.compile(true);
                 
                 return new Emitter() {
                     @Override
@@ -124,7 +123,7 @@ public class Expressions {
     public static Expression getLocal(int contextDistance, final int ordinal) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -142,9 +141,9 @@ public class Expressions {
     public static Expression messageSend(Expression receiver, String selector, List<Expression> arguments) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter receiverEmitter = receiver.compile(ctx, true);
-                List<Emitter> argumentEmitters = arguments.stream().map(x -> x.compile(ctx, true)).collect(Collectors.toList());
+            public Emitter compile(boolean asExpression) {
+                Emitter receiverEmitter = receiver.compile(true);
+                List<Emitter> argumentEmitters = arguments.stream().map(x -> x.compile(true)).collect(Collectors.toList());
                 
                 return new Emitter() {
                     @Override
@@ -165,8 +164,8 @@ public class Expressions {
     public static Expression setLocal(int contextDistance, int ordinal, Expression valueExpression) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter valueEmitter = valueExpression.compile(ctx, true);
+            public Emitter compile(boolean asExpression) {
+                Emitter valueEmitter = valueExpression.compile(true);
                 
                 return new Emitter() {
                     @Override
@@ -190,8 +189,8 @@ public class Expressions {
     public static Expression block(int arity, int localCount, Expression body) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter bodyEmitter = body.compile(ctx, true);
+            public Emitter compile(boolean asExpression) {
+                Emitter bodyEmitter = body.compile(true);
                 
                 ArrayList<Instruction> bodyInstructions = new ArrayList<>();
                 
@@ -210,8 +209,8 @@ public class Expressions {
     public static Expression ret(Expression valueExpression) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter valueEmitter = valueExpression.compile(ctx, true);
+            public Emitter compile(boolean asExpression) {
+                Emitter valueEmitter = valueExpression.compile(true);
                 
                 return new Emitter() {
                     @Override
@@ -227,8 +226,8 @@ public class Expressions {
     public static Expression closure(Expression blockExpression) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter blockEmitter = blockExpression.compile(ctx, true);
+            public Emitter compile(boolean asExpression) {
+                Emitter blockEmitter = blockExpression.compile(true);
                 
                 return new Emitter() {
                     @Override
@@ -248,7 +247,7 @@ public class Expressions {
     public static Expression bool(boolean value) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -262,7 +261,7 @@ public class Expressions {
     public static Expression root() {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -278,7 +277,7 @@ public class Expressions {
     public static Expression top() {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
+            public Emitter compile(boolean asExpression) {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
@@ -294,10 +293,10 @@ public class Expressions {
     public static Expression cascade(Expression targetExpression, List<Expression> expressions) {
         return new Expression() {
             @Override
-            public Emitter compile(ExpressionCompileContext ctx, boolean asExpression) {
-                Emitter targetEmitter = targetExpression.compile(ctx, asExpression);
+            public Emitter compile(boolean asExpression) {
+                Emitter targetEmitter = targetExpression.compile(asExpression);
                 List<Emitter> emitters = expressions.stream()
-                    .map(e -> e.compile(ctx, false))
+                    .map(e -> e.compile(false))
                     .collect(Collectors.toList());
                 
                 return new Emitter() {

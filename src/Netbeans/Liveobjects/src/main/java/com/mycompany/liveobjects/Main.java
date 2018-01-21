@@ -79,7 +79,7 @@ public class Main {
                     Expression expression = compiler.compile(compileContext);
 
                     ArrayList<Instruction> instructions = new ArrayList<>();
-                    expression.compile(new DefaultExpressionCompileContext(), true).emit(instructions);
+                    expression.compile(true).emit(instructions);
 
                     DefaultEnvironment environment = new DefaultEnvironment(world, dispatcher, new Instruction[] {
                         Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
