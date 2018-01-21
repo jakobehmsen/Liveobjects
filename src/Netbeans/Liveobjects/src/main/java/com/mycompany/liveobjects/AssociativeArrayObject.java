@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class JDBCObject implements LObject {
+public class AssociativeArrayObject implements LObject {
     private int id;
     private Map<Integer, LObject> slots;
     private Map<Integer, LObject> parentSlots;
     private ObjectStore objectStore;
 
-    public JDBCObject(ObjectStore objectStore, int id) {
+    public AssociativeArrayObject(ObjectStore objectStore, int id) {
         this.id = id;
         this.objectStore = objectStore;
     }
@@ -104,13 +104,13 @@ public class JDBCObject implements LObject {
         try {
             objectStore.close();
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
     public LObject cloneObject(Environment environment) {
-        JDBCObject clone = new JDBCObject(objectStore, 0);
+        AssociativeArrayObject clone = new AssociativeArrayObject(objectStore, 0);
         
         clone.setParentSlot(environment.getSymbolCode("parent"), this, environment);
         
@@ -120,7 +120,7 @@ public class JDBCObject implements LObject {
     @Override
     public void nowUsedFrom(int id, Environment environment) {
         if(this.id == 0) {
-            this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots);
+            this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY);
         }
     }
 

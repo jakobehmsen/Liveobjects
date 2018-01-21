@@ -11,4 +11,6 @@ package com.mycompany.liveobjects;
  */
 public interface ObjectLoader {
     public LObject load(int id);
+
+    public ArrayLObject newArray(int length);
 }

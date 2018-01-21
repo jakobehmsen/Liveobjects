@@ -1,48 +1,31 @@
 package com.mycompany.liveobjects;
 
-import java.sql.Connection;
-import java.util.Hashtable;
-
 public class JDBCWorld implements World {
-    private InstructionSet instructionSet;
-    private Connection connection;
     private int rootObjectId;
     private int integerPrototypeId;
     private int framePrototypeId;
     private int closurePrototypeId;
     private int trueId;
     private int falseId;
-    private Hashtable<Integer, LObject> objectCache;
-    
+    private int arrayPrototypeId;    
     private ObjectLoader objectLoader;
 
-    public JDBCWorld(Connection connection, InstructionSet instructionSet) {
-        this(connection, instructionSet, 1, 2, 3, 4, 5, 6);
+    public JDBCWorld(ObjectLoader objectLoader) {
+        this(objectLoader, 1, 2, 3, 4, 5, 6, 7);
     }
 
-    public JDBCWorld(Connection connection, InstructionSet instructionSet, 
+    public JDBCWorld(ObjectLoader objectLoader, 
             int rootObjectId, int integerPrototypeId, 
             int framePrototypeId, int closurePrototypeId,
-            int trueId, int falseId) {
-        this.connection = connection;
-        this.instructionSet = instructionSet;
+            int trueId, int falseId, int arrayPrototypeId) {
+        this.objectLoader = objectLoader;
         this.rootObjectId = rootObjectId;
         this.integerPrototypeId = integerPrototypeId;
         this.framePrototypeId = framePrototypeId;
         this.closurePrototypeId = closurePrototypeId;
         this.trueId = trueId;
         this.falseId = falseId;
-        objectCache = new Hashtable<>();
-        
-        objectLoader = new ObjectLoader() {
-            private ObjectStore objectSlotTransactionFactory = new JDBCObjectStore(connection, instructionSet, this);
-
-            @Override
-            public LObject load(int id) {
-                return objectCache.computeIfAbsent(id, i -> 
-                    new JDBCObject(objectSlotTransactionFactory, id));
-            }
-        };
+        this.arrayPrototypeId = arrayPrototypeId;
     }
     
     private ObjectLoader getObjectLoader() {
@@ -77,5 +60,10 @@ public class JDBCWorld implements World {
     @Override
     public LObject getFalse() {
         return getObjectLoader().load(falseId);
+    }
+
+    @Override
+    public LObject getArrayPrototype() {
+        return getObjectLoader().load(arrayPrototypeId);
     }
 }

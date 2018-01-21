@@ -7,4 +7,5 @@ public interface World {
     LObject getClosurePrototype();
     LObject getTrue();
     LObject getFalse();
+    LObject getArrayPrototype();
 }

@@ -5,13 +5,43 @@ import java.util.function.BiFunction;
 
 
 public class DefaultDispatcher implements Dispatcher {
+    private ObjectLoader objectLoader;
     private Hashtable<Integer, Behavior> primitives = new Hashtable<>();
     private Hashtable<Integer, String> primitiveSelectors = new Hashtable<>();
+    
+    public DefaultDispatcher(ObjectLoader objectLoader) {
+        this.objectLoader = objectLoader;
+    }
 
     {
         addPrimitive("clone", (receiver, arguments, environment) -> {
             LObject value = receiver.cloneObject(environment);
             environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("arrayNew:", (receiver, arguments, environment) -> {
+            IntegerLObject length = (IntegerLObject) arguments[0];
+            ArrayLObject array = objectLoader.newArray(length.getValue());
+            environment.currentFrame().load(array);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("arrayAt:", (receiver, arguments, environment) -> {
+            ArrayLObject array = (ArrayLObject) receiver;
+            IntegerLObject index = (IntegerLObject) arguments[0];
+            environment.currentFrame().load(array.get(environment, index.getValue()));
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("arrayAt:set:", (receiver, arguments, environment) -> {
+            ArrayLObject array = (ArrayLObject) receiver;
+            IntegerLObject index = (IntegerLObject) arguments[1];
+            LObject obj = arguments[0];
+            array.set(environment, index.getValue(), obj);
+            environment.currentFrame().load(obj);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("arrayLength", (receiver, arguments, environment) -> {
+            ArrayLObject array = (ArrayLObject) receiver;
+            environment.currentFrame().load(new IntegerLObject(array.length(environment)));
             environment.currentFrame().incIP();
         });
         addPrimitive("evaluate", (receiver, arguments, environment) -> {
@@ -72,6 +102,11 @@ public class DefaultDispatcher implements Dispatcher {
         });
         addPrimitive("primFalse", (receiver, arguments, environment) -> {
             LObject value = environment.getWorld().getFalse();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primArrayProto", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getArrayPrototype();
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });

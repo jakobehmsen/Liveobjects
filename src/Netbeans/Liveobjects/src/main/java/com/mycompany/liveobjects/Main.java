@@ -43,8 +43,6 @@ public class Main {
         instructionSet.registerInstruction(15, Instructions.Root.DESCRIPTOR);
         instructionSet.registerInstruction(16, Instructions.Top.DESCRIPTOR);
         
-        Dispatcher dispatcher = new DefaultDispatcher();
-        
         JFrame frame = new JFrame("Liveobjects");
         
         Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
@@ -56,7 +54,9 @@ public class Main {
         
         srcTextPane.registerKeyboardAction(e -> {
             try {
-                World world = new JDBCWorld(connection, instructionSet);
+                LazyObjectLoader objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connection, instructionSet, ol));
+                Dispatcher dispatcher = new DefaultDispatcher(objectLoader);
+                World world = new JDBCWorld(objectLoader);
                 
                 String src = srcTextPane.getText();
                 DefaultCompileContext compileContext = new DefaultCompileContext();

@@ -31,6 +31,7 @@ public class JDBCObjectStore implements ObjectStore {
     private PreparedStatement slotInsertObjectStatement;
     private PreparedStatement slotBlobValueDeleteStatement;
     private PreparedStatement slotBlobValueInsertStatement;
+    private PreparedStatement slotSelectObjectTypeStatement;
     private InstructionSet instructionSet;
     private ObjectLoader objectLoader;
     
@@ -53,9 +54,11 @@ public class JDBCObjectStore implements ObjectStore {
             slotTypeUpdateStatement = connection.prepareStatement(
                     "UPDATE slot SET type = ? WHERE object_holder_id = ? AND symbol = ?");
             slotInsertObjectStatement = connection.prepareStatement(
-                    "INSERT INTO object (type) VALUES (0)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO object (type) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
+            slotSelectObjectTypeStatement = connection.prepareStatement(
+                    "SELECT type FROM object WHERE id = ?");
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -74,7 +77,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotReferenceValueDeleteStatement.setString(2, selector);
                     slotReferenceValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -92,7 +95,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -110,7 +113,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotTypeUpdateStatement.setInt(3, JDBCObjectStore.SLOT_TYPE_REFERENCE);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -158,7 +161,7 @@ public class JDBCObjectStore implements ObjectStore {
                     try {
                         instructionSet.writeInstruction(i, outputStream);
                     } catch (IOException ex) {
-                        Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
 
@@ -171,7 +174,7 @@ public class JDBCObjectStore implements ObjectStore {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     addBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -181,7 +184,7 @@ public class JDBCObjectStore implements ObjectStore {
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     updateBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -192,7 +195,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotBlobValueDeleteStatement.setString(2, selector);
                     slotBlobValueDeleteStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -211,7 +214,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotBlobValueInsertStatement.setBytes(3, value);
                     slotBlobValueInsertStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -230,7 +233,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotTypeUpdateStatement.setInt(3, type);
                     slotTypeUpdateStatement.execute();
                 } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -307,7 +310,7 @@ public class JDBCObjectStore implements ObjectStore {
                 }
             }
         } catch (SQLException | IOException ex) {
-            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -317,9 +320,10 @@ public class JDBCObjectStore implements ObjectStore {
     }
 
     @Override
-    public int nowUsedFrom(int id, Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    public int nowUsedFrom(int id, Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int type) {
         try {
             int generatedId;
+            slotInsertObjectStatement.setInt(1, type);
             slotInsertObjectStatement.execute();
             ResultSet generatedKeys = slotInsertObjectStatement.getGeneratedKeys();
             if(generatedKeys.next()) {
@@ -348,9 +352,36 @@ public class JDBCObjectStore implements ObjectStore {
             
             return generatedId;
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObject.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssociativeArrayObject.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return -1;
+    }
+
+    @Override
+    public LObject load(int id) {
+        try {
+            slotSelectObjectTypeStatement.setInt(1, id);
+            ResultSet rs = slotSelectObjectTypeStatement.executeQuery();
+            if(rs.next()) {
+                int type = rs.getInt(1);
+                
+                switch(type) {
+                    case ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY:
+                        return new AssociativeArrayObject(this, id);
+                    case ObjectStore.OBJECT_TYPE_ARRAY:
+                        return new ArrayLObject(this, id);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+
+    @Override
+    public ArrayLObject newArray(int value) {
+        return new ArrayLObject(this, 0, new LObject[value]);
     }
 }
