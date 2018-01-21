@@ -44,27 +44,25 @@ public class ArrayLObject extends IdentityLObject {
             readItems(environment);
         }
         
-        LObject currentValue = items[index];
-        
         if(id != 0) {
             newValue.nowUsedFrom(id, environment);
-        }
         
-        ObjectSlotTransaction slotTransaction = createObjectSlotTransaction("" + index);
+            ObjectSlotTransaction slotTransaction = createObjectSlotTransaction("" + index);
         
-        if(id != 0 && currentValue != null) {
-            currentValue.deleteSlotValue(slotTransaction);
-        }
+            LObject currentValue = items[index];
         
-        items[index] = newValue;
-        
-        if(id != 0) {
+            if(currentValue != null) {
+                currentValue.deleteSlotValue(slotTransaction);
+            }
+            
             if(currentValue == null) {
                 newValue.addSlot(slotTransaction);
             } else {
                 newValue.updateSlot(slotTransaction);
             }
         }
+        
+        items[index] = newValue;
     }
 
     public int length(Environment environment) {
