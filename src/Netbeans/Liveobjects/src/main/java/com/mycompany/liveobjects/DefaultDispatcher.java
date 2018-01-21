@@ -110,6 +110,16 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
+        addPrimitive("primBlockProto", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getBlockPrototype();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primStringProto", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getStringPrototype();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
         
         addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
             //sendResumeWith(receiver, arguments[0], environment);

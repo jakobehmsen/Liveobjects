@@ -54,6 +54,6 @@ public class StringLObject implements LObject {
 
     @Override
     public LObject resolve(int selector, Environment environment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return environment.getWorld().getStringPrototype().resolve(selector, environment);
     }
 }

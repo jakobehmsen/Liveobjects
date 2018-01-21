@@ -7,17 +7,20 @@ public class ObjectLoaderWorld implements World {
     private int closurePrototypeId;
     private int trueId;
     private int falseId;
-    private int arrayPrototypeId;    
+    private int arrayPrototypeId;
+    private int blockPrototypeId;
+    private int stringPrototypeId;
     private ObjectLoader objectLoader;
 
     public ObjectLoaderWorld(ObjectLoader objectLoader) {
-        this(objectLoader, 1, 2, 3, 4, 5, 6, 7);
+        this(objectLoader, 1, 2, 3, 4, 5, 6, 7, 8, 9);
     }
 
     public ObjectLoaderWorld(ObjectLoader objectLoader, 
             int rootObjectId, int integerPrototypeId, 
             int framePrototypeId, int closurePrototypeId,
-            int trueId, int falseId, int arrayPrototypeId) {
+            int trueId, int falseId, int arrayPrototypeId, 
+            int blockPrototypeId, int stringPrototypeId) {
         this.objectLoader = objectLoader;
         this.rootObjectId = rootObjectId;
         this.integerPrototypeId = integerPrototypeId;
@@ -26,6 +29,8 @@ public class ObjectLoaderWorld implements World {
         this.trueId = trueId;
         this.falseId = falseId;
         this.arrayPrototypeId = arrayPrototypeId;
+        this.blockPrototypeId = blockPrototypeId;
+        this.stringPrototypeId = stringPrototypeId;
     }
     
     private ObjectLoader getObjectLoader() {
@@ -65,5 +70,15 @@ public class ObjectLoaderWorld implements World {
     @Override
     public LObject getArrayPrototype() {
         return getObjectLoader().load(arrayPrototypeId);
+    }
+
+    @Override
+    public LObject getBlockPrototype() {
+        return getObjectLoader().load(blockPrototypeId);
+    }
+
+    @Override
+    public LObject getStringPrototype() {
+        return getObjectLoader().load(stringPrototypeId);
     }
 }

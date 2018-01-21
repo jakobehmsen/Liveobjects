@@ -8,4 +8,6 @@ public interface World {
     LObject getTrue();
     LObject getFalse();
     LObject getArrayPrototype();
+    LObject getBlockPrototype();
+    LObject getStringPrototype();
 }

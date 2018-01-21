@@ -92,6 +92,6 @@ public class Block implements LObject, Behavior {
 
     @Override
     public LObject resolve(int selector, Environment environment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return environment.getWorld().getBlockPrototype().resolve(selector, environment);
     }
 }
