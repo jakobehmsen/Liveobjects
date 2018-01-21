@@ -60,7 +60,8 @@ public class DefaultCompileContext implements CompileContext {
         if(isLocal(str)) {
             return 0;
         } else if(outerContext != null){
-            return outerContext.distanceToLocal(str) + 1;
+            int outerDistance = outerContext.distanceToLocal(str);
+            return outerDistance != -1 ? outerDistance + 1: -1;
         }
         
         return -1;
