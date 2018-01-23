@@ -313,4 +313,33 @@ public class Expressions {
             }
         };
     }
+
+    public static Expression whileTrue(Expression conditionExpression, Expression bodyExpression) {
+        return new Expression() {
+            @Override
+            public Emitter compile(boolean asExpression) {
+                // Only support when asExpression=false
+                Emitter conditionEmitter = conditionExpression.compile(true);
+                Emitter bodyEmitter = bodyExpression.compile(false);
+                
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        int startPosition = instructions.size();
+                        conditionEmitter.emit(instructions);
+                        ArrayList<Instruction> bodyInstructions = new ArrayList<>();
+                        bodyEmitter.emit(bodyInstructions);
+                        int endPosition = instructions.size() + bodyInstructions.size() + 2;
+                        instructions.add(Instructions.jumpIfFalse(endPosition));
+                        instructions.addAll(bodyInstructions);
+                        instructions.add(Instructions.jump(startPosition));
+                        
+                        if(asExpression) {
+                            instructions.add(Instructions.loadBool(true));
+                        }
+                    }
+                };
+            }
+        };
+    }
 }

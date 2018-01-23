@@ -1,8 +1,9 @@
 package com.mycompany.liveobjects;
 
 import java.util.Hashtable;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-
+import java.util.function.Function;
 
 public class DefaultDispatcher implements Dispatcher {
     private ObjectLoader objectLoader;
@@ -140,6 +141,11 @@ public class DefaultDispatcher implements Dispatcher {
         addIntegerBiFunction("subi:", (lhs, rhs) -> lhs - rhs);
         addIntegerBiFunction("muli:", (lhs, rhs) -> lhs * rhs);
         addIntegerBiFunction("divi:", (lhs, rhs) -> lhs / rhs);
+        addIntegerBooleanBiFunction("eqi:", (lhs, rhs) -> lhs == rhs);
+        addIntegerBooleanBiFunction("lti:", (lhs, rhs) -> lhs < rhs);
+        addIntegerBooleanBiFunction("ltei:", (lhs, rhs) -> lhs <= rhs);
+        addIntegerBooleanBiFunction("gti:", (lhs, rhs) -> lhs > rhs);
+        addIntegerBooleanBiFunction("gtei:", (lhs, rhs) -> lhs >= rhs);
     }
 
     private void addPrimitive(String selector, Behavior primitive) {
@@ -149,12 +155,29 @@ public class DefaultDispatcher implements Dispatcher {
     }
 
     private void addIntegerBiFunction(String selector, BiFunction<Integer, Integer, Integer> function) {
+        this.<IntegerLObject, Integer, Integer>addBiFunction(
+            selector, 
+            function, o -> o.getValue(), 
+            (e, r) -> e.currentFrame().loadInteger(r)
+        );
+    }
+
+    private void addIntegerBooleanBiFunction(String selector, BiFunction<Integer, Integer, Boolean> function) {
+        this.<IntegerLObject, Integer, Boolean>addBiFunction(
+            selector, 
+            function, o -> o.getValue(), 
+            (e, r) -> 
+                e.currentFrame().load(Instructions.LoadBool.wrap(r, e))
+        );
+    }
+
+    private <O extends LObject, T, R> void addBiFunction(String selector, BiFunction<T, T, R> function, Function<O, T> toValueFunction, BiConsumer<Environment, R> frameLoader) {
         addPrimitive(selector, (receiver, arguments, environment) -> {
             if(receiver instanceof IntegerLObject && arguments[0] instanceof IntegerLObject) {
-                IntegerLObject lhs = (IntegerLObject) receiver;
-                IntegerLObject rhs = (IntegerLObject) arguments[0];
-                int value = function.apply(lhs.getValue(), rhs.getValue());
-                environment.currentFrame().loadInteger(value);
+                LObject lhs = (IntegerLObject) receiver;
+                LObject rhs = (IntegerLObject) arguments[0];
+                R value = function.apply(toValueFunction.apply((O) lhs), toValueFunction.apply((O) rhs));
+                frameLoader.accept(environment, value);
                 environment.currentFrame().incIP();
             } else {
                 handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));

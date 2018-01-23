@@ -41,4 +41,6 @@ public interface Frame {
     public LObject getDistant(int contextDistance, int ordinal);
 
     public void setDistant(int contextDistance, int ordinal, LObject value);
+
+    public void setIP(int location);
 }

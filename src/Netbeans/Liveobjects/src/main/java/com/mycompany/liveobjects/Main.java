@@ -42,6 +42,8 @@ public class Main {
         instructionSet.registerInstruction(14, Instructions.LoadContext.descriptor);
         instructionSet.registerInstruction(15, Instructions.Root.DESCRIPTOR);
         instructionSet.registerInstruction(16, Instructions.Top.DESCRIPTOR);
+        instructionSet.registerInstruction(18, Instructions.JumpIfFalse.DESCRIPTOR);
+        instructionSet.registerInstruction(17, Instructions.Jump.DESCRIPTOR);
         
         JFrame frame = new JFrame("Liveobjects");
         

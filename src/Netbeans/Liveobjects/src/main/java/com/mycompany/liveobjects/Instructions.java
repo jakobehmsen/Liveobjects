@@ -8,6 +8,85 @@ import java.io.OutputStream;
 import java.util.List;
 
 public class Instructions {
+    public static class JumpIfFalse implements Instruction {
+        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
+            @Override
+            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+                dataOutputStream.writeInt(((JumpIfFalse)instruction).location);
+            }
+
+            @Override
+            public Instruction readInstruction(InputStream inputStream) throws IOException {
+                DataInputStream dataInputStream = new DataInputStream(inputStream);
+                int location = dataInputStream.readInt();
+                return new JumpIfFalse(location);
+            }
+        };
+        
+        private int location;
+
+        public JumpIfFalse(int location) {
+            this.location = location;
+        }
+
+        @Override
+        public void execute(Environment environment) {
+            LObject obj = environment.currentFrame().pop();
+            if(obj == environment.getWorld().getFalse()) {
+                environment.currentFrame().setIP(location);
+            } else {
+                environment.currentFrame().incIP();
+            }
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return DESCRIPTOR;
+        }
+    }
+    
+    public static Instruction jumpIfFalse(int location) {
+        return new JumpIfFalse(location);
+    }
+    
+    public static class Jump implements Instruction {
+        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
+            @Override
+            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
+                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+                dataOutputStream.writeInt(((Jump)instruction).location);
+            }
+
+            @Override
+            public Instruction readInstruction(InputStream inputStream) throws IOException {
+                DataInputStream dataInputStream = new DataInputStream(inputStream);
+                int location = dataInputStream.readInt();
+                return new Jump(location);
+            }
+        };
+        
+        private int location;
+
+        public Jump(int location) {
+            this.location = location;
+        }
+
+        @Override
+        public void execute(Environment environment) {
+            environment.currentFrame().setIP(location);
+        }
+
+        @Override
+        public InstructionDescriptor getDescriptor() {
+            return DESCRIPTOR;
+        }
+    }
+
+    public static Instruction jump(int location) {
+        return new Jump(location);
+    }
+    
     public static class Top implements Instruction {
         public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
             @Override
@@ -82,7 +161,7 @@ public class Instructions {
         }
     };
     
-    private static class LoadBool implements Instruction {
+    public static class LoadBool implements Instruction {
         private boolean value;
 
         public LoadBool(boolean value) {
@@ -91,9 +170,13 @@ public class Instructions {
 
         @Override
         public void execute(Environment environment) {
-            LObject bool = value ? environment.getWorld().getTrue() : environment.getWorld().getFalse();
+            LObject bool = wrap(value, environment);
             environment.currentFrame().load(bool);
             environment.currentFrame().incIP();
+        }
+        
+        public static LObject wrap(boolean value, Environment environment) {
+            return value ? environment.getWorld().getTrue() : environment.getWorld().getFalse();
         }
 
         @Override

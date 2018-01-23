@@ -207,6 +207,8 @@ public class Parser {
                 switch(selector) {
                     case "extend:":
                         return replaceExtend(targetCtx, selector, argumentCtxs);
+                    case "whileTrue:":
+                        return replaceWhileTrue(targetCtx, selector, argumentCtxs);
                 }
                 
                 return null;
@@ -225,6 +227,32 @@ public class Parser {
                 Map<String, Compiler> slotCompilers = parseObjectLiteralSlotCompilers(objectLiteralCtx);
                 
                 return extendCompiler(targetCompiler, slotCompilers);
+            }
+
+            private Compiler replaceWhileTrue(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                ParseTree conditionCtx = targetCtx.accept(new langBaseVisitor<langParser.BlockContext>() {
+                    @Override
+                    public langParser.BlockContext visitBlock(langParser.BlockContext ctx) {
+                        return ctx;
+                    }
+                }).expressions();
+                
+                ParseTree bodyCtx = argumentCtxs.get(0).accept(new langBaseVisitor<langParser.BlockContext>() {
+                    @Override
+                    public langParser.BlockContext visitBlock(langParser.BlockContext ctx) {
+                        return ctx;
+                    }
+                }).expressions();
+                
+                Compiler conditionCompiler = parse(conditionCtx);
+                Compiler bodyCompiler = parse(bodyCtx);
+                
+                return compileCtx -> {
+                    Expression conditionExpression = conditionCompiler.compile(compileCtx);
+                    Expression bodyExpression = bodyCompiler.compile(compileCtx);
+                    
+                    return Expressions.whileTrue(conditionExpression, bodyExpression);
+                };
             }
 
             @Override

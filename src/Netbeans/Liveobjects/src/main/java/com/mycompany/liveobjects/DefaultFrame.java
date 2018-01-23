@@ -178,4 +178,9 @@ public class DefaultFrame implements Frame, LObject {
             lexicalContext.setDistant(contextDistance - 1, ordinal, value);
         }
     }
+
+    @Override
+    public void setIP(int location) {
+        this.ip = location;
+    }
 }
