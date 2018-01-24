@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -31,19 +33,13 @@ public class Main {
         
         Connection connection = configuration.createConnection();
         
-        MutableInstructionSet instructionSet = new MutableInstructionSet();
-        
-        instructionSet.registerInstruction(8, Instructions.storeLocalDescriptor);
-        instructionSet.registerInstruction(9, Instructions.loadLocalDescriptor);
-        instructionSet.registerInstruction(10, Instructions.loadStringDescriptor);
-        instructionSet.registerInstruction(11, Instructions.retDescriptor);
-        instructionSet.registerInstruction(12, Instructions.loadIntegerDescriptor);
-        instructionSet.registerInstruction(13, Instructions.sendDescriptor);
-        instructionSet.registerInstruction(14, Instructions.LoadContext.descriptor);
-        instructionSet.registerInstruction(15, Instructions.Root.DESCRIPTOR);
-        instructionSet.registerInstruction(16, Instructions.Top.DESCRIPTOR);
-        instructionSet.registerInstruction(18, Instructions.JumpIfFalse.DESCRIPTOR);
-        instructionSet.registerInstruction(17, Instructions.Jump.DESCRIPTOR);
+        List<Class<? extends Instruction>> instructionClasses =
+            Arrays.asList(Instructions.class.getClasses()).stream()
+                .filter(c -> Instruction.class.isAssignableFrom(c))
+                .map(c -> (Class<? extends Instruction>)c)
+                .filter(c -> c.isAnnotationPresent(Operation.class))
+                .collect(Collectors.toList());
+        InstructionSet instructionSet = new OpcodeInstructionSet(new ReflectiveInstructionDescriptorResolver(instructionClasses));
         
         JFrame frame = new JFrame("Liveobjects");
         

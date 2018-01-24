@@ -10,35 +10,28 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Hashtable;
 
-/**
- *
- * @author jakob
- */
-public class MutableInstructionSet implements InstructionSet {
-    private Hashtable<Integer, InstructionDescriptor> opcodeToDescriptorMap = new Hashtable<>();
-    private Hashtable<InstructionDescriptor, Integer> descriptorToOpcodeMap = new Hashtable<>();
-    
-    public void registerInstruction(int opcode, InstructionDescriptor descriptor) {
-        opcodeToDescriptorMap.put(opcode, descriptor);
-        descriptorToOpcodeMap.put(descriptor, opcode);
+public class OpcodeInstructionSet implements InstructionSet {
+    private InstructionDescriptorResolver instructionDescriptorResolver;
+
+    public OpcodeInstructionSet(InstructionDescriptorResolver instructionDescriptorResolver) {
+        this.instructionDescriptorResolver = instructionDescriptorResolver;
     }
 
     @Override
     public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-        InstructionDescriptor descriptor = instruction.getDescriptor();
-        int opcode = descriptorToOpcodeMap.get(descriptor);
+        int opcode = instructionDescriptorResolver.getOpcode(instruction);
+        InstructionDescriptor descriptor = instructionDescriptorResolver.getDescriptor(opcode);
         DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
         dataOutputStream.writeInt(opcode);
-        descriptor.writeInstruction(instruction, outputStream);
+        descriptor.writeInstruction(this, instruction, outputStream);
     }
 
     @Override
     public Instruction readInstruction(InputStream inputStream) throws IOException {
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         int opcode = dataInputStream.readInt();
-        InstructionDescriptor descriptor = opcodeToDescriptorMap.get(opcode);
-        return descriptor.readInstruction(inputStream);
+        InstructionDescriptor descriptor = instructionDescriptorResolver.getDescriptor(opcode);
+        return descriptor.readInstruction(this, inputStream);
     }
 }

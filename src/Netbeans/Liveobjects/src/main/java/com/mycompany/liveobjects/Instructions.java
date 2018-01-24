@@ -1,29 +1,12 @@
 package com.mycompany.liveobjects;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 
 public class Instructions {
+    @Operation(opcode = 1)
     public static class JumpIfFalse implements Instruction {
-        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
-            @Override
-            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-                dataOutputStream.writeInt(((JumpIfFalse)instruction).location);
-            }
-
-            @Override
-            public Instruction readInstruction(InputStream inputStream) throws IOException {
-                DataInputStream dataInputStream = new DataInputStream(inputStream);
-                int location = dataInputStream.readInt();
-                return new JumpIfFalse(location);
-            }
-        };
-        
+        @Operand(ordinal = 0)
         private int location;
 
         public JumpIfFalse(int location) {
@@ -39,33 +22,15 @@ public class Instructions {
                 environment.currentFrame().incIP();
             }
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return DESCRIPTOR;
-        }
     }
     
     public static Instruction jumpIfFalse(int location) {
         return new JumpIfFalse(location);
     }
     
+    @Operation(opcode = 2)
     public static class Jump implements Instruction {
-        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
-            @Override
-            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-                dataOutputStream.writeInt(((Jump)instruction).location);
-            }
-
-            @Override
-            public Instruction readInstruction(InputStream inputStream) throws IOException {
-                DataInputStream dataInputStream = new DataInputStream(inputStream);
-                int location = dataInputStream.readInt();
-                return new Jump(location);
-            }
-        };
-        
+        @Operand(ordinal = 0)
         private int location;
 
         public Jump(int location) {
@@ -76,39 +41,18 @@ public class Instructions {
         public void execute(Environment environment) {
             environment.currentFrame().setIP(location);
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return DESCRIPTOR;
-        }
     }
 
     public static Instruction jump(int location) {
         return new Jump(location);
     }
     
+    @Operation(opcode = 3)
     public static class Top implements Instruction {
-        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
-            @Override
-            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-                
-            }
-
-            @Override
-            public Instruction readInstruction(InputStream inputStream) throws IOException {
-                return new Top();
-            }
-        };
-
         @Override
         public void execute(Environment environment) {
             environment.currentFrame().dup();
             environment.currentFrame().incIP();
-        }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return DESCRIPTOR;
         }
     }
 
@@ -116,52 +60,23 @@ public class Instructions {
         return new Top();
     }
     
+    @Operation(opcode = 4)
     public static class Root implements Instruction {
-        public static final InstructionDescriptor DESCRIPTOR = new InstructionDescriptor() {
-            @Override
-            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-                
-            }
-
-            @Override
-            public Instruction readInstruction(InputStream inputStream) throws IOException {
-                return new Root();
-            }
-        };
-        
         @Override
         public void execute(Environment environment) {
             LObject root = environment.getWorld().getRoot();
             environment.currentFrame().load(root);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return DESCRIPTOR;
-        }   
     }
     
     public static Instruction root() {
         return new Root();
     }
     
-    public static InstructionDescriptor loadBoolDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeBoolean(((LoadBool)instruction).value);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            boolean value = dataInputStream.readBoolean();
-            return new LoadBool(value);
-        }
-    };
-    
+    @Operation(opcode = 5)
     public static class LoadBool implements Instruction {
+        @Operand(ordinal = 0)
         private boolean value;
 
         public LoadBool(boolean value) {
@@ -178,30 +93,14 @@ public class Instructions {
         public static LObject wrap(boolean value, Environment environment) {
             return value ? environment.getWorld().getTrue() : environment.getWorld().getFalse();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return loadBoolDescriptor;
-        }
     }
     
     public static Instruction loadBool(boolean value) {
         return new LoadBool(value);
     }
     
-    public static InstructionDescriptor closureDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            return new Closure();
-        }
-    };
-    
-    private static class Closure implements Instruction {
+    @Operation(opcode = 6)
+    public static class Closure implements Instruction {
         @Override
         public void execute(Environment environment) {
             Block block = (Block) environment.currentFrame().pop();
@@ -210,36 +109,17 @@ public class Instructions {
             environment.currentFrame().load(closure);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return closureDescriptor;
-        }
     }
 
     public static Instruction closure() {
         return new Closure();
     }
     
-    public static InstructionDescriptor storeContextLocalDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeInt(((StoreContextLocal)instruction).contextDistance);
-            dataOutputStream.writeInt(((StoreContextLocal)instruction).ordinal);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            int contextDistance = dataInputStream.readInt();
-            int ordinal = dataInputStream.readInt();
-            return new StoreContextLocal(contextDistance, ordinal);
-        }
-    };
-    
-    private static class StoreContextLocal implements Instruction {
+    @Operation(opcode = 7)
+    public static class StoreContextLocal implements Instruction {
+        @Operand(ordinal = 0)
         private int contextDistance;
+        @Operand(ordinal = 1)
         private int ordinal;
 
         public StoreContextLocal(int contextDistance, int ordinal) {
@@ -253,36 +133,17 @@ public class Instructions {
             environment.currentFrame().setDistant(contextDistance, ordinal, distantValue);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return storeContextLocalDescriptor;
-        }
     }
 
     public static Instruction storeDistant(int contextDistance, int ordinal) {
         return new StoreContextLocal(contextDistance, ordinal);
     }
     
-    public static InstructionDescriptor loadContextLocalDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeInt(((LoadContextLocal)instruction).contextDistance);
-            dataOutputStream.writeInt(((LoadContextLocal)instruction).ordinal);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            int contextDistance = dataInputStream.readInt();
-            int ordinal = dataInputStream.readInt();
-            return new LoadContextLocal(contextDistance, ordinal);
-        }
-    };
-    
-    private static class LoadContextLocal implements Instruction {
+    @Operation(opcode = 8)
+    public static class LoadContextLocal implements Instruction {
+        @Operand(ordinal = 0)
         private int contextDistance;
+        @Operand(ordinal = 1)
         private int ordinal;
 
         public LoadContextLocal(int contextDistance, int ordinal) {
@@ -296,52 +157,18 @@ public class Instructions {
             environment.currentFrame().load(distantValue);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return loadContextLocalDescriptor;
-        }
     }
 
     public static Instruction loadContextLocal(int contextDistance, int ordinal) {
         return new LoadContextLocal(contextDistance, ordinal);
     }
     
-    public static InstructionDescriptor loadLocalDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            new DataOutputStream(outputStream).writeInt(((LoadLocal)instruction).i);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            int i = new DataInputStream(inputStream).readInt();
-            return new LoadLocal(i);
-        }
-    };
-    
+    @Operation(opcode = 9)
     public static class LoadContext implements Instruction {
-        public static InstructionDescriptor descriptor = new InstructionDescriptor() {
-            @Override
-            public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-                
-            }
-
-            @Override
-            public Instruction readInstruction(InputStream inputStream) throws IOException {
-                return new LoadContext();
-            }
-        };
-        
         @Override
         public void execute(Environment environment) {
             environment.currentFrame().loadContext();
             environment.currentFrame().incIP();
-        }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return descriptor;
         }
     }
 
@@ -349,16 +176,12 @@ public class Instructions {
         return new LoadContext();
     }
     
+    @Operation(opcode = 10)
     public static class Dup implements Instruction {
         @Override
         public void execute(Environment environment) {
             environment.currentFrame().dup();
             environment.currentFrame().incIP();
-        }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 
@@ -366,20 +189,9 @@ public class Instructions {
         return new Dup();
     }
     
-    public static InstructionDescriptor storeLocalDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            new DataOutputStream(outputStream).writeInt(((StoreLocal)instruction).ordinal);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            int ordinal = new DataInputStream(inputStream).readInt();
-            return new StoreLocal(ordinal);
-        }
-    };
-    
+    @Operation(opcode = 11)
     public static class StoreLocal implements Instruction {
+        @Operand(ordinal = 0)
         private int ordinal;
 
         public StoreLocal(int ordinal) {
@@ -391,18 +203,15 @@ public class Instructions {
             environment.currentFrame().store(ordinal);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return storeLocalDescriptor;
-        }
     }
 
     public static Instruction storeLocal(int ordinal) {
         return new StoreLocal(ordinal);
     }
     
+    @Operation(opcode = 12)
     public static class LoadLocal implements Instruction {
+        @Operand(ordinal = 0)
         private int i;
 
         public LoadLocal(int i) {
@@ -414,33 +223,15 @@ public class Instructions {
             environment.currentFrame().load(i);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return loadLocalDescriptor;
-        }
     }
     
     public static Instruction loadLocal(final int i) {
         return new LoadLocal(i);
     }
     
-    public static InstructionDescriptor loadStringDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeUTF(((LoadString)instruction).str);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            String str = dataInputStream.readUTF();
-            return new LoadString(str);
-        }
-    };
-    
+    @Operation(opcode = 13)
     public static class LoadString implements Instruction {
+        @Operand(ordinal = 0)
         private String str;
 
         public LoadString(String str) {
@@ -452,33 +243,15 @@ public class Instructions {
             environment.currentFrame().loadString(str);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return loadStringDescriptor;
-        }
     }
 
     public static Instruction loadString(final String str) {
         return new LoadString(str);
     }
     
-    public static InstructionDescriptor loadIntegerDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeInt(((LoadInteger)instruction).i);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            int i = dataInputStream.readInt();
-            return new LoadInteger(i);
-        }
-    };
-    
+    @Operation(opcode = 14)
     public static class LoadInteger implements Instruction {
+        @Operand(ordinal = 0)
         private int i;
 
         public LoadInteger(int i) {
@@ -490,28 +263,11 @@ public class Instructions {
             environment.currentFrame().loadInteger(i);
             environment.currentFrame().incIP();
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return loadIntegerDescriptor;
-        }
     }
 
     public static Instruction loadInteger(final int i) {
         return new LoadInteger(i);
     }
-    
-    public static InstructionDescriptor cloneObjectDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    };
 
     public static Instruction send(final int selector, final int arity) {
         return new Instruction() {
@@ -522,32 +278,14 @@ public class Instructions {
                 LObject receiver = environment.currentFrame().pop();
                 environment.send(receiver, selector, arguments);
             }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
         };
     }
     
-    public static InstructionDescriptor sendDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) throws IOException {
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeUTF(((Send)instruction).selector);
-            dataOutputStream.writeInt(((Send)instruction).arity);
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) throws IOException {
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            
-            return new Send(dataInputStream.readUTF(), dataInputStream.readInt());
-        }
-    };
-    
+    @Operation(opcode = 15)
     public static class Send implements Instruction {
+        @Operand(ordinal = 0)
         private String selector;
+        @Operand(ordinal = 1)
         private int arity;
 
         public Send(String selector, int arity) {
@@ -560,149 +298,85 @@ public class Instructions {
             int symbolCode = environment.getSymbolCode(selector);
             environment.currentFrame().replaceInstruction(Instructions.send(symbolCode, arity));
         }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return sendDescriptor;
-        }
     }
 
     public static Instruction send(String selector, int arity) {
         return new Send(selector, arity);
     }
     
-    public static InstructionDescriptor finishDescriptor = new InstructionDescriptor() {
+    @Operation(opcode = 16)
+    public static class Finish implements Instruction {
         @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        public void execute(Environment environment) {
+            environment.finish();
         }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    };
-
+    }
+    
     public static Instruction finish() {
-        return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.finish();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return finishDescriptor;
-            }
-        };
+        return new Finish();
     }
     
-    public static InstructionDescriptor dup2Descriptor = new InstructionDescriptor() {
+    @Operation(opcode = 17)
+    public static class Dup2 implements Instruction {
         @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        public void execute(Environment environment) {
+            environment.currentFrame().dup2();
+            environment.currentFrame().incIP();
         }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    };
-
+    }
+    
     public static Instruction dup2() {
-        return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().dup2();
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return dup2Descriptor;
-            }
-        };
+        return new Dup2();
     }
     
-    public static InstructionDescriptor popDescriptor = new InstructionDescriptor() {
+    @Operation(opcode = 18)
+    public static class Pop implements Instruction {
         @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        public void execute(Environment environment) {
+            environment.currentFrame().pop();
+            environment.currentFrame().incIP();
         }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-    };
-
+    }
+    
     public static Instruction pop() {
-        return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().pop();
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return popDescriptor;
-            }
-        };
+        return new Pop();
     }
     
-    public static InstructionDescriptor loadBlockDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
+    @Operation(opcode = 19)
+    public static class LoadBlock implements Instruction {
+        @Operand(ordinal = 0)
+        private int arity;
+        @Operand(ordinal = 1)
+        private int varCount;
+        @Operand(ordinal = 2)
+        private Instruction[] bodyInstructions;
 
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        public LoadBlock(int arity, int varCount, Instruction[] bodyInstructions) {
+            this.arity = arity;
+            this.varCount = varCount;
+            this.bodyInstructions = bodyInstructions;
         }
-    };
-
-    public static Instruction loadBlock(int arity, int varCount, List<Instruction> bodyInstructions) {
-        final Block block = new Block(arity, varCount, bodyInstructions);
         
-        return new Instruction() {
-            @Override
-            public void execute(Environment environment) {
-                environment.currentFrame().load(block);
-                environment.currentFrame().incIP();
-            }
-
-            @Override
-            public InstructionDescriptor getDescriptor() {
-                return loadBlockDescriptor;
-            }
-        };
+        @Override
+        public void execute(Environment environment) {
+            Block block = new Block(arity, varCount, Arrays.asList(bodyInstructions));
+            
+            environment.currentFrame().load(block);
+            environment.currentFrame().incIP();
+        }
     }
     
-    public static InstructionDescriptor retDescriptor = new InstructionDescriptor() {
-        @Override
-        public void writeInstruction(Instruction instruction, OutputStream outputStream) {
-            
-        }
-
-        @Override
-        public Instruction readInstruction(InputStream inputStream) {
-            return new RetInstruction();
-        }
-    };
+    public static Instruction loadBlock(int arity, int varCount, List<Instruction> bodyInstructions) {
+        return new LoadBlock(arity, varCount, bodyInstructions.stream().toArray(s -> new Instruction[s]));
+    }
     
+    @Operation(opcode = 20)
     public static class RetInstruction implements Instruction {
         @Override
         public void execute(Environment environment) {
             LObject sender = environment.currentFrame().sender();
             LObject result = environment.currentFrame().pop();
             environment.getDispatcher().sendResumeWithInRet(sender, result, environment);
-        }
-
-        @Override
-        public InstructionDescriptor getDescriptor() {
-            return retDescriptor;
         }
     }
 
