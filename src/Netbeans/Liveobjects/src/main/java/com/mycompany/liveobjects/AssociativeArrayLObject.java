@@ -24,11 +24,21 @@ public class AssociativeArrayLObject extends IdentityLObject {
         
         ensureSlotsRead(environment);
         
+        // Look into parent slots also?
         return slots.get(symbolCode);
     }
 
     @Override
     public LObject setSlot(Environment environment, LObject[] arguments) {
+        return setSlot(environment, arguments, ObjectStore.REFERENCE_TYPE_NORMAL);
+    }
+
+    @Override
+    public LObject setParentSlot(Environment environment, LObject[] arguments) {
+        return setSlot(environment, arguments, ObjectStore.REFERENCE_TYPE_PARENT);
+    }
+
+    private LObject setSlot(Environment environment, LObject[] arguments, int referenceType) {
         final StringLObject selector = (StringLObject)arguments[1];
         int symbolCode = environment.getSymbolCode(selector.getValue());
         
@@ -36,7 +46,11 @@ public class AssociativeArrayLObject extends IdentityLObject {
         
         LObject newValue = arguments[0];
         
-        return setSlot(environment, ObjectStore.REFERENCE_TYPE_NORMAL, symbolCode, newValue);
+        return setSlot(environment, referenceType, symbolCode, newValue);
+    }
+
+    public LObject setParentSlot(int symbolCode, LObject parent, Environment environment) {
+        return setSlot(environment, ObjectStore.REFERENCE_TYPE_PARENT, symbolCode, parent);
     }
     
     private LObject setSlot(Environment environment, int referenceType, int symbolCode, LObject newValue) {
@@ -63,10 +77,17 @@ public class AssociativeArrayLObject extends IdentityLObject {
         
         switch(referenceType) {
             case ObjectStore.REFERENCE_TYPE_NORMAL:
+                parentSlots.remove(symbolCode);
                 slots.put(symbolCode, newValue);
                 break;
             case ObjectStore.REFERENCE_TYPE_PARENT:
-                parentSlots.put(symbolCode, newValue);
+                boolean thisIsParentOfNewParent = false;//newValue.isParent(this);
+                if(thisIsParentOfNewParent) {
+                    environment.currentFrame().handlePrimitiveError(environment, newValue);
+                } else {
+                    slots.remove(symbolCode);
+                    parentSlots.put(symbolCode, newValue);
+                }
                 break;
         }
         
@@ -123,11 +144,5 @@ public class AssociativeArrayLObject extends IdentityLObject {
         if(slots == null) {
             readSlots(environment);
         }
-    }
-
-    public LObject setParentSlot(int symbolCode, LObject parent, Environment environment) {
-        // Should test that parent isn't child of this
-        
-        return setSlot(environment, ObjectStore.REFERENCE_TYPE_PARENT, symbolCode, parent);
     }
 }

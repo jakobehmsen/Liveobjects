@@ -18,14 +18,6 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitObjectSlotUnquotedValue(@NotNull langParser.ObjectSlotUnquotedValueContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
 	@Override public T visitString(@NotNull langParser.StringContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -35,6 +27,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitBool(@NotNull langParser.BoolContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
+	@Override public T visitObjectSlotUnquoted(@NotNull langParser.ObjectSlotUnquotedContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -122,6 +122,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitParentSelector(@NotNull langParser.ParentSelectorContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitBehaviorBody(@NotNull langParser.BehaviorBodyContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -147,14 +155,6 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitExpression(@NotNull langParser.ExpressionContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
-	@Override public T visitObjectSlotValue(@NotNull langParser.ObjectSlotValueContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -274,5 +274,5 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
-	@Override public T visitObjectSlotQuotedValue(@NotNull langParser.ObjectSlotQuotedValueContext ctx) { return visitChildren(ctx); }
+	@Override public T visitObjectSlotQuoted(@NotNull langParser.ObjectSlotQuotedContext ctx) { return visitChildren(ctx); }
 }

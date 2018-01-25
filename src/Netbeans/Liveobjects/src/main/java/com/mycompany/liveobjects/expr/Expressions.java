@@ -77,11 +77,15 @@ public class Expressions {
     }
     
     public static Expression setSlot(final Expression target, final String symbol, final Expression value) {
-        return messageSend(target, PrimitiveSelectors.SET_SLOT_SELECTOR, Arrays.asList(Expressions.string(symbol), value));
+        if(symbol.startsWith("*")) {
+            return messageSend(target, PrimitiveSelectors.SET_PARENT_SLOT, Arrays.asList(Expressions.string(symbol), value));
+        } else {
+            return messageSend(target, PrimitiveSelectors.SET_SLOT, Arrays.asList(Expressions.string(symbol), value));
+        }
     }
     
     public static Expression getSlot(final Expression target, final String symbol) {
-        return messageSend(target, PrimitiveSelectors.GET_SLOT_SELECTOR, Arrays.asList(Expressions.string(symbol)));
+        return messageSend(target, PrimitiveSelectors.GET_SLOT, Arrays.asList(Expressions.string(symbol)));
     }
 
     public static Expression sequence(List<Expression> items) {

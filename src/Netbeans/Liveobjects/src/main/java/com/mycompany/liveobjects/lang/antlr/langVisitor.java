@@ -12,13 +12,6 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link langParser#objectSlotUnquotedValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectSlotUnquotedValue(@NotNull langParser.ObjectSlotUnquotedValueContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link langParser#string}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -31,6 +24,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBool(@NotNull langParser.BoolContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link langParser#objectSlotUnquoted}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectSlotUnquoted(@NotNull langParser.ObjectSlotUnquotedContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#kwSelector}.
@@ -103,6 +103,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitBlock(@NotNull langParser.BlockContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link langParser#parentSelector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParentSelector(@NotNull langParser.ParentSelectorContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#behaviorBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -129,13 +136,6 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpression(@NotNull langParser.ExpressionContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link langParser#objectSlotValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectSlotValue(@NotNull langParser.ObjectSlotValueContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link langParser#objectLiteral}.
@@ -236,9 +236,9 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitSelf(@NotNull langParser.SelfContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link langParser#objectSlotQuotedValue}.
+	 * Visit a parse tree produced by {@link langParser#objectSlotQuoted}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitObjectSlotQuotedValue(@NotNull langParser.ObjectSlotQuotedValueContext ctx);
+	T visitObjectSlotQuoted(@NotNull langParser.ObjectSlotQuotedContext ctx);
 }

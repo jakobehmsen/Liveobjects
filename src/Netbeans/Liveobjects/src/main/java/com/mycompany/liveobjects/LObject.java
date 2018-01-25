@@ -19,4 +19,10 @@ public interface LObject {
     default LObject setSlot(Environment environment, LObject[] arguments) {
         throw new UnsupportedOperationException();
     }
+
+    default LObject setParentSlot(Environment environment, LObject[] arguments) {
+        throw new UnsupportedOperationException();
+    }
+
+    //boolean isParent(Environment environment, LObject obj)
 }

@@ -382,24 +382,47 @@ public class Parser {
                         .collect(Collectors.toList());
                     return Expressions.cascade(target, setSlotExpressions);
                 };
-            }
+            }            
             
             private Map<String, Compiler> parseObjectLiteralSlotCompilers(langParser.ObjectLiteralContext ctx) {
                 Hashtable<String, Compiler> slotCompilers  = new Hashtable<>();
                         
                 ctx.objectSlot().forEach(objectSlot -> {
-                    MessageProtocol messageProtocol = parseMessageProtocol(objectSlot.behaviorSelector());
-                    
-                    Compiler slotValueCompiler = objectSlot.objectSlotValue().accept(new langBaseVisitor<Compiler>() {
+                    MessageProtocol messageProtocol = objectSlot.accept(new langBaseVisitor<MessageProtocol>() {
                         @Override
-                        public Compiler visitObjectSlotQuotedValue(langParser.ObjectSlotQuotedValueContext ctx) {
-                            return parseBehavior(ctx.expressions(), messageProtocol);
-                        }
+                        public MessageProtocol visitObjectSlotUnquoted(langParser.ObjectSlotUnquotedContext objectSlotUnquotedCtx) {
+                            boolean isParent = objectSlotUnquotedCtx.ASTERISK() != null;
+                            String selector = (isParent ? "*" : "") + objectSlotUnquotedCtx.id.getText();
+                            
+                            return new MessageProtocol() {
+                                @Override
+                                public String getSelector() {
+                                    return selector;
+                                }
 
+                                @Override
+                                public List<String> getParameters() {
+                                    return Arrays.asList();
+                                }
+                            };
+                        }
+                        
                         @Override
-                        public Compiler visitObjectSlotUnquotedValue(langParser.ObjectSlotUnquotedValueContext ctx) {
-                            Compiler compiler = parse(ctx.expression1());
+                        public MessageProtocol visitObjectSlotQuoted(langParser.ObjectSlotQuotedContext objectSlotQuotedCtx) {
+                            return parseMessageProtocol(objectSlotQuotedCtx.behaviorSelector());
+                        }
+                    });
+                    
+                    Compiler slotValueCompiler = objectSlot.accept(new langBaseVisitor<Compiler>() {
+                        @Override
+                        public Compiler visitObjectSlotUnquoted(langParser.ObjectSlotUnquotedContext objectSlotUnquotedCtx) {
+                            Compiler compiler = parse(objectSlotUnquotedCtx.expression1());
                             return compiler;
+                        }
+                        
+                        @Override
+                        public Compiler visitObjectSlotQuoted(langParser.ObjectSlotQuotedContext objectSlotQuotedCtx) {
+                            return parseBehavior(objectSlotQuotedCtx.expressions(), messageProtocol);
                         }
                     });
                     

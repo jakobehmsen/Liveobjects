@@ -65,13 +65,18 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
-        addPrimitive("getSlot:", (receiver, arguments, environment) -> {
+        addPrimitive(PrimitiveSelectors.GET_SLOT, (receiver, arguments, environment) -> {
             LObject value = receiver.getSlot(environment, arguments);
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
-        addPrimitive("setSlot:to:", (receiver, arguments, environment) -> {
+        addPrimitive(PrimitiveSelectors.SET_SLOT, (receiver, arguments, environment) -> {
             LObject value = receiver.setSlot(environment, arguments);
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive(PrimitiveSelectors.SET_PARENT_SLOT, (receiver, arguments, environment) -> {
+            LObject value = receiver.setParentSlot(environment, arguments);
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
