@@ -1,17 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.liveobjects;
 
 import java.util.List;
 
-/**
- *
- * @author jakob
- */
-public class Block implements LObject, Behavior {
+public class Block extends PrimitiveLObject implements Behavior {
     private int arity;
     private int varCount;
     private List<Instruction> instructions;
@@ -20,12 +11,6 @@ public class Block implements LObject, Behavior {
         this.arity = arity;
         this.varCount = varCount;
         this.instructions = instructions;
-    }
-
-    @Override
-    public void send(int selector, LObject[] arguments, Environment environment) {
-        Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(this, arguments, environment);
     }
 
     @Override
@@ -45,7 +30,7 @@ public class Block implements LObject, Behavior {
 
     @Override
     public LObject cloneObject(Environment environment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this;
     }
 
     @Override
@@ -91,12 +76,7 @@ public class Block implements LObject, Behavior {
     }
 
     @Override
-    public LObject resolve(int selector, Environment environment) {
-        return environment.getWorld().getBlockPrototype().resolve(selector, environment);
-    }
-
-    @Override
-    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected LObject getProto(Environment environment) {
+        return environment.getWorld().getBlockPrototype();
     }
 }

@@ -2,7 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.Stack;
 
-public class DefaultFrame implements Frame, LObject {
+public class DefaultFrame extends PrimitiveLObject implements Frame {
     private LObject sender;
     private Instruction[] instructions;
     private int ip;
@@ -121,9 +121,26 @@ public class DefaultFrame implements Frame, LObject {
     }
 
     @Override
-    public void send(int selector, LObject[] arguments, Environment environment) {
-        Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(this, arguments, environment);
+    public LObject getDistant(int contextDistance, int ordinal) {
+        if(contextDistance == 0) {
+            return stack.get(ordinal);
+        } else {
+            return lexicalContext.getDistant(contextDistance - 1, ordinal);
+        }
+    }
+
+    @Override
+    public void setDistant(int contextDistance, int ordinal, LObject value) {
+        if(contextDistance == 0) {
+            stack.set(ordinal, value);
+        } else {
+            lexicalContext.setDistant(contextDistance - 1, ordinal, value);
+        }
+    }
+
+    @Override
+    public void setIP(int location) {
+        this.ip = location;
     }
 
     @Override
@@ -157,35 +174,7 @@ public class DefaultFrame implements Frame, LObject {
     }
 
     @Override
-    public LObject resolve(int selector, Environment environment) {
-        return environment.getWorld().getFramePrototype().resolve(selector, environment);
-    }
-
-    @Override
-    public LObject getDistant(int contextDistance, int ordinal) {
-        if(contextDistance == 0) {
-            return stack.get(ordinal);
-        } else {
-            return lexicalContext.getDistant(contextDistance - 1, ordinal);
-        }
-    }
-
-    @Override
-    public void setDistant(int contextDistance, int ordinal, LObject value) {
-        if(contextDistance == 0) {
-            stack.set(ordinal, value);
-        } else {
-            lexicalContext.setDistant(contextDistance - 1, ordinal, value);
-        }
-    }
-
-    @Override
-    public void setIP(int location) {
-        this.ip = location;
-    }
-
-    @Override
-    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
-        return environment.getWorld().getFramePrototype().isParent(environment, obj);
+    protected LObject getProto(Environment environment) {
+        return environment.getWorld().getFramePrototype();
     }
 }

@@ -1,15 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.liveobjects;
 
-/**
- *
- * @author jakob
- */
-public class Closure implements LObject, Behavior {
+public class Closure extends PrimitiveLObject implements Behavior {
     private Frame frame;
     private Block block;
 
@@ -29,12 +20,6 @@ public class Closure implements LObject, Behavior {
     @Override
     public void invoke(LObject receiver, LObject[] arguments, Environment environment) {
         evaluateAs(receiver, arguments, environment);
-    }
-
-    @Override
-    public void send(int selector, LObject[] arguments, Environment environment) {
-        Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(this, arguments, environment);
     }
 
     @Override
@@ -68,12 +53,7 @@ public class Closure implements LObject, Behavior {
     }
 
     @Override
-    public LObject resolve(int selector, Environment environment) {
-        return environment.getWorld().getClosurePrototype().resolve(selector, environment);
-    }
-
-    @Override
-    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
-        return environment.getWorld().getClosurePrototype().isParent(environment, obj);
+    protected LObject getProto(Environment environment) {
+        return environment.getWorld().getClosurePrototype();
     }
 }

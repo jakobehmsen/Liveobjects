@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public class StringLObject implements LObject {
+public class StringLObject extends PrimitiveLObject {
     private String value;
 
     public StringLObject(String value) {
@@ -9,12 +9,6 @@ public class StringLObject implements LObject {
 
     public String getValue() {
         return value;
-    }
-
-    @Override
-    public void send(int selector, LObject[] arguments, Environment environment) {
-        Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(this, arguments, environment);
     }
 
     @Override
@@ -39,12 +33,12 @@ public class StringLObject implements LObject {
 
     @Override
     public void nowUsedFrom(int id, Environment environment) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     @Override
     public void nowUnusedFrom(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     @Override
@@ -53,12 +47,7 @@ public class StringLObject implements LObject {
     }
 
     @Override
-    public LObject resolve(int selector, Environment environment) {
-        return environment.getWorld().getStringPrototype().resolve(selector, environment);
-    }
-
-    @Override
-    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
-        return environment.getWorld().getStringPrototype().isParent(environment, obj);
+    protected LObject getProto(Environment environment) {
+        return environment.getWorld().getStringPrototype();
     }
 }
