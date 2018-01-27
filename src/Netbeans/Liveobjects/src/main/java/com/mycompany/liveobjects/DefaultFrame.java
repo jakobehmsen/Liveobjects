@@ -183,4 +183,9 @@ public class DefaultFrame implements Frame, LObject {
     public void setIP(int location) {
         this.ip = location;
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        return environment.getWorld().getFramePrototype().isParent(environment, obj);
+    }
 }

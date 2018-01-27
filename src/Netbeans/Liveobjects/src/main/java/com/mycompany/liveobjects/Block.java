@@ -94,4 +94,9 @@ public class Block implements LObject, Behavior {
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getBlockPrototype().resolve(selector, environment);
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

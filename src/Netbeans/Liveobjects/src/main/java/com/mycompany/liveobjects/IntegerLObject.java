@@ -56,4 +56,9 @@ public class IntegerLObject implements LObject {
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getIntegerPrototype().resolve(selector, environment);
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        return environment.getWorld().getIntegerPrototype().isParent(environment, obj);
+    }
 }

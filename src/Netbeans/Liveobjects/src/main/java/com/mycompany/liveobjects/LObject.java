@@ -24,5 +24,5 @@ public interface LObject {
         throw new UnsupportedOperationException();
     }
 
-    //boolean isParent(Environment environment, LObject obj)
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj);
 }

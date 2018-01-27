@@ -81,9 +81,12 @@ public class AssociativeArrayLObject extends IdentityLObject {
                 slots.put(symbolCode, newValue);
                 break;
             case ObjectStore.REFERENCE_TYPE_PARENT:
-                boolean thisIsParentOfNewParent = false;//newValue.isParent(this);
+                boolean thisIsParentOfNewParent = newValue.isParent(environment, this);
                 if(thisIsParentOfNewParent) {
-                    environment.currentFrame().handlePrimitiveError(environment, newValue);
+                    String selector = environment.getSymbolString(symbolCode);
+                    environment.currentFrame().handlePrimitiveError(
+                        environment, 
+                        new StringLObject("Can not set parent slot '" + selector + "' to child."));
                 } else {
                     slots.remove(symbolCode);
                     parentSlots.put(symbolCode, newValue);
@@ -145,4 +148,21 @@ public class AssociativeArrayLObject extends IdentityLObject {
             readSlots(environment);
         }
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        ensureSlotsRead(environment);
+        if(parentSlots.isEmpty()) {
+            return false;
+        } else {
+            if(parentSlots.containsValue(obj)) {
+                return true;
+            } else {
+                return parentSlots.values().stream()
+                    .anyMatch(p -> p.isParent(environment, obj));
+            }
+        }
+    }
+    
+    
 }

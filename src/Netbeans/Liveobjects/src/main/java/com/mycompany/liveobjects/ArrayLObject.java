@@ -107,4 +107,9 @@ public class ArrayLObject extends IdentityLObject {
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getArrayPrototype().resolve(selector, environment);
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        return environment.getWorld().getArrayPrototype().isParent(environment, obj);
+    }
 }

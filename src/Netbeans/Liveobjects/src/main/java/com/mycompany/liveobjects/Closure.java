@@ -71,4 +71,9 @@ public class Closure implements LObject, Behavior {
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getClosurePrototype().resolve(selector, environment);
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        return environment.getWorld().getClosurePrototype().isParent(environment, obj);
+    }
 }

@@ -56,4 +56,9 @@ public class StringLObject implements LObject {
     public LObject resolve(int selector, Environment environment) {
         return environment.getWorld().getStringPrototype().resolve(selector, environment);
     }
+
+    @Override
+    public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
+        return environment.getWorld().getStringPrototype().isParent(environment, obj);
+    }
 }
