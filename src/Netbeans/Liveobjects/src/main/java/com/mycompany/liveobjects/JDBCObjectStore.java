@@ -108,10 +108,7 @@ public class JDBCObjectStore implements ObjectStore {
                     slotReferenceValueInsertStatement.setInt(4, referenceType);
                     slotReferenceValueInsertStatement.execute();
                     
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector);
-                    slotTypeUpdateStatement.setInt(3, JDBCObjectStore.SLOT_TYPE_REFERENCE);
-                    slotTypeUpdateStatement.execute();
+                    updateSlotType(id, selector, JDBCObjectStore.SLOT_TYPE_REFERENCE);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -228,13 +225,17 @@ public class JDBCObjectStore implements ObjectStore {
                     slotBlobValueInsertStatement.setBytes(3, value);
                     slotBlobValueInsertStatement.execute();
                     
-                    slotTypeUpdateStatement.setInt(1, id);
-                    slotTypeUpdateStatement.setString(2, selector);
-                    slotTypeUpdateStatement.setInt(3, type);
-                    slotTypeUpdateStatement.execute();
+                    updateSlotType(id, selector, type);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+            
+            private void updateSlotType(int id, String selector, int type) throws SQLException {
+                slotTypeUpdateStatement.setInt(1, type);
+                slotTypeUpdateStatement.setInt(2, id);
+                slotTypeUpdateStatement.setString(3, selector);
+                slotTypeUpdateStatement.execute();
             }
         };
     }
