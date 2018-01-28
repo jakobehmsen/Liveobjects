@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class ArrayLObject extends IdentityLObject {
@@ -111,5 +112,10 @@ public class ArrayLObject extends IdentityLObject {
     @Override
     public boolean isParent(Environment environment, AssociativeArrayLObject obj) {
         return environment.getWorld().getArrayPrototype().isParent(environment, obj);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(items);
     }
 }

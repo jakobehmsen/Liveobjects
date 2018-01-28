@@ -32,4 +32,13 @@ public abstract class IdentityLObject implements LObject {
         
         return clone;
     }
+
+    @Override
+    public String toString() {
+        if(id != -1) {
+            return "#" + id;
+        } else {
+            return super.toString();
+        }
+    }
 }
