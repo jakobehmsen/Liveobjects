@@ -94,7 +94,7 @@ public class Main {
                     connection.commit();
 
                     LObject result = environment.currentFrame().peek();
-                    String resultAsString = result.toString();
+                    String resultAsString = result.toString(environment);
                     resultTextPane.setText(resultAsString);
                 }
             } catch (SQLException ex) {

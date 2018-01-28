@@ -25,4 +25,8 @@ public interface LObject {
     }
 
     public boolean isParent(Environment environment, AssociativeArrayLObject obj);
+    
+    default String toString(Environment environment) {
+        return toString();
+    }
 }

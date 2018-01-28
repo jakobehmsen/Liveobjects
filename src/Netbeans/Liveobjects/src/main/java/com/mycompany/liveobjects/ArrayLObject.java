@@ -2,6 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.stream.Collectors;
 
 public class ArrayLObject extends IdentityLObject {
     private LObject[] items;
@@ -117,5 +118,16 @@ public class ArrayLObject extends IdentityLObject {
     @Override
     public String toString() {
         return Arrays.toString(items);
+    }
+
+    @Override
+    public String toString(Environment environment) {
+        if(items == null) {
+            readItems(environment);
+        }
+        
+        return "[" + Arrays.asList(items).stream()
+                .map(x -> x != null ? x.toString(environment) : "nil")
+                .collect(Collectors.joining(",")) + "]";
     }
 }
