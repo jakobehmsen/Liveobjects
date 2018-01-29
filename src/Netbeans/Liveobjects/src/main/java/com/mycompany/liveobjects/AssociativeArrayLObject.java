@@ -56,24 +56,7 @@ public class AssociativeArrayLObject extends IdentityLObject {
     private LObject setSlot(Environment environment, int referenceType, int symbolCode, LObject newValue) {
         ensureSlotsRead(environment);
         
-        if(id != 0) {
-            newValue.nowUsedFrom(id, environment);
-            
-            String selector = environment.getSymbolString(symbolCode);
-            LObject currentValue = slots.get(symbolCode);
-            
-            ObjectSlotTransaction slotTransaction = createObjectSlotTransaction(selector, referenceType);
-        
-            if(currentValue != null) {
-                currentValue.deleteSlotValue(slotTransaction);
-            }
-            
-            if(currentValue == null) {
-                newValue.addSlot(slotTransaction);
-            } else {
-                newValue.updateSlot(slotTransaction);
-            }
-        }
+        writeSlot(environment, referenceType, symbolCode, newValue);
         
         switch(referenceType) {
             case ObjectStore.REFERENCE_TYPE_NORMAL:
@@ -96,9 +79,22 @@ public class AssociativeArrayLObject extends IdentityLObject {
         
         return newValue;
     }
-    
-    private ObjectSlotTransaction createObjectSlotTransaction(String selector, int referenceType) {
-        return objectStore.createObjectSlotTransaction(id, selector, referenceType);
+
+    @Override
+    protected String getSelector(Environment environment, int referenceType, int symbolCode) {
+        return environment.getSymbolString(symbolCode);
+    }
+
+    @Override
+    protected LObject getValue(Environment environment, int referenceType, int symbolCode, String selector) {
+        switch(referenceType) {
+            case ObjectStore.REFERENCE_TYPE_NORMAL:
+                return slots.get(symbolCode);
+            case ObjectStore.REFERENCE_TYPE_PARENT:
+                return parentSlots.get(symbolCode);
+        }
+        
+        return null;
     }
 
     @Override

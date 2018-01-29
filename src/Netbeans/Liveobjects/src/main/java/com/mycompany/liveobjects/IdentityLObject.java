@@ -41,4 +41,34 @@ public abstract class IdentityLObject implements LObject {
             return super.toString();
         }
     }
+    
+    protected void writeSlot(Environment environment, int referenceType, int symbolCode, LObject newValue) {
+        if(id != 0) {
+            newValue.nowUsedFrom(id, environment);
+            
+            String selector = getSelector(environment, referenceType, symbolCode);
+            
+            ObjectSlotTransaction slotTransaction = createObjectSlotTransaction(selector, referenceType);
+            
+            LObject currentValue = getValue(environment, referenceType, symbolCode, selector);
+        
+            if(currentValue != null) {
+                currentValue.deleteSlotValue(slotTransaction);
+            }
+            
+            if(currentValue == null) {
+                newValue.addSlot(slotTransaction);
+            } else {
+                newValue.updateSlot(slotTransaction);
+            }
+        }
+    }
+    
+    protected abstract String getSelector(Environment environment, int referenceType, int symbolCode);
+    
+    protected abstract LObject getValue(Environment environment, int referenceType, int symbolCode, String selector);
+    
+    protected ObjectSlotTransaction createObjectSlotTransaction(String selector, int referenceType) {
+        return objectStore.createObjectSlotTransaction(id, selector, referenceType);
+    }
 }

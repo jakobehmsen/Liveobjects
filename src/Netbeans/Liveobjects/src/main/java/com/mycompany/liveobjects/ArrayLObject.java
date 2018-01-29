@@ -46,25 +46,19 @@ public class ArrayLObject extends IdentityLObject {
             readItems(environment);
         }
         
-        if(id != 0) {
-            newValue.nowUsedFrom(id, environment);
-        
-            ObjectSlotTransaction slotTransaction = createObjectSlotTransaction("" + index);
-        
-            LObject currentValue = items[index];
-        
-            if(currentValue != null) {
-                currentValue.deleteSlotValue(slotTransaction);
-            }
-            
-            if(currentValue == null) {
-                newValue.addSlot(slotTransaction);
-            } else {
-                newValue.updateSlot(slotTransaction);
-            }
-        }
+        writeSlot(environment, ObjectStore.REFERENCE_TYPE_NORMAL, index, newValue);
         
         items[index] = newValue;
+    }
+
+    @Override
+    protected String getSelector(Environment environment, int referenceType, int symbolCode) {
+        return "" + symbolCode;
+    }
+
+    @Override
+    protected LObject getValue(Environment environment, int referenceType, int symbolCode, String selector) {
+        return items[symbolCode];
     }
 
     public int length(Environment environment) {
@@ -73,10 +67,6 @@ public class ArrayLObject extends IdentityLObject {
         }
         
         return items.length;
-    }
-    
-    private ObjectSlotTransaction createObjectSlotTransaction(String selector) {
-        return objectStore.createObjectSlotTransaction(id, selector, ObjectStore.REFERENCE_TYPE_NORMAL);
     }
 
     @Override
