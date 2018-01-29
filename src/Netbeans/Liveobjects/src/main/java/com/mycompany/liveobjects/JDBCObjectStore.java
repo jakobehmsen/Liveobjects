@@ -71,7 +71,7 @@ public class JDBCObjectStore implements ObjectStore {
             }
 
             @Override
-            public void deleteSlotReferenceValue(int id) {
+            public void deleteSlotReferenceValue(int otherId) {
                 try {
                     slotReferenceValueDeleteStatement.setInt(1, id);
                     slotReferenceValueDeleteStatement.setString(2, selector);
