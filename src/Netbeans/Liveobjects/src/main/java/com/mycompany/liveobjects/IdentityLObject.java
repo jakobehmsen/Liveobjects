@@ -1,5 +1,8 @@
 package com.mycompany.liveobjects;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 public abstract class IdentityLObject implements LObject {
     protected int id;
     protected ObjectStore objectStore;
@@ -70,5 +73,24 @@ public abstract class IdentityLObject implements LObject {
     
     protected ObjectSlotTransaction createObjectSlotTransaction(String selector, int referenceType) {
         return objectStore.createObjectSlotTransaction(id, selector, referenceType);
+    }
+
+    @Override
+    public void nowUsedFrom(int id, Environment environment) {
+        if(this.id == 0) {
+            Hashtable<Integer, LObject> slots = new Hashtable<>();
+            Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
+            writeSlots(environment, slots, parentSlots);
+            this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, getObjectType());
+        }
+    }
+    
+    protected abstract int getObjectType();
+    
+    protected abstract void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots);
+
+    @Override
+    public void nowUnusedFrom(int id) {
+        
     }
 }

@@ -2,6 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ArrayLObject extends IdentityLObject {
@@ -76,23 +77,18 @@ public class ArrayLObject extends IdentityLObject {
     }
 
     @Override
-    public void nowUsedFrom(int id, Environment environment) {
-        if(this.id == 0) {
-            Hashtable<Integer, LObject> slots = new Hashtable<>();
-            for(int i = 0; i < items.length; i++) {
-                if(items[i] != null) {
-                    slots.put(environment.getSymbolCode("" + i), items[i]);
-                }
-            }
-            slots.put(environment.getSymbolCode("length"), new IntegerLObject(items.length));
-            Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-            this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, ObjectStore.OBJECT_TYPE_ARRAY);
-        }
+    protected int getObjectType() {
+        return ObjectStore.OBJECT_TYPE_ARRAY;
     }
 
     @Override
-    public void nowUnusedFrom(int id) {
-        
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+        for(int i = 0; i < items.length; i++) {
+            if(items[i] != null) {
+                slots.put(environment.getSymbolCode("" + i), items[i]);
+            }
+        }
+        slots.put(environment.getSymbolCode("length"), new IntegerLObject(items.length));
     }
 
     @Override

@@ -98,15 +98,14 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
 
     @Override
-    public void nowUsedFrom(int id, Environment environment) {
-        if(this.id == 0) {
-            this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY);
-        }
+    protected int getObjectType() {
+        return ObjectStore.OBJECT_TYPE_ASSOCIATIVE_ARRAY;
     }
 
     @Override
-    public void nowUnusedFrom(int id) {
-        
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+        slots.putAll(this.slots);
+        parentSlots.putAll(this.parentSlots);
     }
 
     @Override
