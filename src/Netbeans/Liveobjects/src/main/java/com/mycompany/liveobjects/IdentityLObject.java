@@ -93,4 +93,13 @@ public abstract class IdentityLObject implements LObject {
     public void nowUnusedFrom(int id) {
         
     }
+    
+    protected void readSlots(Environment environment) {
+        Hashtable<Integer, LObject> slots = new Hashtable<>();
+        Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
+        objectStore.readSlots(environment, id, slots, parentSlots);
+        readSlots(environment, slots, parentSlots);
+    }
+    
+    protected abstract void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots);
 }

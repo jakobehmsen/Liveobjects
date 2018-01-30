@@ -1,7 +1,6 @@
 package com.mycompany.liveobjects;
 
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,10 +18,18 @@ public class ArrayLObject extends IdentityLObject {
         this.items = items;
     }
     
+    private void ensureItemsRead(Environment environment) {
+        if(items == null) {
+            readItems(environment);
+        }
+    }
+    
     private void readItems(Environment environment) {
-        Hashtable<Integer, LObject> slots = new Hashtable<>();
-        Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-        objectStore.readSlots(environment, id, slots, parentSlots);
+        readSlots(environment);
+    }
+    
+    @Override
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
         IntegerLObject length = (IntegerLObject) slots.get(environment.getSymbolCode("length"));
         items = new LObject[length.getValue()];
         slots.forEach((symbolCode, obj) -> {
@@ -35,17 +42,13 @@ public class ArrayLObject extends IdentityLObject {
     }
     
     public LObject get(Environment environment, int index) {
-        if(items == null) {
-            readItems(environment);
-        }
+        ensureItemsRead(environment);
         
         return items[index];
     }
     
     public void set(Environment environment, int index, LObject newValue) {
-        if(items == null) {
-            readItems(environment);
-        }
+        ensureItemsRead(environment);
         
         writeSlot(environment, ObjectStore.REFERENCE_TYPE_NORMAL, index, newValue);
         
@@ -63,9 +66,7 @@ public class ArrayLObject extends IdentityLObject {
     }
 
     public int length(Environment environment) {
-        if(items == null) {
-            readItems(environment);
-        }
+        ensureItemsRead(environment);
         
         return items.length;
     }
@@ -108,9 +109,7 @@ public class ArrayLObject extends IdentityLObject {
 
     @Override
     public String toString(Environment environment) {
-        if(items == null) {
-            readItems(environment);
-        }
+        ensureItemsRead(environment);
         
         return "[" + Arrays.asList(items).stream()
                 .map(x -> x != null ? x.toString(environment) : "nil")

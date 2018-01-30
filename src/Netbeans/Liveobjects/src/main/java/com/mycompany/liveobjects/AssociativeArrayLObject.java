@@ -11,10 +11,10 @@ public class AssociativeArrayLObject extends IdentityLObject {
         super(id, objectStore);
     }
     
-    private void readSlots(Environment environment) {
-        slots = new Hashtable<>();
-        parentSlots = new Hashtable<>();
-        objectStore.readSlots(environment, id, slots, parentSlots);
+    @Override
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+        this.slots = new Hashtable<>(slots);
+        this.parentSlots = new Hashtable<>(parentSlots);
     }
 
     @Override
