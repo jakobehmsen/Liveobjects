@@ -194,7 +194,7 @@ public class Parser {
                     CompileContext behaviorCompilerCtx = compileCtx.newForBlock(locals, false);
                     Expression bodyExpression = Expressions.ret(bodyCompiler.compile(behaviorCompilerCtx));
                     Expression blockExpression = Expressions.block(messageProtocol.getParameters().size(), behaviorCompilerCtx.localCount() - messageProtocol.getParameters().size(), bodyExpression);
-                    return Expressions.setSlot(Expressions.self(), messageProtocol.getSelector(), blockExpression);
+                    return blockExpression;
                 };
             }
 
@@ -388,6 +388,7 @@ public class Parser {
 
             @Override
             public Compiler visitObjectLiteral(langParser.ObjectLiteralContext ctx) {
+                Compiler targetCompiler = compileContext -> Expressions.self();
                 Map<String, Compiler> slotCompilers = parseObjectLiteralSlotCompilers(ctx);
                 
                 return extendCompiler(
