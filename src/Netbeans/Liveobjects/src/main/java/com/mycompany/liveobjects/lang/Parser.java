@@ -44,6 +44,28 @@ public class Parser {
         langLexer lexer = new langLexer(new ANTLRInputStream(src));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         langParser parser = new langParser(tokens);
+                
+        lexer.addErrorListener(new ANTLRErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
+                errorHandler.syntaxError(i, i1, string);
+            }
+
+            @Override
+            public void reportAmbiguity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
+   
+            }
+
+            @Override
+            public void reportAttemptingFullContext(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
+         
+            }
+
+            @Override
+            public void reportContextSensitivity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
+          
+            }
+        });
         
         parser.addErrorListener(new ANTLRErrorListener() {
             @Override
