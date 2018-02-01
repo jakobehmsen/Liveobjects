@@ -19,7 +19,7 @@ expression3             : expression4 unaryMessage*;
 unaryMessage            : DOT ID;
 expression4             : number | string | identifier | block | 
                           embeddedExpression | self | thisContext |
-                          bool | objectLiteral;
+                          bool | objectLiteral | nil;
 number                  : NUMBER;
 string                  : STRING;
 identifier              : ID;
@@ -35,11 +35,13 @@ objectLiteral           : OPEN_BRA objectSlot* CLOSE_BRA;
 objectSlot              : objectSlotUnquoted | objectSlotQuoted;
 objectSlotUnquoted      : ASTERISK? id=ID FRAME_ASSIGN expression1;
 objectSlotQuoted        : behaviorSelector OPEN_BRA expressions CLOSE_BRA;
+nil                     : KW_NIL;
 
 KW_SELF: 'self';
 KW_TRUE: 'true';
 KW_FALSE: 'false';
 KW_THIS_CONTEXT: 'thisContext';
+KW_NIL: 'nil';
 SELF_ASSIGN: ':=';
 FRAME_ASSIGN: '=';
 PIPE: '|';

@@ -74,6 +74,14 @@ public class langBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitNil(@NotNull langParser.NilContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitNumber(@NotNull langParser.NumberContext ctx) { return visitChildren(ctx); }
 
 	/**

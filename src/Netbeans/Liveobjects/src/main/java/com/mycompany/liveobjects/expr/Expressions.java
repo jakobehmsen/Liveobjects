@@ -27,7 +27,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadInteger(i));
+                        if(asExpression) {
+                            instructions.add(Instructions.loadInteger(i));
+                        }
                     }
                 };
             }
@@ -41,7 +43,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadString(str));
+                        if(asExpression) {
+                            instructions.add(Instructions.loadString(str));
+                        }
                     }
                 };
             }
@@ -55,7 +59,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadLocal(0));
+                        if(asExpression) {
+                            instructions.add(Instructions.loadLocal(0));
+                        }
                     }
                 };
             }
@@ -69,7 +75,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadContext());
+                        if(asExpression) {
+                            instructions.add(Instructions.loadContext());
+                        }
                     }
                 };
             }
@@ -131,10 +139,12 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        if(contextDistance == 0) {
-                            instructions.add(Instructions.loadLocal(ordinal));
-                        } else {
-                            instructions.add(Instructions.loadContextLocal(contextDistance, ordinal));
+                        if(asExpression) {
+                            if(contextDistance == 0) {
+                                instructions.add(Instructions.loadLocal(ordinal));
+                            } else {
+                                instructions.add(Instructions.loadContextLocal(contextDistance, ordinal));
+                            }
                         }
                     }
                 };
@@ -203,7 +213,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadBlock(arity, localCount, bodyInstructions));
+                        if(asExpression) {
+                            instructions.add(Instructions.loadBlock(arity, localCount, bodyInstructions));
+                        }
                     }
                 };
             }
@@ -255,7 +267,9 @@ public class Expressions {
                 return new Emitter() {
                     @Override
                     public void emit(List<Instruction> instructions) {
-                        instructions.add(Instructions.loadBool(value));
+                        if(asExpression) {
+                            instructions.add(Instructions.loadBool(value));
+                        }
                     }
                 };
             }
@@ -340,6 +354,22 @@ public class Expressions {
                         
                         if(asExpression) {
                             instructions.add(Instructions.loadBool(true));
+                        }
+                    }
+                };
+            }
+        };
+    }
+    
+    public static Expression nil() {
+        return new Expression() {
+            @Override
+            public Emitter compile(boolean asExpression) {
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        if(asExpression) {
+                            instructions.add(Instructions.loadNil());
                         }
                     }
                 };

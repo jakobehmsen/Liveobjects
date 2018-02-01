@@ -61,6 +61,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitBinarySelector(@NotNull langParser.BinarySelectorContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link langParser#nil}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNil(@NotNull langParser.NilContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#number}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -431,6 +431,11 @@ public class Parser {
                 
                 return slotCompilers;
             }
+
+            @Override
+            public Compiler visitNil(langParser.NilContext ctx) {
+                return compileCtx -> Expressions.nil();
+            }
         });
     }
 }

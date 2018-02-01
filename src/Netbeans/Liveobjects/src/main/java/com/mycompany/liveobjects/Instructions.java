@@ -383,4 +383,18 @@ public class Instructions {
     public static Instruction ret() {
         return new RetInstruction();
     }
+    
+    @Operation(opcode = 21)
+    public static class LoadNil implements Instruction {
+        @Override
+        public void execute(Environment environment) {
+            LObject nil = environment.getWorld().getNil();
+            environment.currentFrame().load(nil);
+            environment.currentFrame().incIP();
+        }
+    }
+
+    public static Instruction loadNil() {
+        return new LoadNil();
+    }
 }

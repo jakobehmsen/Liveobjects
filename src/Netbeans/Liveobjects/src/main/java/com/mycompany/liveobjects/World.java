@@ -10,4 +10,5 @@ public interface World {
     LObject getArrayPrototype();
     LObject getBlockPrototype();
     LObject getStringPrototype();
+    LObject getNil();
 }
