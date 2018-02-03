@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public class IntegerLObject extends PrimitiveLObject {
+public class IntegerLObject implements PrimitiveLObject {
     private int value;
     
     public IntegerLObject(int value) {
@@ -47,7 +47,7 @@ public class IntegerLObject extends PrimitiveLObject {
     }
 
     @Override
-    protected LObject getProto(Environment environment) {
+    public LObject getProto(Environment environment) {
         return environment.getWorld().getIntegerPrototype();
     }
 }

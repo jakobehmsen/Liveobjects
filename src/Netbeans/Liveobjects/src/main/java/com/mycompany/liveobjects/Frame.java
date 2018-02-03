@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public interface Frame {
+public interface Frame extends LObject {
 
     public void load(LObject value);
 
@@ -30,7 +30,7 @@ public interface Frame {
 
     public void store(int ordinal);
 
-    public void allocate(int localCount);
+    public void allocate(Environment environment, int localCount);
     
     public void handlePrimitiveError(Environment environment, LObject error);
     
@@ -38,9 +38,13 @@ public interface Frame {
 
     public void loadContext();
 
-    public LObject getDistant(int contextDistance, int ordinal);
+    public LObject getDistant(Environment environment, int contextDistance, int ordinal);
 
-    public void setDistant(int contextDistance, int ordinal, LObject value);
+    public void setDistant(Environment environment, int contextDistance, int ordinal, LObject value);
 
     public void setIP(int location);
+
+    void executeNext(Environment environment);
+
+    public void onHalt(Environment environment);
 }

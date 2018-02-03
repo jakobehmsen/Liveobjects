@@ -13,4 +13,6 @@ public interface ObjectLoader {
     public LObject load(int id);
 
     public ArrayLObject newArray(int length);
+    public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext);
+    public Frame newFrame(LObject sender, Instruction[] instructions);
 }

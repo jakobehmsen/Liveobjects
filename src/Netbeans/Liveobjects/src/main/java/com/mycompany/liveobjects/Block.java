@@ -2,7 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.List;
 
-public class Block extends PrimitiveLObject implements Behavior {
+public class Block implements PrimitiveLObject, Behavior {
     private int arity;
     private int varCount;
     private List<Instruction> instructions;
@@ -54,7 +54,7 @@ public class Block extends PrimitiveLObject implements Behavior {
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount - 1);
+        environment.currentFrame().allocate(environment, varCount - 1);
     }
 
     public void evaluate(LObject receiver, LObject[] arguments, Environment environment) {
@@ -63,7 +63,7 @@ public class Block extends PrimitiveLObject implements Behavior {
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount - 1);
+        environment.currentFrame().allocate(environment, varCount - 1);
     }
 
     public void evaluate(LObject receiver, LObject[] arguments, Environment environment, LObject sender) {
@@ -72,11 +72,11 @@ public class Block extends PrimitiveLObject implements Behavior {
         for (LObject argument : arguments) {
             environment.currentFrame().load(argument);
         }
-        environment.currentFrame().allocate(varCount - 1);
+        environment.currentFrame().allocate(environment, varCount - 1);
     }
 
     @Override
-    protected LObject getProto(Environment environment) {
+    public LObject getProto(Environment environment) {
         return environment.getWorld().getBlockPrototype();
     }
 }

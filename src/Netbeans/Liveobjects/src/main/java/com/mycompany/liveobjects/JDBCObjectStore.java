@@ -372,6 +372,8 @@ public class JDBCObjectStore implements ObjectStore {
                         return new AssociativeArrayLObject(this, id);
                     case ObjectStore.OBJECT_TYPE_ARRAY:
                         return new ArrayLObject(this, id);
+                    case ObjectStore.OBJECT_TYPE_CONTEXT:
+                        return new DefaultFrame(id, this);
                 }
             }
         } catch (SQLException ex) {
@@ -389,5 +391,15 @@ public class JDBCObjectStore implements ObjectStore {
     @Override
     public AssociativeArrayLObject newAssociativeArray() {
         return new AssociativeArrayLObject(this, 0);
+    }
+
+    @Override
+    public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext) {
+        return new DefaultFrame(0, this, sender, instructions, lexicalContext);
+    }
+
+    @Override
+    public Frame newFrame(LObject sender, Instruction[] instructions) {
+        return new DefaultFrame(0, this, sender, instructions);
     }
 }

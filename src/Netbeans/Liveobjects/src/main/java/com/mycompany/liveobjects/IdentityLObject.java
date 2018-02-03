@@ -38,7 +38,7 @@ public abstract class IdentityLObject implements LObject {
 
     @Override
     public String toString() {
-        if(id != -1) {
+        if(id != 0) {
             return "#" + id;
         } else {
             return super.toString();
@@ -82,6 +82,17 @@ public abstract class IdentityLObject implements LObject {
             Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
             writeSlots(environment, slots, parentSlots);
             this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, getObjectType());
+        }
+    }
+    
+    protected void writeSlots(Environment environment) {
+        if(id != 0) {
+            Hashtable<Integer, LObject> slots = new Hashtable<>();
+            Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
+            writeSlots(environment, slots, parentSlots);
+
+            slots.entrySet().forEach(e -> writeSlot(environment, ObjectStore.REFERENCE_TYPE_NORMAL, e.getKey(), e.getValue()));
+            parentSlots.entrySet().forEach(e -> writeSlot(environment, ObjectStore.REFERENCE_TYPE_PARENT, e.getKey(), e.getValue()));
         }
     }
     

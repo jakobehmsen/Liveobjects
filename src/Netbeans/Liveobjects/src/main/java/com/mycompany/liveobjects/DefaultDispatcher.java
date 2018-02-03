@@ -135,6 +135,29 @@ public class DefaultDispatcher implements Dispatcher {
                 resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("resumeWith:"));
             }
         });
+        addPrimitive("getDistant:at:", (receiver, arguments, environment) -> {
+            if(receiver instanceof Frame) {
+                IntegerLObject ordinal = (IntegerLObject) arguments[1];
+                IntegerLObject contextDistance = (IntegerLObject) arguments[0];
+                LObject obj = ((Frame)receiver).getDistant(environment, contextDistance.getValue(), ordinal.getValue());
+                environment.currentFrame().load(obj);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("getDistant:at:"));
+            }
+        });
+        addPrimitive("setDistant:at:to:", (receiver, arguments, environment) -> {
+            if(receiver instanceof Frame) {
+                LObject value = (IntegerLObject) arguments[0];
+                IntegerLObject contextDistance = (IntegerLObject) arguments[1];
+                IntegerLObject ordinal = (IntegerLObject) arguments[2];
+                ((Frame)receiver).setDistant(environment, contextDistance.getValue(), ordinal.getValue(), value);
+                environment.currentFrame().load(value);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("getDistant:at:"));
+            }
+        });
         addPrimitive("handlePrimitiveError:at:", (receiver, arguments, environment) -> {
             if(receiver instanceof Frame) {
                 ((Frame)receiver).handlePrimitiveError(environment, arguments[0]);
@@ -221,7 +244,7 @@ public class DefaultDispatcher implements Dispatcher {
         if(receiver instanceof Frame) {
             ((Frame)receiver).resumeWith(environment, result);
         } else {
-            environment.currentFrame(new DefaultFrame(environment.currentFrame().sender(), new Instruction[] {
+            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), new Instruction[] {
                 Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
                 Instructions.finish()
             }));
@@ -235,7 +258,7 @@ public class DefaultDispatcher implements Dispatcher {
         if(sender instanceof Frame) {
             ((Frame)sender).handlePrimitiveError(environment, error);
         } else {
-            environment.currentFrame(new DefaultFrame(environment.currentFrame().sender(), new Instruction[] {
+            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), new Instruction[] {
                 Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
                 Instructions.finish()
             }));

@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public class Closure extends PrimitiveLObject implements Behavior {
+public class Closure implements PrimitiveLObject, Behavior {
     private Frame frame;
     private Block block;
 
@@ -14,7 +14,7 @@ public class Closure extends PrimitiveLObject implements Behavior {
     }
     
     public void evaluate(LObject[] arguments, Environment environment) {
-        block.evaluateAsClosure(frame.getDistant(0, 0), arguments, environment, frame);
+        block.evaluateAsClosure(frame.getDistant(environment, 0, 0), arguments, environment, frame);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Closure extends PrimitiveLObject implements Behavior {
     }
 
     @Override
-    protected LObject getProto(Environment environment) {
+    public LObject getProto(Environment environment) {
         return environment.getWorld().getClosurePrototype();
     }
 }

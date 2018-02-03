@@ -130,7 +130,7 @@ public class Instructions {
         @Override
         public void execute(Environment environment) {
             LObject distantValue = environment.currentFrame().pop();
-            environment.currentFrame().setDistant(contextDistance, ordinal, distantValue);
+            environment.currentFrame().setDistant(environment, contextDistance, ordinal, distantValue);
             environment.currentFrame().incIP();
         }
     }
@@ -153,7 +153,7 @@ public class Instructions {
         
         @Override
         public void execute(Environment environment) {
-            LObject distantValue = environment.currentFrame().getDistant(contextDistance, ordinal);
+            LObject distantValue = environment.currentFrame().getDistant(environment, contextDistance, ordinal);
             environment.currentFrame().load(distantValue);
             environment.currentFrame().incIP();
         }
@@ -376,6 +376,8 @@ public class Instructions {
         public void execute(Environment environment) {
             LObject sender = environment.currentFrame().sender();
             LObject result = environment.currentFrame().pop();
+            environment.currentFrame().onHalt(environment);
+            
             environment.getDispatcher().sendResumeWithInRet(sender, result, environment);
         }
     }

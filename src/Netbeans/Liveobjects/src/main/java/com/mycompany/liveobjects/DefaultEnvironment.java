@@ -3,12 +3,14 @@ package com.mycompany.liveobjects;
 import java.util.Hashtable;
 
 public class DefaultEnvironment implements Environment {
+    private ObjectLoader objectLoader;
     private World world;
     private boolean finished;
-    private DefaultFrame currentFrame;
+    private Frame currentFrame;
     private Dispatcher dispatcher;
     
-    public DefaultEnvironment(World world, Dispatcher dispatcher, Instruction[] instructions) {
+    public DefaultEnvironment(ObjectLoader objectLoader, World world, Dispatcher dispatcher, Instruction[] instructions) {
+        this.objectLoader = objectLoader;
         this.world = world;
         this.dispatcher = dispatcher;
         pushFrame(instructions);
@@ -23,18 +25,20 @@ public class DefaultEnvironment implements Environment {
 
     @Override
     public final void pushFrame(Instruction[] instructions) {
-        currentFrame = new DefaultFrame(currentFrame, instructions);
-        //frames.push(new DefaultFrame(instructions, arguments));
+        //currentFrame = new DefaultFrame(currentFrame, instructions);
+        currentFrame = objectLoader.newFrame(currentFrame, instructions);
     }
 
     @Override
     public void pushFrame(Instruction[] instructions, LObject sender) {
-        currentFrame = new DefaultFrame(sender, instructions);
+        //currentFrame = new DefaultFrame(sender, instructions);
+        currentFrame = objectLoader.newFrame(sender, instructions);
     }
 
     @Override
     public void pushFrameClosure(Instruction[] instructions, Frame lexicalContext) {
-        currentFrame = new DefaultFrame(currentFrame, instructions, lexicalContext);
+        //currentFrame = new DefaultFrame(currentFrame, instructions, lexicalContext);
+        currentFrame = objectLoader.newFrame(currentFrame, instructions, lexicalContext);
     }
 
     @Override

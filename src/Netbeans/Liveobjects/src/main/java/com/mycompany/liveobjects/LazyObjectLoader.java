@@ -11,12 +11,16 @@ public class LazyObjectLoader implements ObjectLoader {
         this.objectStoreSupplier = objectStoreSupplier;
         objectCache = new Hashtable<>();
     }
-
-    @Override
-    public LObject load(int id) {
+    
+    private void ensureObjectStoreInitalized() {
         if(objectStore == null) {
             objectStore = objectStoreSupplier.getObjectStore(this);
         }
+    }
+
+    @Override
+    public LObject load(int id) {
+        ensureObjectStoreInitalized();
         
         return objectCache.computeIfAbsent(id, i -> 
             objectStore.load(id));
@@ -24,10 +28,22 @@ public class LazyObjectLoader implements ObjectLoader {
 
     @Override
     public ArrayLObject newArray(int length) {
-        if(objectStore == null) {
-            objectStore = objectStoreSupplier.getObjectStore(this);
-        }
+        ensureObjectStoreInitalized();
         
         return objectStore.newArray(length);
+    }
+
+    @Override
+    public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext) {
+        ensureObjectStoreInitalized();
+        
+        return objectStore.newFrame(sender, instructions, lexicalContext);
+    }
+
+    @Override
+    public Frame newFrame(LObject sender, Instruction[] instructions) {
+        ensureObjectStoreInitalized();
+        
+        return objectStore.newFrame(sender, instructions);
     }
 }
