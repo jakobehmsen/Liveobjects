@@ -105,7 +105,8 @@ public class Instructions {
         public void execute(Environment environment) {
             Block block = (Block) environment.currentFrame().pop();
             Frame frame = environment.currentFrame();
-            com.mycompany.liveobjects.Closure closure = new com.mycompany.liveobjects.Closure(frame, block);
+            com.mycompany.liveobjects.Closure closure = environment.getObjectLoader().newClosure(frame, block);
+            //com.mycompany.liveobjects.Closure closure = new com.mycompany.liveobjects.Closure(frame, block);
             environment.currentFrame().load(closure);
             environment.currentFrame().incIP();
         }

@@ -15,4 +15,5 @@ public interface ObjectLoader {
     public ArrayLObject newArray(int length);
     public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext);
     public Frame newFrame(LObject sender, Instruction[] instructions);
+    Closure newClosure(Frame frame, Block behavior);
 }

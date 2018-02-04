@@ -374,6 +374,8 @@ public class JDBCObjectStore implements ObjectStore {
                         return new ArrayLObject(this, id);
                     case ObjectStore.OBJECT_TYPE_CONTEXT:
                         return new DefaultFrame(id, this);
+                    case ObjectStore.OBJECT_TYPE_CLOSURE:
+                        return new Closure(id, this);
                 }
             }
         } catch (SQLException ex) {
@@ -401,5 +403,10 @@ public class JDBCObjectStore implements ObjectStore {
     @Override
     public Frame newFrame(LObject sender, Instruction[] instructions) {
         return new DefaultFrame(0, this, sender, instructions);
+    }
+
+    @Override
+    public Closure newClosure(Frame frame, Block behavior) {
+        return new Closure(0, this, frame, behavior);
     }
 }

@@ -124,4 +124,9 @@ public class DefaultEnvironment implements Environment {
     public InstructionSet getInstructionSet() {
         return instructionSet;
     }
+
+    @Override
+    public ObjectLoader getObjectLoader() {
+        return objectLoader;
+    }
 }

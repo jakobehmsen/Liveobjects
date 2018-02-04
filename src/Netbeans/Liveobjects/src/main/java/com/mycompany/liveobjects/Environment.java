@@ -34,4 +34,6 @@ public interface Environment {
     public void pushFrameClosure(Instruction[] instructions, Frame lexicalContext);
     
     InstructionSet getInstructionSet();
+
+    ObjectLoader getObjectLoader();
 }
