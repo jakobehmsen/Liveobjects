@@ -32,4 +32,6 @@ public interface Environment {
     public Dispatcher getDispatcher();
 
     public void pushFrameClosure(Instruction[] instructions, Frame lexicalContext);
+    
+    InstructionSet getInstructionSet();
 }

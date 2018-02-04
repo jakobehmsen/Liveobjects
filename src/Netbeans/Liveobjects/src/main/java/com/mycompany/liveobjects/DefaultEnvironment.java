@@ -8,11 +8,13 @@ public class DefaultEnvironment implements Environment {
     private boolean finished;
     private Frame currentFrame;
     private Dispatcher dispatcher;
+    private InstructionSet instructionSet;
     
-    public DefaultEnvironment(ObjectLoader objectLoader, World world, Dispatcher dispatcher, Instruction[] instructions) {
+    public DefaultEnvironment(ObjectLoader objectLoader, World world, Dispatcher dispatcher, InstructionSet instructionSet, Instruction[] instructions) {
         this.objectLoader = objectLoader;
         this.world = world;
         this.dispatcher = dispatcher;
+        this.instructionSet = instructionSet;
         pushFrame(instructions);
         
         initSymbolTable();
@@ -116,5 +118,10 @@ public class DefaultEnvironment implements Environment {
     @Override
     public Dispatcher getDispatcher() {
         return dispatcher;
+    }
+
+    @Override
+    public InstructionSet getInstructionSet() {
+        return instructionSet;
     }
 }

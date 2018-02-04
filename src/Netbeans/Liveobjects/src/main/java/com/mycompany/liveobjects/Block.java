@@ -1,6 +1,11 @@
 package com.mycompany.liveobjects;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Block implements PrimitiveLObject, Behavior {
     private int arity;
@@ -78,5 +83,19 @@ public class Block implements PrimitiveLObject, Behavior {
     @Override
     public LObject getProto(Environment environment) {
         return environment.getWorld().getBlockPrototype();
+    }
+
+    @Override
+    public String toString(Environment environment) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        for(Instruction i: instructions) {
+            try {
+                environment.getInstructionSet().writeInstruction(i, byteArrayOutputStream);
+            } catch (IOException ex) {
+                Logger.getLogger(Block.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        String bytecodeStr = Arrays.toString(byteArrayOutputStream.toByteArray());
+        return arity + ": " + varCount + ": " + bytecodeStr;
     }
 }
