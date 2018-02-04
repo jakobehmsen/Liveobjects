@@ -56,4 +56,8 @@ public class Closure implements PrimitiveLObject, Behavior {
     public LObject getProto(Environment environment) {
         return environment.getWorld().getClosurePrototype();
     }
+
+    public LObject getFrame() {
+        return frame;
+    }
 }

@@ -203,6 +203,8 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     protected LObject getValue(Environment environment, int referenceType, int symbolCode, String selector) {
         if(selector.equals("stackSize")) {
             return new IntegerLObject(stack.size());
+        } else if(selector.equals("lexicalContext")) {
+            return lexicalContext;
         } else {
             int index = Integer.parseInt(selector);
             return stack.get(index);
@@ -220,11 +222,15 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
             slots.put(environment.getSymbolCode("" + i), stack.get(i));
         }
         slots.put(environment.getSymbolCode("stackSize"), new IntegerLObject(stack.size()));
+        if(lexicalContext != null) {
+            slots.put(environment.getSymbolCode("lexicalContext"), lexicalContext);
+        }
     }
 
     @Override
     protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
         IntegerLObject length = (IntegerLObject) slots.get(environment.getSymbolCode("stackSize"));
+        lexicalContext = (Frame) slots.get(environment.getSymbolCode("lexicalContext")); 
         for(int i = 0; i < length.getValue(); i++) {
             LObject obj = slots.get(environment.getSymbolCode("" + i));
             stack.push(obj);
