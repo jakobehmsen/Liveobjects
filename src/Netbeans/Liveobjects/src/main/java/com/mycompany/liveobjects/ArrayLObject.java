@@ -77,7 +77,7 @@ public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
     }
 
     @Override
-    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int writeContext) {
         for(int i = 0; i < items.length; i++) {
             if(items[i] != null) {
                 slots.put(environment.getSymbolCode("" + i), items[i]);

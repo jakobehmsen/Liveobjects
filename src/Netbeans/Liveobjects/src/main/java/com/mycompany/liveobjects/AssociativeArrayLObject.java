@@ -103,7 +103,7 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
 
     @Override
-    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int writeContext) {
         slots.putAll(this.slots);
         parentSlots.putAll(this.parentSlots);
     }

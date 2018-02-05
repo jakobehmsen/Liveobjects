@@ -98,4 +98,8 @@ public class Block implements PrimitiveLObject, Behavior {
         String bytecodeStr = Arrays.toString(byteArrayOutputStream.toByteArray());
         return arity + ": " + varCount + ": " + bytecodeStr;
     }
+
+    public List<Instruction> getInstructions() {
+        return instructions;
+    }
 }

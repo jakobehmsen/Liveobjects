@@ -103,6 +103,7 @@ public class DefaultEnvironment implements Environment {
     @Override
     public void addSymbol(int symbolCode, String string) {
         stringToSymbolCodeMap.put(string, symbolCode);
+        symbolCodeToStringMap.put(symbolCode, string);
     }
 
     @Override

@@ -69,7 +69,7 @@ public class Closure extends IdentityLObject implements PrimitiveLObject, Behavi
     }
 
     @Override
-    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int writeContext) {
         slots.put(environment.getSymbolCode("frame"), frame);
         slots.put(environment.getSymbolCode("block"), block);
     }

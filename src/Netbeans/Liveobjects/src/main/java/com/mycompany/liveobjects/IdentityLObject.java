@@ -4,6 +4,9 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public abstract class IdentityLObject implements LObject {
+    public static final int WRITE_CREATE = 0;
+    public static final int WRITE_UPDATE = 1;
+    
     protected int id;
     protected ObjectStore objectStore;
     
@@ -80,7 +83,7 @@ public abstract class IdentityLObject implements LObject {
         if(this.id == 0) {
             Hashtable<Integer, LObject> slots = new Hashtable<>();
             Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-            writeSlots(environment, slots, parentSlots);
+            writeSlots(environment, slots, parentSlots, WRITE_CREATE);
             this.id = objectStore.nowUsedFrom(id, environment, slots, parentSlots, getObjectType());
         }
     }
@@ -89,7 +92,7 @@ public abstract class IdentityLObject implements LObject {
         if(id != 0) {
             Hashtable<Integer, LObject> slots = new Hashtable<>();
             Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-            writeSlots(environment, slots, parentSlots);
+            writeSlots(environment, slots, parentSlots, WRITE_UPDATE);
 
             slots.entrySet().forEach(e -> writeSlot(environment, ObjectStore.REFERENCE_TYPE_NORMAL, e.getKey(), e.getValue()));
             parentSlots.entrySet().forEach(e -> writeSlot(environment, ObjectStore.REFERENCE_TYPE_PARENT, e.getKey(), e.getValue()));
@@ -98,7 +101,7 @@ public abstract class IdentityLObject implements LObject {
     
     protected abstract int getObjectType();
     
-    protected abstract void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots);
+    protected abstract void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int writeContext);
 
     @Override
     public void nowUnusedFrom(int id) {

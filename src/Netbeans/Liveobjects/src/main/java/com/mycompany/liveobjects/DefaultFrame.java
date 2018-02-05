@@ -1,7 +1,10 @@
 package com.mycompany.liveobjects;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLObject {
     private LObject sender;
@@ -201,13 +204,20 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
 
     @Override
     protected LObject getValue(Environment environment, int referenceType, int symbolCode, String selector) {
-        if(selector.equals("stackSize")) {
-            return new IntegerLObject(stack.size());
-        } else if(selector.equals("lexicalContext")) {
-            return lexicalContext;
-        } else {
-            int index = Integer.parseInt(selector);
-            return stack.get(index);
+        switch (selector) {
+            case "stackSize":
+                return new IntegerLObject(stack.size());
+            case "sender":
+                return sender;
+            case "lexicalContext":
+                return lexicalContext;
+            case "ip":
+                return new IntegerLObject(ip);
+            case "blockOfInstructions":
+                return getBlockOfInstructions(environment);
+            default:
+                int index = Integer.parseInt(selector);
+                return stack.get(index);
         }
     }
 
@@ -217,24 +227,54 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     }
 
     @Override
-    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void writeSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int writeContext) {
+        if(writeContext == WRITE_CREATE) {
+            if(sender != null) {
+                slots.put(environment.getSymbolCode("sender"), sender);
+            }
+            if(lexicalContext != null) {
+                slots.put(environment.getSymbolCode("lexicalContext"), lexicalContext);
+            }
+            Block block = getBlockOfInstructions(environment);
+            slots.put(environment.getSymbolCode("blockOfInstructions"), block);
+        }
+        
         for(int i = 0; i < stack.size(); i++) {
             slots.put(environment.getSymbolCode("" + i), stack.get(i));
         }
+        
         slots.put(environment.getSymbolCode("stackSize"), new IntegerLObject(stack.size()));
-        if(lexicalContext != null) {
-            slots.put(environment.getSymbolCode("lexicalContext"), lexicalContext);
+        slots.put(environment.getSymbolCode("ip"), new IntegerLObject(ip));
+    }
+    
+    private Block getBlockOfInstructions(Environment environment) {
+        List<Instruction> rawInstructions = Arrays.asList(instructions).stream()
+            .map(i -> rawInstruction(environment, i))
+            .collect(Collectors.toList());
+        return new Block(0, 0, rawInstructions);
+    }
+    
+    private Instruction rawInstruction(Environment environment, Instruction instruction) {
+        while(instruction instanceof ImprovedInstruction) {
+            instruction = ((ImprovedInstruction)instruction).revert(environment);
         }
+        
+        return instruction;
     }
 
     @Override
     protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
         IntegerLObject length = (IntegerLObject) slots.get(environment.getSymbolCode("stackSize"));
+        sender = slots.get(environment.getSymbolCode("sender")); 
         lexicalContext = (Frame) slots.get(environment.getSymbolCode("lexicalContext")); 
         for(int i = 0; i < length.getValue(); i++) {
             LObject obj = slots.get(environment.getSymbolCode("" + i));
             stack.push(obj);
         }
+        Block block = (Block) slots.get(environment.getSymbolCode("blockOfInstructions"));
+        instructions = block.getInstructions().stream().toArray(s -> new Instruction[s]);
+        IntegerLObject ip = (IntegerLObject) slots.get(environment.getSymbolCode("ip"));
+        this.ip = ip.getValue();
     }
 
     @Override

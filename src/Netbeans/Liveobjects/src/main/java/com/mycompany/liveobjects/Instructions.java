@@ -270,14 +270,20 @@ public class Instructions {
         return new LoadInteger(i);
     }
 
-    public static Instruction send(final int selector, final int arity) {
-        return new Instruction() {
+    public static Instruction send(final int symbolCode, final int arity) {
+        return new ImprovedInstruction() {
             @Override
             public void execute(Environment environment) {
                 LObject[] arguments = new LObject[arity];
                 environment.currentFrame().popInto(arguments, arity);
                 LObject receiver = environment.currentFrame().pop();
-                environment.send(receiver, selector, arguments);
+                environment.send(receiver, symbolCode, arguments);
+            }
+
+            @Override
+            public Instruction revert(Environment environment) {
+                String selector = environment.getSymbolString(symbolCode);
+                return new Send(selector, arity);
             }
         };
     }
