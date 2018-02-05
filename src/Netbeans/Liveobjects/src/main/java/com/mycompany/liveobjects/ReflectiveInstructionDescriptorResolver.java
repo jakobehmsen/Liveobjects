@@ -1,6 +1,5 @@
 package com.mycompany.liveobjects;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
     }
     
     @Override
-    public int getOpcode(Instruction instruction) {
+    public int getOpcode(Instruction instruction) {        
         Operation operation = instruction.getClass().getAnnotation(Operation.class);
         return operation.opcode();
     }
@@ -33,9 +32,6 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
     public InstructionDescriptor getDescriptor(int opcode) {
         try {
             Class<? extends Instruction> c = instructionClasses.get(opcode);
-            if(c == null) {
-                new String();
-            }
             List<Field> operands = Arrays.asList(c.getDeclaredFields()).stream()
                     .filter(f -> f.isAnnotationPresent(Operand.class))
                     .sorted((x, y) -> getOrdinal(x) - getOrdinal(y))
@@ -74,6 +70,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                                 Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         } else {
+                            // How to handle unsupported types?
                             new String();
                         }
                     });
@@ -107,6 +104,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                                 Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         } else {
+                            // How to handle unsupported types?
                             new String();
                         }
                         
@@ -121,9 +119,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                     return null;
                 }
             };
-        } catch (NoSuchMethodException ex) {
-            Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
             Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
         }
         
