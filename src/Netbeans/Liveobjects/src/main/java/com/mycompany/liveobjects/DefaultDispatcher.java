@@ -254,6 +254,9 @@ public class DefaultDispatcher implements Dispatcher {
         if(receiver instanceof Frame) {
             ((Frame)receiver).resumeWith(environment, result);
         } else {
+            // TODO: Consider:
+            // - Should this be an external frame instead?
+            // - Is the sender necessary?
             environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), Instructions.ROOT_INSTRUCTIONS));
             resolveAndSend(receiver, new LObject[]{result}, environment, environment.getSymbolCode("resumeWith:"));
         }
@@ -265,6 +268,9 @@ public class DefaultDispatcher implements Dispatcher {
         if(sender instanceof Frame) {
             ((Frame)sender).handlePrimitiveError(environment, error);
         } else {
+            // TODO: Consider:
+            // - Should this be an external frame instead?
+            // - Is the sender necessary?
             environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), Instructions.ROOT_INSTRUCTIONS));
             resolveAndSend(sender, new LObject[]{error, (LObject)environment.currentFrame()}, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
         }

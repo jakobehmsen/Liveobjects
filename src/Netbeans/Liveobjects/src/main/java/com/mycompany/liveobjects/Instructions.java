@@ -389,6 +389,7 @@ public class Instructions {
         public void execute(Environment environment) {
             LObject sender = environment.currentFrame().sender();
             LObject result = environment.currentFrame().pop();
+            environment.currentFrame().incIP();
             environment.currentFrame().onHalt(environment);
             
             environment.getDispatcher().sendResumeWithInRet(sender, result, environment);

@@ -123,9 +123,25 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
 
     @Override
     public void resumeWith(Environment environment, LObject result) {
-        load(result);
-        incIP();
-        environment.currentFrame(this);
+        if(sender != null) {
+            // Is internal frame
+            if(ip < instructions.length) {
+                if(environment.currentFrame() != this) {
+                    load(result);
+                    incIP();
+                    environment.currentFrame(this);
+                } else {
+                    environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Frame is already being evaluated."));
+                }
+            } else {
+                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("IP is out of bounds."));
+            }
+        } else {
+            // Is external frame
+            load(result);
+            environment.currentFrame(this);
+            environment.halt();
+        }
     }
 
     @Override

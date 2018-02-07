@@ -79,6 +79,9 @@ public class Main {
                     ArrayList<Instruction> instructions = new ArrayList<>();
                     expression.compile(true).emit(instructions);
 
+                    // TODO: Consider:
+                    // - This is an external frame
+                    // - Should instructions be empty?
                     DefaultEnvironment environment = new DefaultEnvironment(objectLoader, world, dispatcher, instructionSet, Instructions.ROOT_INSTRUCTIONS);
                     environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
                     environment.currentFrame().load(world.getRoot());
