@@ -37,6 +37,8 @@ objectSlotUnquoted      : ASTERISK? id=ID FRAME_ASSIGN expression1;
 objectSlotQuoted        : behaviorSelector OPEN_BRA expressions CLOSE_BRA;
 nil                     : KW_NIL;
 
+unaryMessageSend        : receiver=expression3 selector=unaryMessage;
+
 KW_SELF: 'self';
 KW_TRUE: 'true';
 KW_FALSE: 'false';

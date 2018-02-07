@@ -57,7 +57,7 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
-    public void finish() {
+    public void halt() {
         finished = true;
     }
     

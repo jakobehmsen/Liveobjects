@@ -187,6 +187,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitExpression4(@NotNull langParser.Expression4Context ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link langParser#unaryMessageSend}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryMessageSend(@NotNull langParser.UnaryMessageSendContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#expression2}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -115,23 +115,6 @@ public class Expressions {
         };
     }
 
-    public static Expression program(Expression code) {
-        return new Expression() {
-            @Override
-            public Emitter compile(boolean asExpression) {
-                Emitter codeEmitter = code.compile(true);
-                
-                return new Emitter() {
-                    @Override
-                    public void emit(List<Instruction> instructions) {
-                        codeEmitter.emit(instructions);
-                        instructions.add(Instructions.finish());
-                    }
-                };
-            }
-        };
-    }
-
     public static Expression getLocal(int contextDistance, final int ordinal) {
         return new Expression() {
             @Override
@@ -370,6 +353,26 @@ public class Expressions {
                     public void emit(List<Instruction> instructions) {
                         if(asExpression) {
                             instructions.add(Instructions.loadNil());
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    public static Expression haltHere(Expression responseExpression) {
+        return new Expression() {
+            @Override
+            public Emitter compile(boolean asExpression) {
+                Emitter responseEmitter = responseExpression.compile(true);
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        responseEmitter.emit(instructions);
+                        instructions.add(Instructions.halt());
+                        // Before resume, a value is pushed onto the stack
+                        if(!asExpression) {
+                            instructions.add(Instructions.pop());
                         }
                     }
                 };

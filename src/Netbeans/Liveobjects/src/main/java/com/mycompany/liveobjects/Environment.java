@@ -15,7 +15,7 @@ public interface Environment {
     void pushFrame(Instruction[] instructions, LObject sender);
     void popFrame();
 
-    void finish();
+    void halt();
     
     int getSymbolCode(String str);
 

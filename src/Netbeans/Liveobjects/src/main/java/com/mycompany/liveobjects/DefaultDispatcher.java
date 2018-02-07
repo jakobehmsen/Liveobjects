@@ -250,10 +250,7 @@ public class DefaultDispatcher implements Dispatcher {
         if(receiver instanceof Frame) {
             ((Frame)receiver).resumeWith(environment, result);
         } else {
-            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), new Instruction[] {
-                Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
-                Instructions.finish()
-            }));
+            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), Instructions.ROOT_INSTRUCTIONS));
             resolveAndSend(receiver, new LObject[]{result}, environment, environment.getSymbolCode("resumeWith:"));
         }
     }
@@ -264,10 +261,7 @@ public class DefaultDispatcher implements Dispatcher {
         if(sender instanceof Frame) {
             ((Frame)sender).handlePrimitiveError(environment, error);
         } else {
-            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), new Instruction[] {
-                Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
-                Instructions.finish()
-            }));
+            environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), Instructions.ROOT_INSTRUCTIONS));
             resolveAndSend(sender, new LObject[]{error, (LObject)environment.currentFrame()}, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
         }
     }

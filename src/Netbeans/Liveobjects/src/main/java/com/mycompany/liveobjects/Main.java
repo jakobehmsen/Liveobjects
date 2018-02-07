@@ -79,10 +79,7 @@ public class Main {
                     ArrayList<Instruction> instructions = new ArrayList<>();
                     expression.compile(true).emit(instructions);
 
-                    DefaultEnvironment environment = new DefaultEnvironment(objectLoader, world, dispatcher, instructionSet, new Instruction[] {
-                        Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
-                        Instructions.finish()
-                    });
+                    DefaultEnvironment environment = new DefaultEnvironment(objectLoader, world, dispatcher, instructionSet, Instructions.ROOT_INSTRUCTIONS);
                     environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
                     environment.currentFrame().load(world.getRoot());
                     environment.currentFrame().allocate(environment, compileContext.localCount() - 1);

@@ -312,16 +312,22 @@ public class Instructions {
     }
     
     @Operation(opcode = 16)
-    public static class Finish implements Instruction {
+    public static class Halt implements Instruction {
         @Override
         public void execute(Environment environment) {
-            environment.finish();
+            environment.currentFrame().incIP();
+            environment.halt();
         }
     }
     
-    public static Instruction finish() {
-        return new Finish();
+    public static Instruction halt() {
+        return new Halt();
     }
+    
+    public static final Instruction[] ROOT_INSTRUCTIONS = new Instruction[] {
+        Instructions.loadInteger(0), // Dummy instruction; is always ignored due to ip incr
+        Instructions.halt()
+    };
     
     @Operation(opcode = 17)
     public static class Dup2 implements Instruction {

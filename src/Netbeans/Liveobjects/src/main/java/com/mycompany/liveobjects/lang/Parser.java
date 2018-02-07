@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -229,6 +230,8 @@ public class Parser {
                         return replaceExtend(targetCtx, selector, argumentCtxs);
                     case "whileTrue:":
                         return replaceWhileTrue(targetCtx, selector, argumentCtxs);
+                    case "haltHere:":
+                        return replaceHaltHere(targetCtx, selector, argumentCtxs);
                 }
                 
                 return null;
@@ -275,6 +278,28 @@ public class Parser {
                 };
             }
 
+            private Compiler replaceHaltHere(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                Compiler c = targetCtx.accept(new langBaseVisitor<Compiler>() {
+                    @Override
+                    public Compiler visitExpression4(langParser.Expression4Context ctx) {
+                        return ctx.getChild(0).accept(this);
+                    }
+                    
+                    @Override
+                    public Compiler visitSelf(langParser.SelfContext ctx) {
+                        ParseTree responseCtx = argumentCtxs.get(0);
+                        Compiler responseCompiler = parse(responseCtx);
+                        
+                        return compileCtx -> {
+                            Expression responseExpression = responseCompiler.compile(compileCtx);
+                            return Expressions.haltHere(responseExpression);
+                        };
+                    }
+                });
+                
+                return c;
+            }
+
             @Override
             public Compiler visitExpression2(langParser.Expression2Context ctx) {
                 Compiler expr3Compiler = parse(ctx.expression3());
@@ -291,9 +316,61 @@ public class Parser {
                 
                 return exprCompiler;
             }
+            
+            @Override
+            public Compiler visitUnaryMessageSend(langParser.UnaryMessageSendContext ctx) {
+                ParseTree receiver = ctx.getChild(0);
+                String selector = ctx.unaryMessage().ID().getText();
+                Compiler replacement = replaceMessageSend(receiver, selector, Arrays.asList());
+                if(replacement != null) {
+                    return replacement;
+                } else {
+                    Compiler receiverCompiler = parse(receiver);
+                    return compileCtx -> 
+                        Expressions.messageSend(receiverCompiler.compile(compileCtx), selector, Arrays.asList());
+                }
+            }
 
             @Override
             public Compiler visitExpression3(langParser.Expression3Context ctx) {
+                RuleContext expr = ctx.expression4();
+                for(int i = 0; i < ctx.unaryMessage().size(); i++) {
+                    expr = createUnaryMessageSend(expr, ctx.unaryMessage(i));
+                }
+                
+                return parse(expr);
+                
+                /*return expr.accept(new langBaseVisitor<Compiler>() {
+                    @Override
+                    public Compiler visitUnaryMessageSend(langParser.UnaryMessageSendContext ctx) {
+                        ParseTree receiver = ctx.getChild(0);
+                        String selector = ctx.selector.ID().getText();
+                        Compiler replacement = replaceMessageSend(receiver, selector, Arrays.asList());
+                        if(replacement != null) {
+                            return replacement;
+                        } else {
+                            Compiler receiverCompiler = parse(receiver);
+                            return compileCtx -> 
+                                Expressions.messageSend(receiverCompiler.compile(compileCtx), selector, Arrays.asList());
+                        }
+                    }
+                });
+                
+                langParser.UnaryMessageSendContext msgSndCtx = new langParser.UnaryMessageSendContext(null, 0);
+                msgSndCtx.expression3()
+                
+                if(ctx.unaryMessage().size() > 0) {
+                    String selector = ctx.unaryMessage().get(0).ID().getText();
+                    Compiler receiverCompiler = replaceMessageSend(ctx.expression4(), selector, Arrays.asList());
+                    
+                    if(receiverCompiler == null) {
+                        Compiler expr4Compiler = parse(ctx.expression4());
+                        Compiler exprCompiler = expr4Compiler;
+                        
+                        return replacement;
+                    }
+                }
+                
                 Compiler expr4Compiler = parse(ctx.expression4());
                 
                 Compiler exprCompiler = expr4Compiler;
@@ -305,7 +382,14 @@ public class Parser {
                         Expressions.messageSend(receiverCompiler.compile(compileCtx), selector, Arrays.asList());
                 }
                 
-                return exprCompiler;
+                return exprCompiler;*/
+            }
+            
+            private langParser.UnaryMessageSendContext createUnaryMessageSend(RuleContext receiver, langParser.UnaryMessageContext message) {
+                langParser.UnaryMessageSendContext msgSndCtx = new langParser.UnaryMessageSendContext(null, 0);
+                msgSndCtx.addChild(receiver);
+                msgSndCtx.addChild(message);
+                return msgSndCtx;
             }
 
             @Override
