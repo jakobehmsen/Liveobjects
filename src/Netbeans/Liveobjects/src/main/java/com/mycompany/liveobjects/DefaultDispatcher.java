@@ -67,9 +67,13 @@ public class DefaultDispatcher implements Dispatcher {
             blockReceiver.evaluate(receiverArg, new LObject[0], environment, senderArg);
         });
         addPrimitive("sender", (receiver, arguments, environment) -> {
-            LObject value = (LObject) ((DefaultFrame)receiver).sender();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
+            if(receiver instanceof Frame) {
+                LObject value = ((Frame)receiver).sender();
+                environment.currentFrame().load(value);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("sender"));
+            }
         });
         addPrimitive(PrimitiveSelectors.GET_SLOT, (receiver, arguments, environment) -> {
             LObject value = receiver.getSlot(environment, arguments);
