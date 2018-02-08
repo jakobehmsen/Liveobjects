@@ -24,8 +24,13 @@ public class AssociativeArrayLObject extends IdentityLObject {
         
         ensureSlotsRead(environment);
         
-        // Look into parent slots also?
-        return slots.get(symbolCode);
+        LObject obj = slots.get(symbolCode);
+        
+        if(obj != null) {
+            return obj;
+        }
+        
+        return parentSlots.get(symbolCode);        
     }
 
     @Override
