@@ -112,7 +112,9 @@ public class Main {
         
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        configuration.readFrame(frame);
         
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -122,6 +124,16 @@ public class Main {
                 } catch (SQLException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                
+                configuration.writeFrame(frame);
+                
+                try {
+                    configuration.save();
+                } catch (IOException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                System.exit(0);
             }
         });
         
