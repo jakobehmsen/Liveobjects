@@ -95,6 +95,13 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
+        addPrimitive(PrimitiveSelectors.HAS_SLOT, (receiver, arguments, environment) -> {
+            StringLObject selector = (StringLObject)arguments[0];
+            boolean b = receiver.hasSlot(environment, selector.getValue());
+            LObject value = environment.getWorld().getBoolean(b);
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
         
         addPrimitive("primRoot", (receiver, arguments, environment) -> {
             LObject value = environment.getWorld().getRoot();

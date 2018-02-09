@@ -38,6 +38,14 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
 
     @Override
+    public boolean hasSlot(Environment environment, String selector) {
+        ensureSlotsRead(environment);
+        
+        int symbolCode = environment.getSymbolCode(selector);
+        return slots.containsKey(symbolCode) || parentSlots.containsKey(symbolCode);
+    }
+
+    @Override
     public LObject setParentSlot(Environment environment, LObject[] arguments) {
         return setSlot(environment, arguments, ObjectStore.REFERENCE_TYPE_PARENT);
     }
