@@ -18,9 +18,8 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
 
     @Override
-    public LObject getSlot(Environment environment, LObject[] arguments) {
-        StringLObject selector = (StringLObject)arguments[0];
-        int symbolCode = environment.getSymbolCode(selector.getValue());
+    public LObject getSlot(Environment environment, String selector) {
+        int symbolCode = environment.getSymbolCode(selector);
         
         ensureSlotsRead(environment);
         
@@ -30,7 +29,7 @@ public class AssociativeArrayLObject extends IdentityLObject {
             return obj;
         }
         
-        return parentSlots.get(symbolCode);        
+        return parentSlots.get(symbolCode);
     }
 
     @Override
@@ -122,8 +121,12 @@ public class AssociativeArrayLObject extends IdentityLObject {
             behavior.evaluate(this, arguments, environment);
         } else {
             String symbol = environment.getSymbolString(selector);
-            environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Could not resolve symbol '" + symbol + "'."));
+            sendCannotResolveSlotError(environment, symbol);
         }
+    }
+    
+    public static void sendCannotResolveSlotError(Environment environment, String symbol) {
+        environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Could not resolve symbol '" + symbol + "'."));
     }
 
     @Override

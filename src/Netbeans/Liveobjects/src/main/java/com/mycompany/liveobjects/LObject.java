@@ -12,7 +12,7 @@ public interface LObject {
     
     LObject resolve(int selector, Environment environment);
 
-    default LObject getSlot(Environment environment, LObject[] arguments) {
+    default LObject getSlot(Environment environment, String selector) {
         throw new UnsupportedOperationException();
     }
 

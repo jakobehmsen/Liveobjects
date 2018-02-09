@@ -76,9 +76,14 @@ public class DefaultDispatcher implements Dispatcher {
             }
         });
         addPrimitive(PrimitiveSelectors.GET_SLOT, (receiver, arguments, environment) -> {
-            LObject value = receiver.getSlot(environment, arguments);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
+            StringLObject selector = (StringLObject)arguments[0];
+            LObject value = receiver.getSlot(environment, selector.getValue());
+            if(value != null) {
+                environment.currentFrame().load(value);
+                environment.currentFrame().incIP();
+            } else {
+                AssociativeArrayLObject.sendCannotResolveSlotError(environment, selector.getValue());
+            }
         });
         addPrimitive(PrimitiveSelectors.SET_SLOT, (receiver, arguments, environment) -> {
             LObject value = receiver.setSlot(environment, arguments);
