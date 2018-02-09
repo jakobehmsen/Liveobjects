@@ -2,6 +2,7 @@ package com.mycompany.liveobjects;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class AssociativeArrayLObject extends IdentityLObject {
     private Map<Integer, LObject> slots;
@@ -90,6 +91,15 @@ public class AssociativeArrayLObject extends IdentityLObject {
         }
         
         return newValue;
+    }
+
+    @Override
+    public String[] getSlotSelectors(Environment environment) {
+        ensureSlotsRead(environment);
+        
+        return Stream.concat(parentSlots.keySet().stream(), slots.keySet().stream())
+                .map(symbolCode -> environment.getSymbolString(symbolCode))
+                .toArray(s -> new String[s]);
     }
 
     @Override

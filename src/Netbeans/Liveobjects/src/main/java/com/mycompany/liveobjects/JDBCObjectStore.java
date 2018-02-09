@@ -387,7 +387,12 @@ public class JDBCObjectStore implements ObjectStore {
 
     @Override
     public ArrayLObject newArray(int value) {
-        return new ArrayLObject(this, 0, new LObject[value]);
+        return newArray(new LObject[value]);
+    }
+
+    @Override
+    public ArrayLObject newArray(LObject[] items) {
+        return new ArrayLObject(this, 0, items);
     }
 
     @Override

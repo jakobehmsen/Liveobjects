@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -99,6 +100,15 @@ public class DefaultDispatcher implements Dispatcher {
             StringLObject selector = (StringLObject)arguments[0];
             boolean b = receiver.hasSlot(environment, selector.getValue());
             LObject value = environment.getWorld().getBoolean(b);
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive(PrimitiveSelectors.GET_SLOT_SELECTORS, (receiver, arguments, environment) -> {
+            String[] selectors = receiver.getSlotSelectors(environment);
+            LObject[] items = Arrays.asList(selectors).stream()
+                    .map(s -> new StringLObject(s))
+                    .toArray(s -> new LObject[s]);
+            ArrayLObject value = environment.getObjectLoader().newArray(items);
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });

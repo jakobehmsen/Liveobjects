@@ -51,4 +51,9 @@ public class LazyObjectLoader implements ObjectLoader {
     public Closure newClosure(Frame frame, Block behavior) {
         return objectStore.newClosure(frame, behavior);
     }
+
+    @Override
+    public ArrayLObject newArray(LObject[] items) {
+        return objectStore.newArray(items);
+    }
 }

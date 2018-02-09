@@ -22,6 +22,8 @@ public interface ObjectStore {
     public LObject load(int id);
 
     public ArrayLObject newArray(int length);
+    
+    public ArrayLObject newArray(LObject[] items);
 
     public AssociativeArrayLObject newAssociativeArray();
 
@@ -30,4 +32,5 @@ public interface ObjectStore {
     public Frame newFrame(LObject sender, Instruction[] instructions);
     
     Closure newClosure(Frame frame, Block behavior);
+
 }

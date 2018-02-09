@@ -28,7 +28,11 @@ public interface LObject {
         throw new UnsupportedOperationException();
     }
 
-    public boolean isParent(Environment environment, AssociativeArrayLObject obj);
+    boolean isParent(Environment environment, AssociativeArrayLObject obj);
+    
+    default String[] getSlotSelectors(Environment environment) {
+        throw new UnsupportedOperationException();
+    }
     
     default String toString(Environment environment) {
         return toString();
