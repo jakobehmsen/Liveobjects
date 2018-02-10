@@ -1,13 +1,20 @@
 package com.mycompany.liveobjects;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.swing.JFrame;
 
 public class Configuration {
@@ -21,7 +28,12 @@ public class Configuration {
     
     public Connection createConnection() throws SQLException {
         String username = properties.getProperty("database.username");
-        String password = properties.getProperty("database.password");
+        String password = "";
+        try {
+            password = getPassword();
+        } catch (Exception ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         String dbName = properties.getProperty("database.schema");
         String dbHost = properties.getProperty("database.host");
@@ -68,5 +80,24 @@ public class Configuration {
     
     public void save() throws IOException {
         properties.store(new FileOutputStream(FilePath, false), "");
+    }
+    
+    public void setPassword(String password) throws NoSuchAlgorithmException, Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128); // block size is 128bits
+        SecretKey secretKey = keyGenerator.generateKey();
+        String pwde = Security.encrypt(password, secretKey);
+        String encodedKey = Security.encodeSecretKey(secretKey);
+        
+        properties.setProperty("database.password.encrypted", pwde);
+        properties.setProperty("database.password.secretKey", encodedKey);
+    }
+    
+    private String getPassword() throws Exception {
+        String pwde = properties.getProperty("database.password.encrypted");
+        String encodedKey = properties.getProperty("database.password.secretKey");
+        SecretKey secretKey = Security.decodeSecretKey(encodedKey);
+        
+        return Security.decrypt(pwde, secretKey);
     }
 }

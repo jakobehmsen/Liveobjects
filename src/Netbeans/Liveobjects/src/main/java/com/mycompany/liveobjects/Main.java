@@ -28,7 +28,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 public class Main {
-    public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {
+    public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {        
         Configuration configuration = Configuration.load();
         
         Connection connection = configuration.createConnection();
