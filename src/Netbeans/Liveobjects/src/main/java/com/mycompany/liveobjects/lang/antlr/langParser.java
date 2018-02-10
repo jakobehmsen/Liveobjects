@@ -1471,10 +1471,10 @@ public class langParser extends Parser {
 	public static class ObjectSlotUnquotedContext extends ParserRuleContext {
 		public Token id;
 		public TerminalNode ID() { return getToken(langParser.ID, 0); }
-		public TerminalNode FRAME_ASSIGN() { return getToken(langParser.FRAME_ASSIGN, 0); }
 		public Expression1Context expression1() {
 			return getRuleContext(Expression1Context.class,0);
 		}
+		public TerminalNode SELF_ASSIGN() { return getToken(langParser.SELF_ASSIGN, 0); }
 		public TerminalNode ASTERISK() { return getToken(langParser.ASTERISK, 0); }
 		public ObjectSlotUnquotedContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1503,7 +1503,7 @@ public class langParser extends Parser {
 			}
 
 			setState(206); ((ObjectSlotUnquotedContext)_localctx).id = match(ID);
-			setState(207); match(FRAME_ASSIGN);
+			setState(207); match(SELF_ASSIGN);
 			setState(208); expression1();
 			}
 		}
@@ -1697,7 +1697,7 @@ public class langParser extends Parser {
 		"\2\2\u00c8=\3\2\2\2\u00c9\u00cc\5@!\2\u00ca\u00cc\5B\"\2\u00cb\u00c9\3"+
 		"\2\2\2\u00cb\u00ca\3\2\2\2\u00cc?\3\2\2\2\u00cd\u00cf\7\23\2\2\u00ce\u00cd"+
 		"\3\2\2\2\u00ce\u00cf\3\2\2\2\u00cf\u00d0\3\2\2\2\u00d0\u00d1\7\25\2\2"+
-		"\u00d1\u00d2\7\t\2\2\u00d2\u00d3\5\30\r\2\u00d3A\3\2\2\2\u00d4\u00d5\5"+
+		"\u00d1\u00d2\7\b\2\2\u00d2\u00d3\5\30\r\2\u00d3A\3\2\2\2\u00d4\u00d5\5"+
 		"\b\5\2\u00d5\u00d6\7\17\2\2\u00d6\u00d7\5\2\2\2\u00d7\u00d8\7\20\2\2\u00d8"+
 		"C\3\2\2\2\u00d9\u00da\7\7\2\2\u00daE\3\2\2\2\u00db\u00dc\5 \21\2\u00dc"+
 		"\u00dd\5\"\22\2\u00ddG\3\2\2\2\20KPY`u\u0080\u008a\u009a\u00a4\u00ac\u00ba"+

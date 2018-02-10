@@ -33,7 +33,7 @@ boolTrue                : KW_TRUE;
 boolFalse               : KW_FALSE;
 objectLiteral           : OPEN_BRA objectSlot* CLOSE_BRA;
 objectSlot              : objectSlotUnquoted | objectSlotQuoted;
-objectSlotUnquoted      : ASTERISK? id=ID FRAME_ASSIGN expression1;
+objectSlotUnquoted      : ASTERISK? id=ID SELF_ASSIGN expression1;
 objectSlotQuoted        : behaviorSelector OPEN_BRA expressions CLOSE_BRA;
 nil                     : KW_NIL;
 
