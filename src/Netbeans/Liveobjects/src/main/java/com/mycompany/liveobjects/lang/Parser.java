@@ -109,7 +109,6 @@ public class Parser {
             @Override
             public Compiler visitAssignment(langParser.AssignmentContext ctx) {
                 String id = ctx.ID().getText();
-                String operator = ctx.op.getText();
                 Compiler valueCompiler = parse(ctx.expression());
                 
                 return compileCtx -> {
@@ -339,50 +338,6 @@ public class Parser {
                 }
                 
                 return parse(expr);
-                
-                /*return expr.accept(new langBaseVisitor<Compiler>() {
-                    @Override
-                    public Compiler visitUnaryMessageSend(langParser.UnaryMessageSendContext ctx) {
-                        ParseTree receiver = ctx.getChild(0);
-                        String selector = ctx.selector.ID().getText();
-                        Compiler replacement = replaceMessageSend(receiver, selector, Arrays.asList());
-                        if(replacement != null) {
-                            return replacement;
-                        } else {
-                            Compiler receiverCompiler = parse(receiver);
-                            return compileCtx -> 
-                                Expressions.messageSend(receiverCompiler.compile(compileCtx), selector, Arrays.asList());
-                        }
-                    }
-                });
-                
-                langParser.UnaryMessageSendContext msgSndCtx = new langParser.UnaryMessageSendContext(null, 0);
-                msgSndCtx.expression3()
-                
-                if(ctx.unaryMessage().size() > 0) {
-                    String selector = ctx.unaryMessage().get(0).ID().getText();
-                    Compiler receiverCompiler = replaceMessageSend(ctx.expression4(), selector, Arrays.asList());
-                    
-                    if(receiverCompiler == null) {
-                        Compiler expr4Compiler = parse(ctx.expression4());
-                        Compiler exprCompiler = expr4Compiler;
-                        
-                        return replacement;
-                    }
-                }
-                
-                Compiler expr4Compiler = parse(ctx.expression4());
-                
-                Compiler exprCompiler = expr4Compiler;
-                    
-                for(int i = 0; i < ctx.unaryMessage().size(); i++) {
-                    final String selector = ctx.unaryMessage(i).ID().getText();
-                    final Compiler receiverCompiler = exprCompiler;
-                    exprCompiler = compileCtx -> 
-                        Expressions.messageSend(receiverCompiler.compile(compileCtx), selector, Arrays.asList());
-                }
-                
-                return exprCompiler;*/
             }
             
             private langParser.UnaryMessageSendContext createUnaryMessageSend(RuleContext receiver, langParser.UnaryMessageContext message) {
