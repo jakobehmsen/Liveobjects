@@ -114,7 +114,7 @@ public class Parser {
                 
                 return compileCtx -> {
                     Expression valueExpression = valueCompiler.compile(compileCtx);
-                    if(operator.equals("=")) {
+                    if(ctx.op.getType() == langLexer.FRAME_ASSIGN) {
                         int distanceToLocal = compileCtx.distanceToLocal(id);
                         if(distanceToLocal != -1) {
                             int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);

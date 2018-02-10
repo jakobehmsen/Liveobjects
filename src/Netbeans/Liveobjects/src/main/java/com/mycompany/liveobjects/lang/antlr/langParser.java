@@ -21,7 +21,7 @@ public class langParser extends Parser {
 		NUMBER=20, STRING=21, WS=22, SINGLE_LINE_COMMENT=23, MULTI_LINE_COMMENT=24;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'self'", "'true'", "'false'", "'thisContext'", "'nil'", 
-		"':='", "'='", "'|'", "'('", "')'", "'['", "']'", "'{'", "'}'", "':'", 
+		"'='", "':='", "'|'", "'('", "')'", "'['", "']'", "'{'", "'}'", "':'", 
 		"'.'", "'*'", "BIN_OP", "ID", "NUMBER", "STRING", "WS", "SINGLE_LINE_COMMENT", 
 		"MULTI_LINE_COMMENT"
 	};
