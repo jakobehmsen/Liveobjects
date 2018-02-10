@@ -28,6 +28,7 @@ public interface LObject {
         throw new UnsupportedOperationException();
     }
 
+    // TODO: Consider renaming to isAncestor or delegatesTo
     boolean isParent(Environment environment, AssociativeArrayLObject obj);
     
     default String[] getSlotSelectors(Environment environment) {
@@ -36,5 +37,9 @@ public interface LObject {
     
     default String toString(Environment environment) {
         return toString();
+    }
+
+    default boolean isParentSlot(Environment environment, String selector) {
+        throw new UnsupportedOperationException();
     }
 }

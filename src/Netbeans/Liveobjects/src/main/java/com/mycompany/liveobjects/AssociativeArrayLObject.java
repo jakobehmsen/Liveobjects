@@ -184,4 +184,11 @@ public class AssociativeArrayLObject extends IdentityLObject {
             }
         }
     }
+
+    @Override
+    public boolean isParentSlot(Environment environment, String selector) {
+        ensureSlotsRead(environment);
+        int symbolCode = environment.getSymbolCode(selector);
+        return parentSlots.containsKey(symbolCode);
+    }
 }
