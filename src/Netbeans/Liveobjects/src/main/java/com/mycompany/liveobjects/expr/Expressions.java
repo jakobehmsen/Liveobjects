@@ -97,6 +97,10 @@ public class Expressions {
     }
 
     public static Expression sequence(List<Expression> items) {
+        if(items.isEmpty()) {
+            return nil();
+        }
+        
         return new Expression() {
             @Override
             public Emitter compile(boolean asExpression) {
