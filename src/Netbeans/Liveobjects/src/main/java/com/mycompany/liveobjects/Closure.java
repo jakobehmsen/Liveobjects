@@ -85,4 +85,34 @@ public class Closure extends IdentityLObject implements PrimitiveLObject, Behavi
             readSlots(environment);
         }
     }
+
+    @Override
+    public LObject getNonParentSlot(Environment environment, String selector) {
+        ensureLoaded(environment);
+        
+        switch(selector) {
+            case "frame":
+                return frame;
+            case "block":
+                return block;
+        }
+        
+        return null;
+    }
+
+    @Override
+    public boolean hasNonParentSlot(Environment environment, String selector) {
+        switch(selector) {
+            case "frame":
+            case "block":
+                return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector) {
+        return new String[]{parentSelector, "frame", "block"};
+    }
 }

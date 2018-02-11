@@ -7,4 +7,9 @@ public class PrimitiveSelectors {
     public static final String GET_SLOT = "getSlot:";
     public static final String HAS_SLOT = "hasSlot:";
     public static final String GET_SLOT_SELECTORS = "getSlotSelectors";
+    public static final String PARENT = asParentSelector("parent");
+    
+    public static String asParentSelector(String selector) {
+        return "*" + selector;
+    }
 }

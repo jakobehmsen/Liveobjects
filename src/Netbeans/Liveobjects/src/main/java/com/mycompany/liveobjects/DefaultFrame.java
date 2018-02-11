@@ -304,4 +304,44 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
             readSlots(environment);
         }
     }
+    
+    @Override
+    public LObject getNonParentSlot(Environment environment, String selector) {
+        ensureRead(environment);
+        
+        switch(selector) {
+            case "sender":
+                return sender;
+            case "lexicalContext":
+                return lexicalContext;
+            case "ip":
+                return new IntegerLObject(ip);
+            case "block":
+                return getBlockOfInstructions(environment);
+            case "stack":
+                return environment.getObjectLoader().newArray(stack.toArray(new LObject[stack.size()]));
+        }
+        
+        return null;
+    }
+
+    @Override
+    public boolean hasNonParentSlot(Environment environment, String selector) {
+        switch(selector) {
+            case "sender":
+            case "lexicalContext":
+            case "ip":
+            case "block":
+            case "stack":
+                return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector) {
+        return new String[]{
+            parentSelector, "sender", "lexicalContext", "ip", "block", "stack"};
+    }
 }

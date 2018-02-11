@@ -18,4 +18,34 @@ public interface PrimitiveLObject extends LObject {
     }
     
     LObject getProto(Environment environment);
+
+    @Override
+    default LObject getSlot(Environment environment, String selector) {
+        if(selector.equals(PrimitiveSelectors.PARENT)) {
+            return getProto(environment);
+        }
+        
+        return getNonParentSlot(environment, selector);
+    }
+    
+    LObject getNonParentSlot(Environment environment, String selector);
+
+    @Override
+    default boolean isParentSlot(Environment environment, String selector) {
+        return selector.equals(PrimitiveSelectors.PARENT);
+    }
+
+    @Override
+    default boolean hasSlot(Environment environment, String selector) {
+        return selector.equals(PrimitiveSelectors.PARENT) || hasNonParentSlot(environment, selector);
+    }
+    
+    boolean hasNonParentSlot(Environment environment, String selector);
+
+    @Override
+    default String[] getSlotSelectors(Environment environment) {
+        return getParentAndNonParentSlotSelectors(environment, PrimitiveSelectors.PARENT);
+    }
+
+    String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector);
 }

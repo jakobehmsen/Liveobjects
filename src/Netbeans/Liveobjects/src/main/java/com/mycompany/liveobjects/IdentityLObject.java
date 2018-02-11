@@ -34,7 +34,7 @@ public abstract class IdentityLObject implements LObject {
     public LObject cloneObject(Environment environment) {
         AssociativeArrayLObject clone = objectStore.newAssociativeArray();
         
-        clone.setParentSlot(environment.getSymbolCode("*parent"), this, environment);
+        clone.setParentSlot(environment.getSymbolCode(PrimitiveSelectors.PARENT), this, environment);
         
         return clone;
     }

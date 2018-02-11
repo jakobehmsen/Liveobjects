@@ -1,6 +1,6 @@
 package com.mycompany.liveobjects;
 
-public class StringLObject implements PrimitiveLObject {
+public class StringLObject implements ScalarLObject {
     private String value;
 
     public StringLObject(String value) {

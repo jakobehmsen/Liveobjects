@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Block implements PrimitiveLObject, Behavior {
+public class Block implements ScalarLObject, Behavior {
     private int arity;
     private int varCount;
     private List<Instruction> instructions;

@@ -3,6 +3,7 @@ package com.mycompany.liveobjects;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
     private LObject[] items;
@@ -103,5 +104,59 @@ public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
     @Override
     public LObject getProto(Environment environment) {
         return environment.getWorld().getArrayPrototype();
+    }
+    
+    @Override
+    public LObject getNonParentSlot(Environment environment, String selector) {
+        ensureItemsRead(environment);
+        
+        switch(selector) {
+            case "length":
+                return new IntegerLObject(items.length);
+            default:
+                try {
+                    int index = Integer.parseInt(selector);
+                    if(index < items.length) {
+                        return items[index];
+                    }
+                } catch (NumberFormatException e) {
+                    
+                }
+        }
+        
+        return null;
+    }
+
+    @Override
+    public boolean hasNonParentSlot(Environment environment, String selector) {
+        ensureItemsRead(environment);
+        
+        switch(selector) {
+            case "length":
+                return true;
+            default:
+                try {
+                    int index = Integer.parseInt(selector);
+                    return index < items.length;
+                } catch (NumberFormatException e) {
+                    
+                }
+        }
+        
+        return false;
+    }
+
+    @Override
+    public String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector) {
+        ensureItemsRead(environment);
+        
+        String[] selectors = new String[2 + items.length];
+        selectors[0] = parentSelector;
+        selectors[1] = "length";
+        for(int i = 0; i < items.length; i++) {
+            selectors[2 + i] = "" + i;
+        }
+        
+        return selectors;
     }
 }

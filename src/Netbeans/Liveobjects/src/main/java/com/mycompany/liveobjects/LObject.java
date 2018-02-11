@@ -12,17 +12,13 @@ public interface LObject {
     
     LObject resolve(int selector, Environment environment);
 
-    default LObject getSlot(Environment environment, String selector) {
-        throw new UnsupportedOperationException();
-    }
+    LObject getSlot(Environment environment, String selector);
 
     default LObject setSlot(Environment environment, LObject[] arguments) {
         throw new UnsupportedOperationException();
     }
     
-    default boolean hasSlot(Environment environment, String selector) {
-        throw new UnsupportedOperationException();
-    }
+    boolean hasSlot(Environment environment, String selector);
 
     default LObject setParentSlot(Environment environment, LObject[] arguments) {
         throw new UnsupportedOperationException();
@@ -31,15 +27,11 @@ public interface LObject {
     // TODO: Consider renaming to isAncestor or delegatesTo
     boolean isParent(Environment environment, AssociativeArrayLObject obj);
     
-    default String[] getSlotSelectors(Environment environment) {
-        throw new UnsupportedOperationException();
-    }
+    String[] getSlotSelectors(Environment environment);
     
     default String toString(Environment environment) {
         return toString();
     }
 
-    default boolean isParentSlot(Environment environment, String selector) {
-        throw new UnsupportedOperationException();
-    }
+    boolean isParentSlot(Environment environment, String selector);
 }
