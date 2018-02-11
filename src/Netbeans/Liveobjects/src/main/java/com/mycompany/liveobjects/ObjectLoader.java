@@ -11,7 +11,6 @@ package com.mycompany.liveobjects;
  */
 public interface ObjectLoader {
     LObject load(int id);
-    ArrayLObject newArray(int length);
     ArrayLObject newArray(LObject[] items);
     Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext);
     Frame newFrame(LObject sender, Instruction[] instructions);

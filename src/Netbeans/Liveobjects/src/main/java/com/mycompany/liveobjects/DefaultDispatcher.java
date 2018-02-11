@@ -23,7 +23,9 @@ public class DefaultDispatcher implements Dispatcher {
         });
         addPrimitive("arrayNew:", (receiver, arguments, environment) -> {
             IntegerLObject length = (IntegerLObject) arguments[0];
-            ArrayLObject array = objectLoader.newArray(length.getValue());
+            LObject[] items = new LObject[length.getValue()];
+            Arrays.fill(items, environment.getWorld().getNil());
+            ArrayLObject array = objectLoader.newArray(items);
             environment.currentFrame().load(array);
             environment.currentFrame().incIP();
         });

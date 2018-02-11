@@ -27,13 +27,6 @@ public class LazyObjectLoader implements ObjectLoader {
     }
 
     @Override
-    public ArrayLObject newArray(int length) {
-        ensureObjectStoreInitalized();
-        
-        return objectStore.newArray(length);
-    }
-
-    @Override
     public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext) {
         ensureObjectStoreInitalized();
         

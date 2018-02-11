@@ -20,8 +20,6 @@ public interface ObjectStore {
     public int nowUsedFrom(int id, Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, int type);
 
     public LObject load(int id);
-
-    public ArrayLObject newArray(int length);
     
     public ArrayLObject newArray(LObject[] items);
 
