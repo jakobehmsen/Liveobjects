@@ -21,17 +21,17 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
-        addPrimitive("arrayNew:", (receiver, arguments, environment) -> {
-            // Could check whether receiver is array prototype?
-            // - i.e. by using environment.getWorld().getArrayPrototype()
-            // - receiver == environment.getWorld().getArrayPrototype()
-            // - and then create a new array if so?
-            IntegerLObject length = (IntegerLObject) arguments[0];
-            LObject[] items = new LObject[length.getValue()];
-            Arrays.fill(items, environment.getWorld().getNil());
-            ArrayLObject array = objectLoader.newArray(items);
-            environment.currentFrame().load(array);
-            environment.currentFrame().incIP();
+        addPrimitive("new:", (receiver, arguments, environment) -> {
+            if(receiver == environment.getWorld().getArrayPrototype()) {
+                IntegerLObject length = (IntegerLObject) arguments[0];
+                LObject[] items = new LObject[length.getValue()];
+                Arrays.fill(items, environment.getWorld().getNil());
+                ArrayLObject array = objectLoader.newArray(items);
+                environment.currentFrame().load(array);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("new:"));
+            }
         });
         addPrimitive("at:", (receiver, arguments, environment) -> {
             if(receiver instanceof ArrayLObject) {
