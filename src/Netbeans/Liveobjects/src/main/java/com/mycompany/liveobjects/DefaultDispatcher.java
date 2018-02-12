@@ -29,24 +29,36 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(array);
             environment.currentFrame().incIP();
         });
-        addPrimitive("arrayAt:", (receiver, arguments, environment) -> {
-            ArrayLObject array = (ArrayLObject) receiver;
-            IntegerLObject index = (IntegerLObject) arguments[0];
-            environment.currentFrame().load(array.get(environment, index.getValue()));
-            environment.currentFrame().incIP();
+        addPrimitive("at:", (receiver, arguments, environment) -> {
+            if(receiver instanceof ArrayLObject) {
+                ArrayLObject array = (ArrayLObject) receiver;
+                IntegerLObject index = (IntegerLObject) arguments[0];
+                environment.currentFrame().load(array.get(environment, index.getValue()));
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("at:"));
+            }
         });
-        addPrimitive("arrayAt:set:", (receiver, arguments, environment) -> {
-            ArrayLObject array = (ArrayLObject) receiver;
-            IntegerLObject index = (IntegerLObject) arguments[1];
-            LObject obj = arguments[0];
-            array.set(environment, index.getValue(), obj);
-            environment.currentFrame().load(obj);
-            environment.currentFrame().incIP();
+        addPrimitive("at:set:", (receiver, arguments, environment) -> {
+            if(receiver instanceof ArrayLObject) {
+                ArrayLObject array = (ArrayLObject) receiver;
+                IntegerLObject index = (IntegerLObject) arguments[1];
+                LObject obj = arguments[0];
+                array.set(environment, index.getValue(), obj);
+                environment.currentFrame().load(obj);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("at:set:"));
+            }
         });
-        addPrimitive("arrayLength", (receiver, arguments, environment) -> {
-            ArrayLObject array = (ArrayLObject) receiver;
-            environment.currentFrame().load(new IntegerLObject(array.length(environment)));
-            environment.currentFrame().incIP();
+        addPrimitive("length", (receiver, arguments, environment) -> {
+            if(receiver instanceof ArrayLObject) {
+                ArrayLObject array = (ArrayLObject) receiver;
+                environment.currentFrame().load(new IntegerLObject(array.length(environment)));
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("length"));
+            }
         });
         addPrimitive("evaluate", (receiver, arguments, environment) -> {
             Closure blockReceiver = (Closure)receiver;
