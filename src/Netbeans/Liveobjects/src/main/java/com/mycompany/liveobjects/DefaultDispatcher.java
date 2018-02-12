@@ -22,6 +22,10 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().incIP();
         });
         addPrimitive("arrayNew:", (receiver, arguments, environment) -> {
+            // Could check whether receiver is array prototype?
+            // - i.e. by using environment.getWorld().getArrayPrototype()
+            // - receiver == environment.getWorld().getArrayPrototype()
+            // - and then create a new array if so?
             IntegerLObject length = (IntegerLObject) arguments[0];
             LObject[] items = new LObject[length.getValue()];
             Arrays.fill(items, environment.getWorld().getNil());
@@ -61,25 +65,41 @@ public class DefaultDispatcher implements Dispatcher {
             }
         });
         addPrimitive("evaluate", (receiver, arguments, environment) -> {
-            Closure blockReceiver = (Closure)receiver;
-            blockReceiver.evaluate(new LObject[0], environment);
+            if(receiver instanceof Closure) {
+                Closure blockReceiver = (Closure)receiver;
+                blockReceiver.evaluate(new LObject[0], environment);
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluate"));
+            }
         });
-        addPrimitive("closureFrame", (receiver, arguments, environment) -> {
-            Closure blockReceiver = (Closure)receiver;
-            LObject value = blockReceiver.getFrame();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
+        addPrimitive("frame", (receiver, arguments, environment) -> {
+            if(receiver instanceof Closure) {
+                Closure closureReceiver = (Closure)receiver;
+                LObject value = closureReceiver.getFrame();
+                environment.currentFrame().load(value);
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("frame"));
+            }
         });
         addPrimitive("evaluateAs:", (receiver, arguments, environment) -> {
-            LObject receiverArg = arguments[0];
-            Behavior blockReceiver = (Behavior)receiver;
-            blockReceiver.invoke(receiverArg, new LObject[0], environment);
+            if(receiver instanceof Behavior) {
+                LObject receiverArg = arguments[0];
+                Behavior behaviorReceiver = (Behavior)receiver;
+                behaviorReceiver.invoke(receiverArg, new LObject[0], environment);
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluateAs:"));
+            }
         });
         addPrimitive("evaluateAs:from:", (receiver, arguments, environment) -> {
-            LObject receiverArg = arguments[1];
-            LObject senderArg = arguments[0];
-            Block blockReceiver = (Block)receiver;
-            blockReceiver.evaluate(receiverArg, new LObject[0], environment, senderArg);
+            if(receiver instanceof Block) {
+                LObject receiverArg = arguments[1];
+                LObject senderArg = arguments[0];
+                Block blockReceiver = (Block)receiver;
+                blockReceiver.evaluate(receiverArg, new LObject[0], environment, senderArg);
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluateAs:from:"));
+            }
         });
         addPrimitive("sender", (receiver, arguments, environment) -> {
             if(receiver instanceof Frame) {
