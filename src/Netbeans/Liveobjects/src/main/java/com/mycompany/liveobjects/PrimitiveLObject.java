@@ -4,7 +4,11 @@ public interface PrimitiveLObject extends LObject {
     @Override
     default void send(int selector, LObject[] arguments, Environment environment) {
         Block behavior = (Block)resolve(selector, environment);
-        behavior.evaluate(this, arguments, environment);
+        if(behavior != null) {
+            behavior.evaluate(this, arguments, environment);
+        } else {
+            AssociativeArrayLObject.sendCannotResolveSlotError(environment, environment.getSymbolString(selector));
+        }
     }
 
     @Override
