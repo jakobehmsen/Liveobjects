@@ -4,14 +4,16 @@ import java.util.Hashtable;
 
 public class DefaultEnvironment implements Environment {
     private ObjectLoader objectLoader;
+    private ObjectMapper objectMapper;
     private World world;
     private boolean finished;
     private Frame currentFrame;
     private Dispatcher dispatcher;
     private InstructionSet instructionSet;
     
-    public DefaultEnvironment(ObjectLoader objectLoader, World world, Dispatcher dispatcher, InstructionSet instructionSet, Instruction[] instructions) {
+    public DefaultEnvironment(ObjectLoader objectLoader, ObjectMapper objectMapper, World world, Dispatcher dispatcher, InstructionSet instructionSet, Instruction[] instructions) {
         this.objectLoader = objectLoader;
+        this.objectMapper = objectMapper;
         this.world = world;
         this.dispatcher = dispatcher;
         this.instructionSet = instructionSet;
@@ -129,5 +131,10 @@ public class DefaultEnvironment implements Environment {
     @Override
     public ObjectLoader getObjectLoader() {
         return objectLoader;
+    }
+
+    @Override
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }

@@ -50,4 +50,9 @@ public class IntegerLObject implements ScalarLObject {
     public LObject getProto(Environment environment) {
         return environment.getWorld().getIntegerPrototype();
     }
+
+    @Override
+    public Object toNative(Environment environment) {
+        return value;
+    }
 }

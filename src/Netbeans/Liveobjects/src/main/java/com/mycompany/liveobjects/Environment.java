@@ -36,4 +36,6 @@ public interface Environment {
     InstructionSet getInstructionSet();
 
     ObjectLoader getObjectLoader();
+    
+    ObjectMapper getObjectMapper();
 }

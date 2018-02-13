@@ -159,4 +159,17 @@ public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
         
         return selectors;
     }
+
+    @Override
+    public Object toNative(Environment environment) {
+        ensureItemsRead(environment);
+        
+        Object[] objectNative = new Object[items.length];
+        
+        for(int i = 0; i < objectNative.length; i++) {
+            objectNative[i] = environment.getObjectMapper().mapToNative(environment, items[i]);
+        }
+        
+        return objectNative;
+    }
 }

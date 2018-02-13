@@ -6,6 +6,7 @@ import com.mycompany.liveobjects.lang.antlr.langBaseVisitor;
 import com.mycompany.liveobjects.lang.antlr.langLexer;
 import com.mycompany.liveobjects.lang.antlr.langParser;
 import com.mycompany.liveobjects.lang.antlr.langParser.ExpressionsContext;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -233,7 +235,24 @@ public class Parser {
                         return replaceHaltHere(targetCtx, selector, argumentCtxs);
                 }
                 
+                if(isId(targetCtx, "Java")) {
+                    if(selector.startsWith("new:")) {
+                        return replaceJavaNew(targetCtx, selector, argumentCtxs);
+                    }
+                }
+                
                 return null;
+            }
+            
+            private boolean isId(ParseTree ctx, String id) {
+                Boolean b = ctx.accept(new langBaseVisitor<Boolean>() {
+                    @Override
+                    public Boolean visitIdentifier(langParser.IdentifierContext ctx) {
+                        return ctx.ID().getText().equals(id);
+                    }
+                });
+                
+                return b != null && b;
             }
 
             private Compiler replaceExtend(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
@@ -297,6 +316,35 @@ public class Parser {
                 });
                 
                 return c;
+            }
+
+            private Compiler replaceJavaNew(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                String className = parseString(argumentCtxs.get(0));
+                int argumentCount = (argumentCtxs.size() - 1) / 2;
+                String[] parameterTypeNames = new String[argumentCount];
+                ArrayList<Compiler> argumentCompilers = new ArrayList<>();
+                for(int i = 0; i < argumentCount; i++) {
+                    parameterTypeNames[i] = parseString(argumentCtxs.get(1 + (i * 2) + 1));
+                    Compiler argumentCompiler = parse(argumentCtxs.get(1 + (i * 2)));
+                    argumentCompilers.add(argumentCompiler);
+                }
+                
+                return compileCtx -> {
+                    List<Expression> argumentExpressions = argumentCompilers.stream()
+                            .map(c -> c.compile(compileCtx))
+                            .collect(Collectors.toList());
+                    
+                    return Expressions.javaNew(className, parameterTypeNames, argumentExpressions);
+                };
+            }
+            
+            private String parseString(ParseTree ctx) {
+                return ctx.accept(new langBaseVisitor<String>() {
+                    @Override
+                    public String visitString(langParser.StringContext ctx) {
+                        return parseString(ctx);
+                    }
+                });
             }
 
             @Override
@@ -371,10 +419,14 @@ public class Parser {
 
             @Override
             public Compiler visitString(langParser.StringContext ctx) {
-                String str = ctx.getText()
-                    .substring(1, ctx.getText().length() - 1);
+                String str = parseString(ctx);
                 
                 return compileCtx -> Expressions.string(str);
+            }
+            
+            private String parseString(langParser.StringContext ctx) {
+                return ctx.getText()
+                    .substring(1, ctx.getText().length() - 1);
             }
 
             @Override

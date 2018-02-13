@@ -1,7 +1,12 @@
 package com.mycompany.liveobjects;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Instructions {
     @Operation(opcode = 1)
@@ -412,5 +417,101 @@ public class Instructions {
 
     public static Instruction loadNil() {
         return new LoadNil();
+    }
+    
+    @Operation(opcode = 22)
+    public static class JavaNew implements Instruction {
+        @Operand(ordinal = 0)
+        private String className;
+        @Operand(ordinal = 1)
+        private String[] parameterTypeNames;
+
+        public JavaNew(String className, String[] parameterTypeNames) {
+            this.className = className;
+            this.parameterTypeNames = parameterTypeNames;
+        }
+        
+        @Override
+        public void execute(Environment environment) {
+            try {
+                Class<?> c = Class.forName(className);
+                Class<?>[] parameterTypes = new Class<?>[parameterTypeNames.length];
+                for(int i = 0; i < parameterTypeNames.length; i++) {
+                    String n = parameterTypeNames[i];
+                    parameterTypes[i] = parseType(n);
+                }
+                
+                environment.currentFrame().replaceInstruction(Instructions.javaNew(c, parameterTypes));
+            } catch (ClassNotFoundException | NoSuchMethodException ex) {
+                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+            }
+        }
+        
+        public static Class<?> parseType(final String typeName) {
+            switch (typeName) {
+                case "boolean":
+                    return boolean.class;
+                case "byte":
+                    return byte.class;
+                case "short":
+                    return short.class;
+                case "int":
+                    return int.class;
+                case "long":
+                    return long.class;
+                case "float":
+                    return float.class;
+                case "double":
+                    return double.class;
+                case "char":
+                    return char.class;
+                case "void":
+                    return void.class;
+                default:
+                    String fqn = typeName.contains(".") ? typeName : "java.lang.".concat(typeName);
+                    try {
+                        return Class.forName(fqn);
+                    } catch (ClassNotFoundException ex) {
+                        throw new IllegalArgumentException("Class not found: " + fqn);
+                    }
+            }
+        }
+    }
+
+    public static Instruction javaNew(String className, String[] parameterTypeNames) {
+        return new JavaNew(className, parameterTypeNames);
+    }
+
+    private static Instruction javaNew(Class<?> c, Class<?>[] parameterTypes) throws NoSuchMethodException {
+        Constructor constructor = c.getConstructor(parameterTypes);
+        
+        return new ImprovedInstruction() {
+            @Override
+            public Instruction revert(Environment environment) {
+                return new JavaNew(c.getName(), Arrays.asList(parameterTypes).stream().map(c -> c.getName()).toArray(s -> new String[s]));
+            }
+
+            @Override
+            public void execute(Environment environment) {
+                try {
+                    // Convert LObjects to compatible Objects
+                    Object[] arguments = new Object[parameterTypes.length];
+                    for(int i = arguments.length - 1; i >= 0; i--) {
+                        LObject argumentLObject = environment.currentFrame().pop();
+                        Object argumentNative = environment.getObjectMapper().mapToNative(environment, argumentLObject);
+                        arguments[i] = argumentNative;
+                    }
+                    
+                    // Convert Object to compatible LObject
+                    Object responseNative = constructor.newInstance(arguments);
+                    LObject responseLObject = environment.getObjectMapper().mapToLObject(environment, responseNative);
+                    
+                    environment.currentFrame().load(responseLObject);
+                    environment.currentFrame().incIP();
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+                }
+            }
+        };
     }
 }

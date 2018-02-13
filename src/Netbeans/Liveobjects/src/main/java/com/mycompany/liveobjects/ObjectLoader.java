@@ -15,4 +15,5 @@ public interface ObjectLoader {
     Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext);
     Frame newFrame(LObject sender, Instruction[] instructions);
     Closure newClosure(Frame frame, Block behavior);
+    LObject newNative(Object object);
 }

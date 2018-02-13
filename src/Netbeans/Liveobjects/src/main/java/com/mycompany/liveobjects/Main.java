@@ -53,6 +53,7 @@ public class Main {
         srcTextPane.registerKeyboardAction(e -> {
             try {
                 LazyObjectLoader objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connection, instructionSet, ol));
+                ObjectMapper objectMapper = new DefaultObjectMapper();
                 Dispatcher dispatcher = new DefaultDispatcher(objectLoader);
                 World world = new ObjectLoaderWorld(objectLoader);
                 
@@ -82,7 +83,7 @@ public class Main {
                     // TODO: Consider:
                     // - This is an external frame
                     // - Should instructions be empty?
-                    DefaultEnvironment environment = new DefaultEnvironment(objectLoader, world, dispatcher, instructionSet, Instructions.ROOT_INSTRUCTIONS);
+                    DefaultEnvironment environment = new DefaultEnvironment(objectLoader, objectMapper, world, dispatcher, instructionSet, Instructions.ROOT_INSTRUCTIONS);
                     environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
                     environment.currentFrame().load(world.getRoot());
                     environment.currentFrame().allocate(environment, compileContext.localCount() - 1);

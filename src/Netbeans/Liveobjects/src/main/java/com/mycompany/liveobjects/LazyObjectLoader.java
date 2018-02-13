@@ -49,4 +49,9 @@ public class LazyObjectLoader implements ObjectLoader {
     public ArrayLObject newArray(LObject[] items) {
         return objectStore.newArray(items);
     }
+
+    @Override
+    public LObject newNative(Object object) {
+        return objectStore.newNative(object);
+    }
 }

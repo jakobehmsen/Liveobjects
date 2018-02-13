@@ -383,4 +383,23 @@ public class Expressions {
             }
         };
     }
+
+    public static Expression javaNew(String className, String[] parameterTypeNames, List<Expression> argumentExpressions) {
+        return new Expression() {
+            @Override
+            public Emitter compile(boolean asExpression) {
+                List<Emitter> argumentEmitters = argumentExpressions.stream()
+                        .map(e -> e.compile(true))
+                        .collect(Collectors.toList());
+                
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        argumentEmitters.forEach(ae -> ae.emit(instructions));
+                        instructions.add(Instructions.javaNew(className, parameterTypeNames));
+                    }
+                };
+            }
+        };
+    }
 }

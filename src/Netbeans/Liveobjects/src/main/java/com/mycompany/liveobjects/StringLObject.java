@@ -50,4 +50,9 @@ public class StringLObject implements ScalarLObject {
     public LObject getProto(Environment environment) {
         return environment.getWorld().getStringPrototype();
     }
+
+    @Override
+    public Object toNative(Environment environment) {
+        return value;
+    }
 }

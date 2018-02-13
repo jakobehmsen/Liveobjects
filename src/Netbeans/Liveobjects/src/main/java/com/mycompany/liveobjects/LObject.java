@@ -34,4 +34,8 @@ public interface LObject {
     }
 
     boolean isParentSlot(Environment environment, String selector);
+
+    default Object toNative(Environment environment) {
+        throw new UnsupportedOperationException();
+    }
 }
