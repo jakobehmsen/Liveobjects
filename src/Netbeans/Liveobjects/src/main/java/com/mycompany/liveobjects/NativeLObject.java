@@ -89,7 +89,7 @@ public class NativeLObject extends IdentityLObject implements ScalarLObject {
     
     @Override
     public String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector) {
-        return new String[]{parentSelector};
+        return new String[]{parentSelector, "serialization"};
     }
 
     @Override

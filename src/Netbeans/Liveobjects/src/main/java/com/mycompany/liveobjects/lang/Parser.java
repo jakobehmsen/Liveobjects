@@ -239,6 +239,9 @@ public class Parser {
                     if(selector.startsWith("new:")) {
                         return replaceJavaNew(targetCtx, selector, argumentCtxs);
                     }
+                    if(selector.startsWith("invokeInstance:on:as:")) {
+                        return replaceJavaInvokeInstanceOnAs(targetCtx, selector, argumentCtxs);
+                    }
                 }
                 
                 return null;
@@ -320,14 +323,8 @@ public class Parser {
 
             private Compiler replaceJavaNew(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
                 String className = parseString(argumentCtxs.get(0));
-                int argumentCount = (argumentCtxs.size() - 1) / 2;
-                String[] parameterTypeNames = new String[argumentCount];
-                ArrayList<Compiler> argumentCompilers = new ArrayList<>();
-                for(int i = 0; i < argumentCount; i++) {
-                    parameterTypeNames[i] = parseString(argumentCtxs.get(1 + (i * 2) + 1));
-                    Compiler argumentCompiler = parse(argumentCtxs.get(1 + (i * 2)));
-                    argumentCompilers.add(argumentCompiler);
-                }
+                String[] parameterTypeNames = javaGetParameterTypes(argumentCtxs, 1);
+                List<Compiler> argumentCompilers = javaGetArgumentCompilers(argumentCtxs, 1);
                 
                 return compileCtx -> {
                     List<Expression> argumentExpressions = argumentCompilers.stream()
@@ -336,6 +333,41 @@ public class Parser {
                     
                     return Expressions.javaNew(className, parameterTypeNames, argumentExpressions);
                 };
+            }
+
+            private Compiler replaceJavaInvokeInstanceOnAs(ParseTree targetCtx, String selector, List<ParseTree> argumentCtxs) {
+                String methodName = parseString(argumentCtxs.get(0));
+                Compiler targetCompiler = parse(argumentCtxs.get(1));
+                String className = parseString(argumentCtxs.get(2));
+                String[] parameterTypeNames = javaGetParameterTypes(argumentCtxs, 3);
+                List<Compiler> argumentCompilers = javaGetArgumentCompilers(argumentCtxs, 3);
+                
+                return compileCtx -> {
+                    Expression targetExpression = targetCompiler.compile(compileCtx);
+                    List<Expression> argumentExpressions = argumentCompilers.stream()
+                            .map(c -> c.compile(compileCtx))
+                            .collect(Collectors.toList());
+                    return Expressions.javaInvokeInstance(methodName, targetExpression, className, parameterTypeNames, argumentExpressions);
+                };
+            }
+            
+            private String[] javaGetParameterTypes(List<ParseTree> argumentCtxs, int offset) {
+                int argumentCount = (argumentCtxs.size() - offset) / 2;
+                String[] parameterTypeNames = new String[argumentCount];
+                for(int i = 0; i < argumentCount; i++) {
+                    parameterTypeNames[i] = parseString(argumentCtxs.get(offset + (i * 2) + 1));
+                }
+                return parameterTypeNames;
+            }
+            
+            private List<Compiler> javaGetArgumentCompilers(List<ParseTree> argumentCtxs, int offset) {
+                int argumentCount =  (argumentCtxs.size() - offset) / 2;
+                ArrayList<Compiler> argumentCompilers = new ArrayList<>();
+                for(int i = 0; i < argumentCount; i++) {
+                    Compiler argumentCompiler = parse(argumentCtxs.get(offset + (i * 2)));
+                    argumentCompilers.add(argumentCompiler);
+                }
+                return argumentCompilers;
             }
             
             private String parseString(ParseTree ctx) {

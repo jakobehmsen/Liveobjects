@@ -7,6 +7,10 @@ public class DefaultObjectMapper implements ObjectMapper {
     public Object mapToNative(Environment environment, LObject object) {
         if(object == environment.getWorld().getNil()) {
             return null;
+        } else if(object == environment.getWorld().getTrue()) {
+            return true;
+        } else if(object == environment.getWorld().getFalse()) {
+            return false;
         }
         
         return object.toNative(environment);
@@ -23,6 +27,8 @@ public class DefaultObjectMapper implements ObjectMapper {
                 return new StringLObject((String)object);
             case "java.lang.Integer":
                 return new IntegerLObject((int)object);
+            case "java.lang.Boolean":
+                return environment.getWorld().getBoolean((boolean)object);
         }
         
         if(object.getClass().isArray()) {

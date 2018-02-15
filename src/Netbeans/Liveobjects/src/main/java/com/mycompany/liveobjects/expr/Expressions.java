@@ -397,6 +397,37 @@ public class Expressions {
                     public void emit(List<Instruction> instructions) {
                         argumentEmitters.forEach(ae -> ae.emit(instructions));
                         instructions.add(Instructions.javaNew(className, parameterTypeNames));
+                        
+                        if(!asExpression) {
+                            instructions.add(Instructions.pop());
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    public static Expression javaInvokeInstance(
+            String methodName, Expression targetExpression, String className, 
+            String[] parameterTypeNames, List<Expression> argumentExpressions) {
+        return new Expression() {
+            @Override
+            public Emitter compile(boolean asExpression) {
+                Emitter targetEmitter = targetExpression.compile(true);
+                List<Emitter> argumentEmitters = argumentExpressions.stream()
+                        .map(e -> e.compile(true))
+                        .collect(Collectors.toList());
+                
+                return new Emitter() {
+                    @Override
+                    public void emit(List<Instruction> instructions) {
+                        targetEmitter.emit(instructions);
+                        argumentEmitters.forEach(ae -> ae.emit(instructions));
+                        instructions.add(Instructions.javaInvokeInstance(methodName, className, parameterTypeNames));
+                        
+                        if(!asExpression) {
+                            instructions.add(Instructions.pop());
+                        }
                     }
                 };
             }

@@ -52,6 +52,12 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                             } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
                                 Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                        } else if(f.getType().equals(boolean.class)) {
+                            try {
+                                dataOutputStream.writeBoolean((boolean)f.getBoolean(instruction));
+                            } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
+                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         } else if(f.getType().equals(String.class)) {
                             try {
                                 dataOutputStream.writeUTF((String)f.get(instruction));
@@ -71,7 +77,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                             }
                         } else {
                             // How to handle unsupported types?
-                            new String();
+                            throw new RuntimeException("Unsupported operand type: " + f.getType());
                         }
                     });
                 }
@@ -83,6 +89,12 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                         if(f.getType().equals(int.class)) {
                             try {
                                 return dataInputStream.readInt();
+                            } catch (IllegalArgumentException | IOException ex) {
+                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        } else if(f.getType().equals(boolean.class)) {
+                            try {
+                                return dataInputStream.readBoolean();
                             } catch (IllegalArgumentException | IOException ex) {
                                 Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -105,7 +117,7 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                             }
                         } else {
                             // How to handle unsupported types?
-                            new String();
+                            throw new RuntimeException("Unsupported operand type: " + f.getType());
                         }
                         
                         return null;

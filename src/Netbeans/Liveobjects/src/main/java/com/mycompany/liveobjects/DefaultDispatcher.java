@@ -21,6 +21,12 @@ public class DefaultDispatcher implements Dispatcher {
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });
+        addPrimitive("isSame:", (receiver, arguments, environment) -> {
+            LObject other = arguments[0];
+            LObject value = environment.getWorld().getBoolean(receiver == other);
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
         addPrimitive("new:", (receiver, arguments, environment) -> {
             if(receiver == environment.getWorld().getArrayPrototype()) {
                 IntegerLObject length = (IntegerLObject) arguments[0];
