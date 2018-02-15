@@ -248,7 +248,7 @@ public class DefaultDispatcher implements Dispatcher {
         addIntegerBiFunction("subi:", (lhs, rhs) -> lhs - rhs);
         addIntegerBiFunction("muli:", (lhs, rhs) -> lhs * rhs);
         addIntegerBiFunction("divi:", (lhs, rhs) -> lhs / rhs);
-        addIntegerBooleanBiFunction("eqi:", (lhs, rhs) -> lhs == rhs);
+        addIntegerBooleanBiFunction("eqi:", (lhs, rhs) -> lhs.intValue() == rhs);
         addIntegerBooleanBiFunction("lti:", (lhs, rhs) -> lhs < rhs);
         addIntegerBooleanBiFunction("ltei:", (lhs, rhs) -> lhs <= rhs);
         addIntegerBooleanBiFunction("gti:", (lhs, rhs) -> lhs > rhs);
