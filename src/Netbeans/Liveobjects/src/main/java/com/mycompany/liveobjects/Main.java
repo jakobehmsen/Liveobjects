@@ -28,7 +28,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 public class Main {
-    public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {        
+    public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {
         Configuration configuration = Configuration.load();
         
         Connection connection = configuration.createConnection();
@@ -51,7 +51,11 @@ public class Main {
         resultTextPane.setEditable(false);
         
         srcTextPane.registerKeyboardAction(e -> {
+            String origTitle = frame.getTitle();
+            
             try {
+                frame.setTitle(origTitle + " - Evaluating...");
+                
                 LazyObjectLoader objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connection, instructionSet, ol));
                 ObjectMapper objectMapper = new DefaultObjectMapper();
                 Dispatcher dispatcher = new DefaultDispatcher(objectLoader);
@@ -103,6 +107,8 @@ public class Main {
             } catch (PrimitiveErrorException ex) {
                 String result = "Primitive error occurred: " + ex.getError();
                 resultTextPane.setText(result);
+            } finally {
+                frame.setTitle(origTitle);
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.ALT_DOWN_MASK, false), JComponent.WHEN_FOCUSED);
         

@@ -66,3 +66,6 @@ INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id, type)
 INSERT INTO `object` (`id`,`parent_referer`,`type`) VALUES (10, NULL, 0);
 INSERT INTO slot (object_holder_id, symbol, type) VALUES (10, 'parent', 0);
 INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id, type) VALUES (10, 'parent', 1, 1);
+INSERT INTO `object` (`id`,`parent_referer`,`type`) VALUES (11, NULL, 0);
+INSERT INTO slot (object_holder_id, symbol, type) VALUES (11, 'parent', 0);
+INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id, type) VALUES (11, 'parent', 1, 1);

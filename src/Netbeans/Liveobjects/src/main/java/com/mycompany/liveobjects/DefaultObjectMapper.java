@@ -1,6 +1,7 @@
 package com.mycompany.liveobjects;
 
 import java.lang.reflect.Array;
+import java.util.stream.Stream;
 
 public class DefaultObjectMapper implements ObjectMapper {
     @Override
@@ -42,5 +43,18 @@ public class DefaultObjectMapper implements ObjectMapper {
         }
         
         return environment.getObjectLoader().newNative(object);
+    }
+
+    @Override
+    public Class<?> mapToNativeType(Environment environment, LObject object) {
+        if(object == environment.getWorld().getNil()) {
+            return Object.class;
+        } else if(object == environment.getWorld().getTrue()) {
+            return boolean.class;
+        } else if(object == environment.getWorld().getFalse()) {
+            return boolean.class;
+        }
+        
+        return object.toNativeType(environment);
     }
 }

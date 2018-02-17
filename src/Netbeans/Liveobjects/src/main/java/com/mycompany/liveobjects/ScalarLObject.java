@@ -15,4 +15,9 @@ public interface ScalarLObject extends PrimitiveLObject {
     default String[] getParentAndNonParentSlotSelectors(Environment environment, String parentSelector) {
         return new String[]{parentSelector};
     }
+
+    @Override
+    public default LObject cloneObject(Environment environment) {
+        return this;
+    }
 }

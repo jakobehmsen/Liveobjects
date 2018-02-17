@@ -11,6 +11,7 @@ public interface World {
     LObject getBlockPrototype();
     LObject getStringPrototype();
     LObject getNil();
+    LObject getJava();
 
     default LObject getBoolean(boolean b) {
         return b ? getTrue() : getFalse();

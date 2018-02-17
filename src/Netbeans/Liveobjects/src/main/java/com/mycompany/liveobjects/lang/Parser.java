@@ -203,9 +203,18 @@ public class Parser {
             @Override
             public Compiler visitExpression1(langParser.Expression1Context ctx) {
                 if(ctx.keyAndArg().size() > 0) {
-                    String selector = ctx.keyAndArg().stream().map(x -> x.ID().getText() + ":").collect(Collectors.joining());
+                    String selector = 
+                        Stream.concat(
+                            ctx.keyAndArg().stream().map(x -> (x.ID() != null ? x.ID() : "") + ":"), 
+                            ctx.colonAndArg().stream().map(x -> ":")
+                        ).collect(Collectors.joining());
                     
-                    List<ParseTree> argumentCtxs = ctx.keyAndArg().stream().map(x -> x.expression2()).collect(Collectors.toList());
+                    List<ParseTree> argumentCtxs = 
+                        Stream.concat(
+                            ctx.keyAndArg().stream().map(x -> x.expression2()), 
+                            ctx.colonAndArg().stream().map(x -> x.expression2())
+                        )
+                        .collect(Collectors.toList());
                     Compiler replacement = replaceMessageSend(ctx.expression2(), selector, argumentCtxs);
                     
                     if(replacement != null) {
@@ -437,7 +446,7 @@ public class Parser {
                         int ordinal = compileCtx.atContext(distanceToLocal).getLocalOrdinal(id);
                         return Expressions.getLocal(distanceToLocal, ordinal);
                     } else {
-                        return Expressions.getSlot(Expressions.self(), id);
+                        return Expressions.resolveSlot(Expressions.self(), id);
                     }
                 };
             }
@@ -458,7 +467,9 @@ public class Parser {
             
             private String parseString(langParser.StringContext ctx) {
                 return ctx.getText()
-                    .substring(1, ctx.getText().length() - 1);
+                    .substring(1, ctx.getText().length() - 1)
+                    .replace("\\r", "\r")
+                    .replace("\\n", "\n");
             }
 
             @Override

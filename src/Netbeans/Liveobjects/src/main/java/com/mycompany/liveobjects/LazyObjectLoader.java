@@ -52,6 +52,6 @@ public class LazyObjectLoader implements ObjectLoader {
 
     @Override
     public LObject newNative(Object object) {
-        return objectStore.newNative(object);
+        return objectStore.newJavaInstance(object);
     }
 }

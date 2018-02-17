@@ -55,4 +55,9 @@ public class StringLObject implements ScalarLObject {
     public Object toNative(Environment environment) {
         return value;
     }
+
+    @Override
+    public Class<?> toNativeType(Environment environment) {
+        return String.class;
+    }
 }

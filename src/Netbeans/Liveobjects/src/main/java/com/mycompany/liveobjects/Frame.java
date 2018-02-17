@@ -1,5 +1,7 @@
 package com.mycompany.liveobjects;
 
+import java.util.function.Function;
+
 public interface Frame extends LObject {
 
     public void load(LObject value);

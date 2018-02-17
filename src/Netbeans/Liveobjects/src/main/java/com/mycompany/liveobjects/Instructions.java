@@ -272,23 +272,37 @@ public class Instructions {
     public static Instruction loadInteger(final int i) {
         return new LoadInteger(i);
     }
+    
+    public static class SendI implements ImprovedInstruction {
+        private int symbolCode;
+        private int arity;
+
+        public SendI(int symbolCode, int arity) {
+            this.symbolCode = symbolCode;
+            this.arity = arity;
+        }
+
+        @Override
+        public Instruction revert(Environment environment) {
+            String selector = environment.getSymbolString(symbolCode);
+            return new Send(selector, arity);
+        }
+
+        @Override
+        public void execute(Environment environment) {
+            LObject[] arguments = new LObject[arity];
+            environment.currentFrame().popInto(arguments, arity);
+            LObject receiver = environment.currentFrame().pop();
+            send(environment, receiver, symbolCode, arguments);
+        }
+        
+        public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
+            environment.send(receiver, symbolCode, arguments);
+        }
+    }
 
     public static Instruction send(final int symbolCode, final int arity) {
-        return new ImprovedInstruction() {
-            @Override
-            public void execute(Environment environment) {
-                LObject[] arguments = new LObject[arity];
-                environment.currentFrame().popInto(arguments, arity);
-                LObject receiver = environment.currentFrame().pop();
-                environment.send(receiver, symbolCode, arguments);
-            }
-
-            @Override
-            public Instruction revert(Environment environment) {
-                String selector = environment.getSymbolString(symbolCode);
-                return new Send(selector, arity);
-            }
-        };
+        return new SendI(symbolCode, arity);
     }
     
     @Operation(opcode = 15)
@@ -473,7 +487,8 @@ public class Instructions {
                 }
                 
                 Constructor constructor = c.getConstructor(parameterTypes);
-                environment.currentFrame().replaceInstruction(Instructions.javaNew(constructor));
+                Instruction javaNew = Instructions.javaNew(constructor);
+                environment.currentFrame().replaceInstruction(javaNew);
             } catch (ClassNotFoundException | NoSuchMethodException ex) {
                 environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
             }
@@ -543,7 +558,8 @@ public class Instructions {
                 }
                 
                 Method method = c.getDeclaredMethod(methodName, parameterTypes);
-                environment.currentFrame().replaceInstruction(Instructions.javaInvokeInstance(method));
+                Instruction javaInvokeInstance = Instructions.javaInvokeInstance(method);
+                environment.currentFrame().replaceInstruction(javaInvokeInstance);
             } catch (ClassNotFoundException | NoSuchMethodException ex) {
                 environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
             }

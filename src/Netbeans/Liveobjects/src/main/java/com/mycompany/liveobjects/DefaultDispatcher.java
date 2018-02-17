@@ -1,321 +1,51 @@
 package com.mycompany.liveobjects;
 
 import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.List;
 
 public class DefaultDispatcher implements Dispatcher {
     private ObjectLoader objectLoader;
-    private Hashtable<Integer, Behavior> primitives = new Hashtable<>();
-    private Hashtable<Integer, String> primitiveSelectors = new Hashtable<>();
+    
+    private List<DispatchGroup> groups;
     
     public DefaultDispatcher(ObjectLoader objectLoader) {
         this.objectLoader = objectLoader;
-    }
-
-    {
-        addPrimitive("clone", (receiver, arguments, environment) -> {
-            LObject value = receiver.cloneObject(environment);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("isSame:", (receiver, arguments, environment) -> {
-            LObject other = arguments[0];
-            LObject value = environment.getWorld().getBoolean(receiver == other);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("new:", (receiver, arguments, environment) -> {
-            if(receiver == environment.getWorld().getArrayPrototype()) {
-                IntegerLObject length = (IntegerLObject) arguments[0];
-                LObject[] items = new LObject[length.getValue()];
-                Arrays.fill(items, environment.getWorld().getNil());
-                ArrayLObject array = objectLoader.newArray(items);
-                environment.currentFrame().load(array);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("new:"));
-            }
-        });
-        addPrimitive("at:", (receiver, arguments, environment) -> {
-            if(receiver instanceof ArrayLObject) {
-                ArrayLObject array = (ArrayLObject) receiver;
-                IntegerLObject index = (IntegerLObject) arguments[0];
-                environment.currentFrame().load(array.get(environment, index.getValue()));
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("at:"));
-            }
-        });
-        addPrimitive("at:set:", (receiver, arguments, environment) -> {
-            if(receiver instanceof ArrayLObject) {
-                ArrayLObject array = (ArrayLObject) receiver;
-                IntegerLObject index = (IntegerLObject) arguments[1];
-                LObject obj = arguments[0];
-                array.set(environment, index.getValue(), obj);
-                environment.currentFrame().load(obj);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("at:set:"));
-            }
-        });
-        addPrimitive("length", (receiver, arguments, environment) -> {
-            if(receiver instanceof ArrayLObject) {
-                ArrayLObject array = (ArrayLObject) receiver;
-                environment.currentFrame().load(new IntegerLObject(array.length(environment)));
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("length"));
-            }
-        });
-        addPrimitive("evaluate", (receiver, arguments, environment) -> {
-            if(receiver instanceof Closure) {
-                Closure blockReceiver = (Closure)receiver;
-                blockReceiver.evaluate(new LObject[0], environment);
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluate"));
-            }
-        });
-        addPrimitive("frame", (receiver, arguments, environment) -> {
-            if(receiver instanceof Closure) {
-                Closure closureReceiver = (Closure)receiver;
-                LObject value = closureReceiver.getFrame();
-                environment.currentFrame().load(value);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("frame"));
-            }
-        });
-        addPrimitive("evaluateAs:", (receiver, arguments, environment) -> {
-            if(receiver instanceof Behavior) {
-                LObject receiverArg = arguments[0];
-                Behavior behaviorReceiver = (Behavior)receiver;
-                behaviorReceiver.invoke(receiverArg, new LObject[0], environment);
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluateAs:"));
-            }
-        });
-        addPrimitive("evaluateAs:from:", (receiver, arguments, environment) -> {
-            if(receiver instanceof Block) {
-                LObject receiverArg = arguments[1];
-                LObject senderArg = arguments[0];
-                Block blockReceiver = (Block)receiver;
-                blockReceiver.evaluate(receiverArg, new LObject[0], environment, senderArg);
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("evaluateAs:from:"));
-            }
-        });
-        addPrimitive("sender", (receiver, arguments, environment) -> {
-            if(receiver instanceof Frame) {
-                LObject value = ((Frame)receiver).sender();
-                environment.currentFrame().load(value);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("sender"));
-            }
-        });
-        addPrimitive(PrimitiveSelectors.GET_SLOT, (receiver, arguments, environment) -> {
-            StringLObject selector = (StringLObject)arguments[0];
-            LObject value = receiver.getSlot(environment, selector.getValue());
-            if(value != null) {
-                environment.currentFrame().load(value);
-                environment.currentFrame().incIP();
-            } else {
-                AssociativeArrayLObject.sendCannotResolveSlotError(environment, selector.getValue());
-            }
-        });
-        addPrimitive(PrimitiveSelectors.SET_SLOT, (receiver, arguments, environment) -> {
-            LObject value = receiver.setSlot(environment, arguments);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive(PrimitiveSelectors.SET_PARENT_SLOT, (receiver, arguments, environment) -> {
-            LObject value = receiver.setParentSlot(environment, arguments);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive(PrimitiveSelectors.HAS_SLOT, (receiver, arguments, environment) -> {
-            StringLObject selector = (StringLObject)arguments[0];
-            boolean b = receiver.hasSlot(environment, selector.getValue());
-            LObject value = environment.getWorld().getBoolean(b);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive(PrimitiveSelectors.GET_SLOT_SELECTORS, (receiver, arguments, environment) -> {
-            String[] selectors = receiver.getSlotSelectors(environment);
-            LObject[] items = Arrays.asList(selectors).stream()
-                    .map(s -> new StringLObject(s))
-                    .toArray(s -> new LObject[s]);
-            ArrayLObject value = environment.getObjectLoader().newArray(items);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive(PrimitiveSelectors.IS_PARENT_SLOT, (receiver, arguments, environment) -> {
-            StringLObject selector = (StringLObject)arguments[0];
-            boolean b = receiver.isParentSlot(environment, selector.getValue());
-            LObject value = environment.getWorld().getBoolean(b);
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
         
-        addPrimitive("primRoot", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getRoot();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primIntegerProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getIntegerPrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primFrameProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getFramePrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primClosureProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getClosurePrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primTrue", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getTrue();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primFalse", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getFalse();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primArrayProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getArrayPrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primBlockProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getBlockPrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
-        addPrimitive("primStringProto", (receiver, arguments, environment) -> {
-            LObject value = environment.getWorld().getStringPrototype();
-            environment.currentFrame().load(value);
-            environment.currentFrame().incIP();
-        });
+        DispatchGroup customGroup = new DispatchGroup() {
+            @Override
+            public boolean handles(LObject receiver, LObject[] arguments, Environment environment, int selector) {
+                return true;
+            }
+
+            @Override
+            public Instructions.SendI replace(LObject receiver, LObject[] arguments, Environment environment, int selector) {
+                return new Instructions.SendI(selector, arguments.length) {
+                    @Override
+                    public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
+                        resolveAndSend(receiver, arguments, environment, selector);
+                    }
+                };
+            }
+        };
         
-        addPrimitive("resumeWith:", (receiver, arguments, environment) -> {
-            //sendResumeWith(receiver, arguments[0], environment);
-            if(receiver instanceof Frame) {
-                ((Frame)receiver).resumeWith(environment, arguments[0]);
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("resumeWith:"));
-            }
-        });
-        addPrimitive("getDistant:at:", (receiver, arguments, environment) -> {
-            if(receiver instanceof Frame) {
-                IntegerLObject ordinal = (IntegerLObject) arguments[1];
-                IntegerLObject contextDistance = (IntegerLObject) arguments[0];
-                LObject obj = ((Frame)receiver).getDistant(environment, contextDistance.getValue(), ordinal.getValue());
-                environment.currentFrame().load(obj);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("getDistant:at:"));
-            }
-        });
-        addPrimitive("setDistant:at:to:", (receiver, arguments, environment) -> {
-            if(receiver instanceof Frame) {
-                LObject value = (IntegerLObject) arguments[0];
-                IntegerLObject contextDistance = (IntegerLObject) arguments[1];
-                IntegerLObject ordinal = (IntegerLObject) arguments[2];
-                ((Frame)receiver).setDistant(environment, contextDistance.getValue(), ordinal.getValue(), value);
-                environment.currentFrame().load(value);
-                environment.currentFrame().incIP();
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("getDistant:at:"));
-            }
-        });
-        addPrimitive("handlePrimitiveError:at:", (receiver, arguments, environment) -> {
-            if(receiver instanceof Frame) {
-                ((Frame)receiver).handlePrimitiveError(environment, arguments[0]);
-            } else {
-                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
-            }
-        });
-        addIntegerBiFunction("addi:", (lhs, rhs) -> lhs + rhs);
-        addIntegerBiFunction("subi:", (lhs, rhs) -> lhs - rhs);
-        addIntegerBiFunction("muli:", (lhs, rhs) -> lhs * rhs);
-        addIntegerBiFunction("divi:", (lhs, rhs) -> lhs / rhs);
-        addIntegerBooleanBiFunction("eqi:", (lhs, rhs) -> lhs.intValue() == rhs);
-        addIntegerBooleanBiFunction("lti:", (lhs, rhs) -> lhs < rhs);
-        addIntegerBooleanBiFunction("ltei:", (lhs, rhs) -> lhs <= rhs);
-        addIntegerBooleanBiFunction("gti:", (lhs, rhs) -> lhs > rhs);
-        addIntegerBooleanBiFunction("gtei:", (lhs, rhs) -> lhs >= rhs);
-    }
-
-    private void addPrimitive(String selector, Behavior primitive) {
-        int symbolCode = primitives.size();
-        primitives.put(symbolCode, primitive);
-        primitiveSelectors.put(symbolCode, selector);
-    }
-
-    private void addIntegerBiFunction(String selector, BiFunction<Integer, Integer, Integer> function) {
-        this.<IntegerLObject, Integer, Integer>addBiFunction(
-            selector, 
-            function, o -> o.getValue(), 
-            (e, r) -> e.currentFrame().loadInteger(r)
+        groups = Arrays.asList(
+            new JavaDispatchGroup(),
+            new PrimitiveDispatchGroup(objectLoader),
+            customGroup
         );
-    }
-
-    private void addIntegerBooleanBiFunction(String selector, BiFunction<Integer, Integer, Boolean> function) {
-        this.<IntegerLObject, Integer, Boolean>addBiFunction(
-            selector, 
-            function, o -> o.getValue(), 
-            (e, r) -> 
-                e.currentFrame().load(Instructions.LoadBool.wrap(r, e))
-        );
-    }
-
-    private <O extends LObject, T, R> void addBiFunction(String selector, BiFunction<T, T, R> function, Function<O, T> toValueFunction, BiConsumer<Environment, R> frameLoader) {
-        addPrimitive(selector, (receiver, arguments, environment) -> {
-            if(receiver instanceof IntegerLObject && arguments[0] instanceof IntegerLObject) {
-                LObject lhs = (IntegerLObject) receiver;
-                LObject rhs = (IntegerLObject) arguments[0];
-                R value = function.apply(toValueFunction.apply((O) lhs), toValueFunction.apply((O) rhs));
-                frameLoader.accept(environment, value);
-                environment.currentFrame().incIP();
-            } else {
-                handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));
-            }
-        });
     }
 
     @Override
     public void send(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-        Behavior primitive = primitives.get(selector);
-        if(primitive != null) {
-            primitive.invoke(receiver, arguments, environment);
-        } else {
-            /*// Could simply resolve the behavior and invoke it
-            receiver.send(selector, arguments, environment);*/
-            
-            resolveAndSend(receiver, arguments, environment, selector);
-        }
+        DispatchGroup group = groups.stream().filter(g -> g.handles(receiver, arguments, environment, selector)).findFirst().get();
+        Instructions.SendI sendInstruction2 = group.replace(receiver, arguments, environment, selector);
+        environment.currentFrame().replaceInstruction(sendInstruction2);
+        sendInstruction2.send(environment, receiver, selector, arguments);
     }
     
     private void resolveAndSend(LObject receiver, LObject[] arguments, Environment environment, int selector) {
         // Could simply resolve the behavior and invoke it
         receiver.send(selector, arguments, environment);
-    }
-
-    @Override
-    public void registerSymbols(Environment environment) {
-        primitives.keySet().forEach(symbolCode -> {
-            String string = primitiveSelectors.get(symbolCode);
-            environment.addSymbol(symbolCode, string);
-        });
     }
 
     @Override

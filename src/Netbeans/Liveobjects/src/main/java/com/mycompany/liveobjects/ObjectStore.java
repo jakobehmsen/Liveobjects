@@ -10,7 +10,6 @@ public interface ObjectStore {
     public static final int OBJECT_TYPE_ARRAY = 1;
     public static final int OBJECT_TYPE_CONTEXT = 2;
     public static final int OBJECT_TYPE_CLOSURE = 3;
-    public static final int OBJECT_TYPE_NATIVE = 4;
     
     ObjectSlotTransaction createObjectSlotTransaction(int id, String selector, int referenceType);
 
@@ -32,6 +31,6 @@ public interface ObjectStore {
     
     Closure newClosure(Frame frame, Block behavior);
 
-    LObject newNative(Object object);
+    LObject newJavaInstance(Object object);
 
 }

@@ -131,6 +131,13 @@ public interface langVisitor<T> extends ParseTreeVisitor<T> {
 	T visitBlockParams(@NotNull langParser.BlockParamsContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link langParser#colonAndArg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitColonAndArg(@NotNull langParser.ColonAndArgContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link langParser#identifier}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

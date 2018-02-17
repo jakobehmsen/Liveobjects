@@ -92,8 +92,8 @@ public class Expressions {
         }
     }
     
-    public static Expression getSlot(final Expression target, final String symbol) {
-        return messageSend(target, PrimitiveSelectors.GET_SLOT, Arrays.asList(Expressions.string(symbol)));
+    public static Expression resolveSlot(final Expression target, final String symbol) {
+        return messageSend(target, PrimitiveSelectors.RESOLVE_SLOT, Arrays.asList(Expressions.string(symbol)));
     }
 
     public static Expression sequence(List<Expression> items) {

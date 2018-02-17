@@ -5,6 +5,8 @@
  */
 package com.mycompany.liveobjects;
 
+import java.util.stream.Stream;
+
 /**
  *
  * @author jakob
@@ -14,5 +16,7 @@ public interface ObjectMapper {
     public Object mapToNative(Environment environment, LObject argumentLObject);
 
     public LObject mapToLObject(Environment environment, Object responseNative);
+
+    public Class<?> mapToNativeType(Environment environment, LObject argumentLObject);
     
 }

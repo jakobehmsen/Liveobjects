@@ -38,4 +38,8 @@ public interface LObject {
     default Object toNative(Environment environment) {
         throw new UnsupportedOperationException();
     }
+
+    default Class<?> toNativeType(Environment environment) {
+        throw new UnsupportedOperationException();
+    }
 }

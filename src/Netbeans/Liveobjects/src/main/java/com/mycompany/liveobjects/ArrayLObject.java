@@ -172,4 +172,9 @@ public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
         
         return objectNative;
     }
+
+    @Override
+    public Class<?> toNativeType(Environment environment) {
+        return Object[].class;
+    }
 }

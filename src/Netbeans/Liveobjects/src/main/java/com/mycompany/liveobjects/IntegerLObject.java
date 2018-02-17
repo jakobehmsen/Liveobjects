@@ -55,4 +55,9 @@ public class IntegerLObject implements ScalarLObject {
     public Object toNative(Environment environment) {
         return value;
     }
+
+    @Override
+    public Class<?> toNativeType(Environment environment) {
+        return int.class;
+    }
 }

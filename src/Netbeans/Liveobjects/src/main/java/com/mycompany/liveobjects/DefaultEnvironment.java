@@ -83,7 +83,7 @@ public class DefaultEnvironment implements Environment {
         stringToSymbolCodeMap = new Hashtable<>();
         symbolCodeToStringMap = new Hashtable<>();
         
-        this.dispatcher.registerSymbols(this);
+        //this.dispatcher.registerSymbols(this);
         
         /*
         // Use reflection to locate all primitive selectors
