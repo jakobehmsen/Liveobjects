@@ -323,7 +323,6 @@ public class Expressions {
         return new Expression() {
             @Override
             public Emitter compile(boolean asExpression) {
-                // Only support when asExpression=false
                 Emitter conditionEmitter = conditionExpression.compile(true);
                 Emitter bodyEmitter = bodyExpression.compile(false);
                 
@@ -332,12 +331,15 @@ public class Expressions {
                     public void emit(List<Instruction> instructions) {
                         int startPosition = instructions.size();
                         conditionEmitter.emit(instructions);
-                        ArrayList<Instruction> bodyInstructions = new ArrayList<>();
-                        bodyEmitter.emit(bodyInstructions);
-                        int endPosition = instructions.size() + bodyInstructions.size() + 2;
-                        instructions.add(Instructions.jumpIfFalse(endPosition));
-                        instructions.addAll(bodyInstructions);
+                        // Take note of index of break instruction
+                        int breakInstructionIndex = instructions.size();
+                        // Allocate space for break instruction
+                        instructions.add(null); 
+                        bodyEmitter.emit(instructions);
                         instructions.add(Instructions.jump(startPosition));
+                        int endPosition = instructions.size();
+                        // Put break instruction at noted index
+                        instructions.set(breakInstructionIndex, Instructions.jumpIfFalse(endPosition));
                         
                         if(asExpression) {
                             instructions.add(Instructions.loadBool(true));
