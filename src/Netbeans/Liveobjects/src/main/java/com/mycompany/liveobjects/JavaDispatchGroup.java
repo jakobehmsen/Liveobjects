@@ -37,7 +37,6 @@ public class JavaDispatchGroup implements DispatchGroup {
                                         .map(x -> environment.getObjectMapper().mapToNative(environment, x))
                                         .toArray(s -> new Object[s]);
                                 Object javaInstance = constructor.newInstance(javaArguments);
-                                System.out.println("Instantiated via " + constructor + " with " + Arrays.toString(javaArguments));
                                 LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
                                 environment.currentFrame().load(value);
                                 environment.currentFrame().incIP();
@@ -78,7 +77,6 @@ public class JavaDispatchGroup implements DispatchGroup {
                                     public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
                                         try {
                                             Object javaInstance = field.get(null);
-                                            System.out.println("Accessed " + field);
                                             LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
                                             environment.currentFrame().load(value);
                                             environment.currentFrame().incIP();
@@ -148,12 +146,8 @@ public class JavaDispatchGroup implements DispatchGroup {
                 @Override
                 public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
                     try {
-                        Object[] javaArguments = Arrays.asList(arguments).stream()
-                                .map(x -> environment.getObjectMapper().mapToNative(environment, x))
-                                .toArray(s -> new Object[s]);
                         Object javaInstance = strategy.invoke(receiver, arguments, environment, symbolCode, method);
                         LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
-                        System.out.println("Invoked " + method + " with " + Arrays.toString(javaArguments));
                         environment.currentFrame().load(value);
                         environment.currentFrame().incIP();
                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
