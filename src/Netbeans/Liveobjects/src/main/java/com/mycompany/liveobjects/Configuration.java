@@ -1,11 +1,9 @@
 package com.mycompany.liveobjects;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.swing.JFrame;
 
 public class Configuration {
     private static final String FilePath = "config.properties";
@@ -59,15 +56,19 @@ public class Configuration {
         return configuration;
     }
 
-    public void writeFrame(JFrame frame) {
+    public void writeFrame(EvaluatorFrame frame) {
         properties.setProperty("frame.bounds.x", "" + frame.getBounds().x);
         properties.setProperty("frame.bounds.y", "" + frame.getBounds().y);
         properties.setProperty("frame.bounds.width", "" + frame.getBounds().width);
         properties.setProperty("frame.bounds.height", "" + frame.getBounds().height);
         properties.setProperty("frame.extendedState", "" + frame.getExtendedState());
+        
+        frame.writeConfigurationTo(properties);
     }
     
-    public void readFrame(JFrame frame) {
+    public void readFrame(EvaluatorFrame frame) {
+        frame.readConfigurationFrom(properties);
+        
         int frameBoundsX = Integer.parseInt(properties.getProperty("frame.bounds.x", "" + frame.getBounds().x));
         int frameBoundsY = Integer.parseInt(properties.getProperty("frame.bounds.y", "" + frame.getBounds().y));
         int frameBoundsWidth = Integer.parseInt(properties.getProperty("frame.bounds.width", "" + frame.getBounds().width));
