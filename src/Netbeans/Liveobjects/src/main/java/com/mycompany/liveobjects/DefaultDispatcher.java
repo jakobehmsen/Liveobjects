@@ -62,7 +62,7 @@ public class DefaultDispatcher implements Dispatcher {
     }
     
     @Override
-    public void handlePrimitiveError(Environment environment, LObject error) {
+    public void handlePrimitiveError(Environment environment, Throwable error) {
         LObject sender = environment.currentFrame().sender();
         if(sender instanceof Frame) {
             ((Frame)sender).handlePrimitiveError(environment, error);
@@ -71,7 +71,8 @@ public class DefaultDispatcher implements Dispatcher {
             // - Should this be an external frame instead?
             // - Is the sender necessary?
             environment.currentFrame(objectLoader.newFrame(environment.currentFrame().sender(), Instructions.ROOT_INSTRUCTIONS));
-            resolveAndSend(sender, new LObject[]{error, (LObject)environment.currentFrame()}, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
+            LObject errorLObject = new JavaInstanceLObject(error);
+            resolveAndSend(sender, new LObject[]{errorLObject, (LObject)environment.currentFrame()}, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
         }
     }
 }

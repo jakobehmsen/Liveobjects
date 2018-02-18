@@ -34,7 +34,7 @@ public interface Frame extends LObject {
 
     public void allocate(Environment environment, int localCount);
     
-    public void handlePrimitiveError(Environment environment, LObject error);
+    public void handlePrimitiveError(Environment environment, Throwable error);
     
     public void resumeWith(Environment environment, LObject result);
 

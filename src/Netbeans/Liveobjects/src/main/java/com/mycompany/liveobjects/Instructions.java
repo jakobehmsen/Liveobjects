@@ -490,7 +490,7 @@ public class Instructions {
                 Instruction javaNew = Instructions.javaNew(constructor);
                 environment.currentFrame().replaceInstruction(javaNew);
             } catch (ClassNotFoundException | NoSuchMethodException ex) {
-                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+                throw new JavaInteropException(ex);
             }
         }
     }
@@ -526,7 +526,7 @@ public class Instructions {
                     environment.currentFrame().load(responseLObject);
                     environment.currentFrame().incIP();
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+                    throw new JavaInteropException(ex);
                 }
             }
         };
@@ -561,7 +561,7 @@ public class Instructions {
                 Instruction javaInvokeInstance = Instructions.javaInvokeInstance(method);
                 environment.currentFrame().replaceInstruction(javaInvokeInstance);
             } catch (ClassNotFoundException | NoSuchMethodException ex) {
-                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+                throw new JavaInteropException(ex);
             }
         }
     }
@@ -599,7 +599,7 @@ public class Instructions {
                     environment.currentFrame().load(responseLObject);
                     environment.currentFrame().incIP();
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                    environment.getDispatcher().handlePrimitiveError(environment, new StringLObject(ex.getMessage()));
+                    throw new JavaInteropException(ex);
                 }
             }
         };

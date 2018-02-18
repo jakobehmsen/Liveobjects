@@ -118,7 +118,7 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     }
 
     @Override
-    public void handlePrimitiveError(Environment environment, LObject error) {
+    public void handlePrimitiveError(Environment environment, Throwable error) {
         throw new PrimitiveErrorException(error);
     }
 
@@ -132,10 +132,10 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
                     incIP();
                     environment.currentFrame(this);
                 } else {
-                    environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Frame is already being evaluated."));
+                    throw new IllegalStateException("Frame is already being evaluated.");
                 }
             } else {
-                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("IP is out of bounds."));
+                throw new IllegalStateException("IP is out of bounds.");
             }
         } else {
             // Is external frame

@@ -80,9 +80,7 @@ public class AssociativeArrayLObject extends IdentityLObject {
                 boolean thisIsParentOfNewParent = newValue.isParent(environment, this);
                 if(thisIsParentOfNewParent) {
                     String selector = environment.getSymbolString(symbolCode);
-                    environment.currentFrame().handlePrimitiveError(
-                        environment, 
-                        new StringLObject("Can not set parent slot '" + selector + "' to child."));
+                    throw new IllegalArgumentException("Can not set parent slot '" + selector + "' to child.");
                 } else {
                     slots.remove(symbolCode);
                     parentSlots.put(symbolCode, newValue);
@@ -144,7 +142,7 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
     
     public static void sendCannotResolveSlotError(Environment environment, String symbol) {
-        environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Could not resolve symbol '" + symbol + "'."));
+        throw new IllegalArgumentException("Could not resolve symbol '" + symbol + "'.");
     }
 
     @Override

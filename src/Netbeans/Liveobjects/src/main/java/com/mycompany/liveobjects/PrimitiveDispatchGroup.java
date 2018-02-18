@@ -257,7 +257,8 @@ public class PrimitiveDispatchGroup implements DispatchGroup {
         });
         addPrimitive("handlePrimitiveError:at:", (receiver, arguments, environment) -> {
             if(receiver instanceof Frame) {
-                ((Frame)receiver).handlePrimitiveError(environment, arguments[0]);
+                JavaInstanceLObject<? extends Throwable> primitiveError = (JavaInstanceLObject<? extends Throwable>) arguments[0];
+                ((Frame)receiver).handlePrimitiveError(environment, primitiveError.getValue());
             } else {
                 resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("handlePrimitiveError:at:"));
             }
@@ -322,16 +323,11 @@ public class PrimitiveDispatchGroup implements DispatchGroup {
 
     private <O extends LObject, T, R> void addBiFunction(String selector, BiFunction<T, T, R> function, Function<O, T> toValueFunction, BiConsumer<Environment, R> frameLoader) {
         addPrimitive(selector, (receiver, arguments, environment) -> {
-            if(true/*receiver instanceof IntegerLObject && arguments[0] instanceof IntegerLObject*/) {
-                LObject lhs = receiver;
-                LObject rhs = arguments[0];
-                R value = function.apply(toValueFunction.apply((O) lhs), toValueFunction.apply((O) rhs));
-                frameLoader.accept(environment, value);
-                environment.currentFrame().incIP();
-            } else {
-                //handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));
-                environment.getDispatcher().handlePrimitiveError(environment, new StringLObject("Receiver and/or argument are not integers."));
-            }
+            LObject lhs = receiver;
+            LObject rhs = arguments[0];
+            R value = function.apply(toValueFunction.apply((O) lhs), toValueFunction.apply((O) rhs));
+            frameLoader.accept(environment, value);
+            environment.currentFrame().incIP();
         });
     }
     

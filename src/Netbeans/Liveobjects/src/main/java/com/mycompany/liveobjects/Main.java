@@ -93,7 +93,13 @@ public class Main {
                     environment.currentFrame().allocate(environment, compileContext.localCount() - 1);
 
                     while(!environment.finished()) {
-                        environment.executeNext();
+                        try {
+                            while(!environment.finished()) {
+                                environment.executeNext();
+                            }
+                        } catch(Exception ex) {
+                            environment.getDispatcher().handlePrimitiveError(environment, ex);
+                        }
                     }
 
                     connection.commit();
@@ -105,7 +111,7 @@ public class Main {
             } catch (SQLException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } catch (PrimitiveErrorException ex) {
-                String result = "Primitive error occurred: " + ex.getError();
+                String result = "Primitive error occurred:\n" + ex.getMessage();
                 resultTextPane.setText(result);
             } finally {
                 frame.setTitle(origTitle);
