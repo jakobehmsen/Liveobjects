@@ -337,20 +337,18 @@ public class PrimitiveDispatchGroup implements DispatchGroup {
     }
 
     @Override
-    public boolean handles(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-        String selectorStr = environment.getSymbolString(selector);
-        return primitives.containsKey(selectorStr);
-    }
-
-    @Override
     public Instructions.SendI replace(LObject receiver, LObject[] arguments, Environment environment, int selector) {
         String selectorStr = environment.getSymbolString(selector);
         Behavior primitive = primitives.get(selectorStr);
-        return new Instructions.SendI(selector, arguments.length) {
-            @Override
-            public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
-                primitive.invoke(receiver, arguments, environment);
-            }
-        };
+        if(primitive != null) {
+            return new Instructions.SendI(selector, arguments.length) {
+                @Override
+                public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
+                    primitive.invoke(receiver, arguments, environment);
+                }
+            };
+        } else {
+            return null;
+        }
     }
 }

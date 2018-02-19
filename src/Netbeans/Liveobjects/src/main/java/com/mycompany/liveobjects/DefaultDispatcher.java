@@ -1,22 +1,13 @@
 package com.mycompany.liveobjects;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class DefaultDispatcher implements Dispatcher {
     private ObjectLoader objectLoader;
-    
-    private List<DispatchGroup> groups;
+    private DispatchGroup group;
     
     public DefaultDispatcher(ObjectLoader objectLoader) {
         this.objectLoader = objectLoader;
         
         DispatchGroup customGroup = new DispatchGroup() {
-            @Override
-            public boolean handles(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-                return true;
-            }
-
             @Override
             public Instructions.SendI replace(LObject receiver, LObject[] arguments, Environment environment, int selector) {
                 return new Instructions.SendI(selector, arguments.length) {
@@ -28,16 +19,13 @@ public class DefaultDispatcher implements Dispatcher {
             }
         };
         
-        groups = Arrays.asList(
-            new JavaDispatchGroup(),
-            new PrimitiveDispatchGroup(objectLoader),
-            customGroup
-        );
+        group = new JavaDispatchGroup()
+            .withFallback(new PrimitiveDispatchGroup(objectLoader))
+            .withFallback(customGroup);
     }
 
     @Override
     public void send(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-        DispatchGroup group = groups.stream().filter(g -> g.handles(receiver, arguments, environment, selector)).findFirst().get();
         Instructions.SendI sendInstruction2 = group.replace(receiver, arguments, environment, selector);
         environment.currentFrame().replaceInstruction(sendInstruction2);
         sendInstruction2.send(environment, receiver, selector, arguments);

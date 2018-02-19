@@ -11,12 +11,6 @@ import java.util.logging.Logger;
 
 public class JavaDispatchGroup implements DispatchGroup {
     private static final String NATIVE_PREFIX = "__native__";
-    
-    @Override
-    public boolean handles(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-        String selectorStr = environment.getSymbolString(selector);
-        return receiver instanceof JavaClassLObject || receiver instanceof JavaInstanceLObject || selectorStr.startsWith(NATIVE_PREFIX);
-    }
 
     @Override
     public Instructions.SendI replace(LObject receiver, LObject[] arguments, Environment environment, int selector) {
