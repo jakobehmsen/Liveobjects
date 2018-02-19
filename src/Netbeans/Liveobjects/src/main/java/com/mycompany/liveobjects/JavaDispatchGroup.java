@@ -10,9 +10,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JavaDispatchGroup implements DispatchGroup {
+    private static final String NATIVE_PREFIX = "__native__";
+    
     @Override
     public boolean handles(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-        return receiver instanceof JavaClassLObject || receiver instanceof JavaInstanceLObject;
+        String selectorStr = environment.getSymbolString(selector);
+        return receiver instanceof JavaClassLObject || receiver instanceof JavaInstanceLObject || selectorStr.startsWith(NATIVE_PREFIX);
     }
 
     @Override
@@ -95,32 +98,38 @@ public class JavaDispatchGroup implements DispatchGroup {
                 });
             }
         } else if(receiver instanceof JavaInstanceLObject) {
-            return createMethodInvokeInstruction(receiver, arguments, environment, selector, new MethodInvokeInstructionStrategy() {
-                @Override
-                public Class<?> getClass(LObject receiver, LObject[] arguments, Environment environment, int selector) {
-                    JavaInstanceLObject receiverNative = (JavaInstanceLObject)receiver;
-                    Object target = receiverNative.getValue();
-                    return target.getClass();
-                }
-
-                @Override
-                public Object invoke(LObject receiver, LObject[] arguments, Environment environment, int selector, Method method) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                    JavaInstanceLObject receiverNative = (JavaInstanceLObject)receiver;
-                    Object target = receiverNative.getValue();
-                    Object[] javaArguments = Arrays.asList(arguments).stream()
-                            .map(x -> environment.getObjectMapper().mapToNative(environment, x))
-                            .toArray(s -> new Object[s]);
-                    return method.invoke(target, javaArguments);
-                }
-
-                @Override
-                public Instructions.SendI noSuchMethod(LObject receiver, LObject[] arguments, Environment environment, int selector, String methodName, Class<?> c) {
-                    throw new RuntimeException(new NoSuchMethodException(methodName));
-                }
-            });
+            return createMethodInstanceInvokeInstruction(receiver, arguments, environment, selector);
+        } else if(selectorStr.startsWith(NATIVE_PREFIX)) {
+            String selectorStrWithOutPrefix = selectorStr.substring(NATIVE_PREFIX.length());
+            selector = environment.getSymbolCode(selectorStrWithOutPrefix);
+            return createMethodInstanceInvokeInstruction(receiver, arguments, environment, selector);
         }
         
         return null;
+    }
+    
+    private Instructions.SendI createMethodInstanceInvokeInstruction(LObject receiver, LObject[] arguments, Environment environment, int selector) {
+        return createMethodInvokeInstruction(receiver, arguments, environment, selector, new MethodInvokeInstructionStrategy() {
+            @Override
+            public Class<?> getClass(LObject receiver, LObject[] arguments, Environment environment, int selector) {
+                Object target = receiver.toNative(environment);
+                return target.getClass();
+            }
+
+            @Override
+            public Object invoke(LObject receiver, LObject[] arguments, Environment environment, int selector, Method method) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                Object target = receiver.toNative(environment);
+                Object[] javaArguments = Arrays.asList(arguments).stream()
+                        .map(x -> environment.getObjectMapper().mapToNative(environment, x))
+                        .toArray(s -> new Object[s]);
+                return method.invoke(target, javaArguments);
+            }
+
+            @Override
+            public Instructions.SendI noSuchMethod(LObject receiver, LObject[] arguments, Environment environment, int selector, String methodName, Class<?> c) {
+                throw new RuntimeException(new NoSuchMethodException(methodName));
+            }
+            });
     }
     
     private interface MethodInvokeInstructionStrategy {
