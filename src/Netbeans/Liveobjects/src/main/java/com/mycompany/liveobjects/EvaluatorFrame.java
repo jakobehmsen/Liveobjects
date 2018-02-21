@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -23,9 +25,12 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 public class EvaluatorFrame extends JFrame {
+    private ScriptEvaluator evaluator;
     private JSplitPane splitPane;
     
-    public EvaluatorFrame(Connection connection, InstructionSet instructionSet) {
+    public EvaluatorFrame(ScriptEvaluator evaluator) {
+        this.evaluator = evaluator;
+        
         Font font = new Font(Font.MONOSPACED, Font.PLAIN, 12);
         JTextPane srcTextPane = new JTextPane();
         srcTextPane.setFont(font);
@@ -38,11 +43,6 @@ public class EvaluatorFrame extends JFrame {
             
             try {
                 setTitle(origTitle + " - Evaluating...");
-                
-                LazyObjectLoader objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connection, instructionSet, ol));
-                ObjectMapper objectMapper = new DefaultObjectMapper();
-                Dispatcher dispatcher = new DefaultDispatcher(objectLoader);
-                World world = new ObjectLoaderWorld(objectLoader);
                 
                 String src = srcTextPane.getText();
                 DefaultCompileContext compileContext = new DefaultCompileContext();
@@ -66,36 +66,21 @@ public class EvaluatorFrame extends JFrame {
 
                     ArrayList<Instruction> instructions = new ArrayList<>();
                     expression.compile(true).emit(instructions);
+                    
+                    Future<Environment> environmentFuture = 
+                        evaluator.evaluate(compileContext.localCount() - 1, instructions.toArray(new Instruction[instructions.size()]));
 
-                    // TODO: Consider:
-                    // - This is an external frame
-                    // - Should instructions be empty?
-                    DefaultEnvironment environment = new DefaultEnvironment(objectLoader, objectMapper, world, dispatcher, instructionSet, Instructions.ROOT_INSTRUCTIONS);
-                    environment.pushFrame(instructions.toArray(new Instruction[instructions.size()]));
-                    environment.currentFrame().load(world.getRoot());
-                    environment.currentFrame().allocate(environment, compileContext.localCount() - 1);
-
-                    while(!environment.finished()) {
-                        try {
-                            while(!environment.finished()) {
-                                environment.executeNext();
-                            }
-                        } catch(Exception ex) {
-                            environment.getDispatcher().handlePrimitiveError(environment, ex);
-                        }
-                    }
-
-                    connection.commit();
+                    Environment environment = environmentFuture.get();
 
                     LObject result = environment.currentFrame().peek();
                     String resultAsString = result.toString(environment);
                     resultTextPane.setText(resultAsString);
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             } catch (PrimitiveErrorException ex) {
                 String result = "Primitive error occurred:\n" + ex.getMessage();
                 resultTextPane.setText(result);
+            } catch (InterruptedException | ExecutionException ex) {
+                Logger.getLogger(EvaluatorFrame.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
                 setTitle(origTitle);
             }

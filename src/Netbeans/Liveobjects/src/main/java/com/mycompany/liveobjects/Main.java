@@ -27,7 +27,8 @@ public class Main {
                 .collect(Collectors.toList());
         InstructionSet instructionSet = new OpcodeInstructionSet(new ReflectiveInstructionDescriptorResolver(instructionClasses));
         
-        EvaluatorFrame frame = new EvaluatorFrame(connection, instructionSet);
+        ScriptEvaluator evaluator = new ScriptEvaluator(connection, instructionSet);
+        EvaluatorFrame frame = new EvaluatorFrame(evaluator);
         frame.setTitle("Liveobjects");
         
         frame.setSize(800, 600);
@@ -39,6 +40,8 @@ public class Main {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
+                evaluator.close();
+                
                 try {
                     connection.close();
                 } catch (SQLException ex) {
