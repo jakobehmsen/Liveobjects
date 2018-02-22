@@ -33,5 +33,7 @@ public interface ObjectSlotTransaction {
     public void addSlotReference(int id);
 
     public void updateSlotReference(int id);
+
+    public void commit();
     
 }

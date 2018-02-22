@@ -237,6 +237,15 @@ public class JDBCObjectStore implements ObjectStore {
                 slotTypeUpdateStatement.setString(3, selector);
                 slotTypeUpdateStatement.execute();
             }
+
+            @Override
+            public void commit() {
+                try {
+                    connection.commit();
+                } catch (SQLException ex) {
+                    Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         };
     }
 
@@ -350,6 +359,8 @@ public class JDBCObjectStore implements ObjectStore {
                         createObjectSlotTransaction(generatedId, selector, ObjectStore.REFERENCE_TYPE_PARENT);
                 value.addSlot(objectSlotTransaction);
             });
+            
+            connection.commit();
             
             return generatedId;
         } catch (SQLException ex) {

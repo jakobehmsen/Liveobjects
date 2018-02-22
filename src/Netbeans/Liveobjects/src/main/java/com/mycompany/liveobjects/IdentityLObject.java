@@ -67,6 +67,8 @@ public abstract class IdentityLObject implements LObject {
             } else {
                 newValue.updateSlot(slotTransaction);
             }
+            
+            slotTransaction.commit();
         }
     }
     

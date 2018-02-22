@@ -43,12 +43,6 @@ public class ScriptEvaluator {
                 }
             }
 
-            try {
-                connection.commit();
-            } catch (SQLException ex) {
-                Logger.getLogger(ScriptEvaluator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
             return environment;
         });
     }
