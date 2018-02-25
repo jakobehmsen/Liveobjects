@@ -18,16 +18,13 @@ public interface Environment {
     void halt();
     
     int getSymbolCode(String str);
+    String getSymbolString(int symbolCode);
 
     void currentFrame(Frame frame);
 
     void send(LObject receiver, int selector, LObject[] arguments);
 
-    void addSymbol(int symbolCode, String string);
-
     World getWorld();
-
-    public String getSymbolString(int symbolCode);
 
     public Dispatcher getDispatcher();
 

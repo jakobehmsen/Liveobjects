@@ -22,8 +22,13 @@ public class LazyObjectLoader implements ObjectLoader {
     public LObject load(int id) {
         ensureObjectStoreInitalized();
         
-        return objectCache.computeIfAbsent(id, i -> 
-            objectStore.load(id));
+        return objectCache.computeIfAbsent(id, i -> {
+            try(ObjectStoreConnection objectStoreConnection = objectStore.getObjectStoreConnection()) {
+                return objectStoreConnection.load(id);
+            } catch(Exception e) {
+                throw new RuntimeException("An error occurred when attempting to load #" + id, e);
+            }
+        });
     }
 
     @Override

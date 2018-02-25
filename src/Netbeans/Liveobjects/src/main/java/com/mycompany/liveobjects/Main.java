@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws SQLException, FileNotFoundException, IOException {
         Configuration configuration = Configuration.load();
         
-        Connection connection = configuration.createConnection();
+        ConnectionProvider connectionProvider = () -> configuration.createConnection();
         
         List<Class<? extends Instruction>> instructionClasses =
             Arrays.asList(Instructions.class.getClasses()).stream()
@@ -27,7 +27,7 @@ public class Main {
                 .collect(Collectors.toList());
         InstructionSet instructionSet = new OpcodeInstructionSet(new ReflectiveInstructionDescriptorResolver(instructionClasses));
         
-        ScriptEvaluator evaluator = new ScriptEvaluator(connection, instructionSet);
+        ScriptEvaluator evaluator = new ScriptEvaluator(connectionProvider, instructionSet);
         EvaluatorFrame frame = new EvaluatorFrame(evaluator);
         frame.setTitle("Liveobjects");
         
@@ -42,11 +42,11 @@ public class Main {
             public void windowClosed(WindowEvent e) {
                 evaluator.close();
                 
-                try {
+                /*try {
                     connection.close();
                 } catch (SQLException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                }*/
                 
                 configuration.writeFrame(frame);
                 

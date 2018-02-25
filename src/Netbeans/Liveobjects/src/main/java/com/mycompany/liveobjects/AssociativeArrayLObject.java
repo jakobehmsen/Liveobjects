@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import java.sql.Timestamp;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -8,14 +9,19 @@ public class AssociativeArrayLObject extends IdentityLObject {
     private Map<Integer, LObject> slots;
     private Map<Integer, LObject> parentSlots;
 
-    public AssociativeArrayLObject(ObjectStore objectStore, int id) {
-        super(id, objectStore);
+    public AssociativeArrayLObject(ObjectStore objectStore, int id, Timestamp lastUpdate) {
+        super(id, lastUpdate, objectStore);
     }
     
     @Override
-    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
-        this.slots = new Hashtable<>(slots);
-        this.parentSlots = new Hashtable<>(parentSlots);
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, boolean initialization) {
+        if(initialization) {
+            this.slots = new Hashtable<>(slots);
+            this.parentSlots = new Hashtable<>(parentSlots);
+        } else {
+            this.slots.putAll(slots);
+            this.parentSlots.putAll(parentSlots);
+        }
     }
 
     @Override
@@ -163,9 +169,23 @@ public class AssociativeArrayLObject extends IdentityLObject {
     }
 
     private void ensureSlotsRead(Environment environment) {
-        if(slots == null) {
-            readSlots(environment);
-        }
+        /*if(slots == null) {
+            readSlots(environment, true);
+        } else if(!isUpToDate()) {
+            readSlots(environment, false);
+        }*/
+        ensureUpToDate(environment);
+    }
+
+    @Override
+    protected boolean isInitialized(Environment environment) {
+        return slots != null;
+    }
+
+    @Override
+    protected void initializeTransient() {
+        slots = new Hashtable<>();
+        parentSlots = new Hashtable<>();
     }
 
     @Override

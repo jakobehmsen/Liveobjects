@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,13 +9,13 @@ import java.util.stream.Stream;
 public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
     private LObject[] items;
 
-    public ArrayLObject(ObjectStore objectStore, int id) {
-        super(id, objectStore);
+    public ArrayLObject(ObjectStore objectStore, int id, Timestamp lastUpdate) {
+        super(id, lastUpdate, objectStore);
         this.objectStore = objectStore;
     }
 
-    public ArrayLObject(ObjectStore objectStore, int id, LObject[] items) {
-        super(id, objectStore);
+    public ArrayLObject(ObjectStore objectStore, int id, Timestamp lastUpdate, LObject[] items) {
+        super(id, lastUpdate, objectStore);
         this.objectStore = objectStore;
         this.items = items;
     }
@@ -26,11 +27,11 @@ public class ArrayLObject extends IdentityLObject implements PrimitiveLObject {
     }
     
     private void readItems(Environment environment) {
-        readSlots(environment);
+        readSlots(environment, true);
     }
     
     @Override
-    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, boolean initialization) {
         IntegerLObject length = (IntegerLObject) slots.get(environment.getSymbolCode("length"));
         items = new LObject[length.getValue()];
         slots.forEach((symbolCode, obj) -> {

@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -14,23 +15,23 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     private Stack<LObject> stack;
     private Frame lexicalContext;
 
-    public DefaultFrame(int id, ObjectStore objectStore, LObject sender, Instruction[] instructions, Frame lexicalContext) {
-        super(id, objectStore);
+    public DefaultFrame(int id, Timestamp lastUpdate, ObjectStore objectStore, LObject sender, Instruction[] instructions, Frame lexicalContext) {
+        super(id, lastUpdate, objectStore);
         this.sender = sender;
         this.instructions = instructions;
         this.lexicalContext = lexicalContext;
         stack = new Stack<>();
     }
 
-    public DefaultFrame(int id, ObjectStore objectStore, LObject sender, Instruction[] instructions) {
-        super(id, objectStore);
+    public DefaultFrame(int id, Timestamp lastUpdate, ObjectStore objectStore, LObject sender, Instruction[] instructions) {
+        super(id, lastUpdate, objectStore);
         this.sender = sender;
         this.instructions = instructions;
         stack = new Stack<>();
     }
 
-    public DefaultFrame(int id, ObjectStore objectStore) {
-        super(id, objectStore);
+    public DefaultFrame(int id, Timestamp lastUpdate, ObjectStore objectStore) {
+        super(id, lastUpdate, objectStore);
     }
     
     @Override
@@ -280,7 +281,7 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     }
 
     @Override
-    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, boolean initialization) {
         IntegerLObject length = (IntegerLObject) slots.get(environment.getSymbolCode("stackSize"));
         sender = slots.get(environment.getSymbolCode("sender")); 
         lexicalContext = (Frame) slots.get(environment.getSymbolCode("lexicalContext")); 
@@ -302,7 +303,7 @@ public class DefaultFrame extends IdentityLObject implements Frame, PrimitiveLOb
     private void ensureRead(Environment environment) {
         if(stack == null) {
             stack = new Stack<>();
-            readSlots(environment);
+            readSlots(environment, true);
         }
     }
     

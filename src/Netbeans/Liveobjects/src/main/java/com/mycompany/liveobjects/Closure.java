@@ -1,19 +1,20 @@
 package com.mycompany.liveobjects;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 public class Closure extends IdentityLObject implements PrimitiveLObject, Behavior {
     private Frame frame;
     private Block block;
 
-    public Closure(int id, ObjectStore objectStore, Frame frame, Block block) {
-        super(id, objectStore);
+    public Closure(int id, Timestamp lastUpdate, ObjectStore objectStore, Frame frame, Block block) {
+        super(id, lastUpdate, objectStore);
         this.frame = frame;
         this.block = block;
     }
 
-    public Closure(int id, ObjectStore objectStore) {
-        super(id, objectStore);
+    public Closure(int id, Timestamp lastUpdate, ObjectStore objectStore) {
+        super(id, lastUpdate, objectStore);
     }
     
     public void evaluateAs(LObject receiver, LObject[] arguments, Environment environment) {
@@ -75,14 +76,14 @@ public class Closure extends IdentityLObject implements PrimitiveLObject, Behavi
     }
 
     @Override
-    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    protected void readSlots(Environment environment, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots, boolean initialization) {
         frame = (Frame) slots.get(environment.getSymbolCode("frame"));
         block = (Block) slots.get(environment.getSymbolCode("block"));
     }
     
     private void ensureLoaded(Environment environment) {
         if(frame == null) {
-            readSlots(environment);
+            readSlots(environment, true);
         }
     }
 

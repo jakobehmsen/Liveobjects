@@ -1,10 +1,11 @@
-CREATE DATABASE `<DBNAME>`;
-USE `<DBNAME>`;
+CREATE DATABASE `<db_name>`;
+USE `<db_name>`;
 
 CREATE TABLE `object` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_referer` int(11) DEFAULT NULL,
   `type` int(11) NOT NULL,
+  last_update TIMESTAMP(6),
   PRIMARY KEY (`id`),
   KEY `fk_object_parent_referer_idx` (`parent_referer`),
   CONSTRAINT `fk_object_parent_referer` FOREIGN KEY (`parent_referer`) REFERENCES `object` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -14,6 +15,7 @@ CREATE TABLE `slot` (
   `object_holder_id` int(11) NOT NULL,
   `symbol` varchar(128) CHARACTER SET utf8 NOT NULL,
   `type` int(11) NOT NULL,
+  last_update TIMESTAMP(6),
   PRIMARY KEY (`object_holder_id`,`symbol`),
   KEY `holder_idx` (`object_holder_id`),
   CONSTRAINT `holder` FOREIGN KEY (`object_holder_id`) REFERENCES `object` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION

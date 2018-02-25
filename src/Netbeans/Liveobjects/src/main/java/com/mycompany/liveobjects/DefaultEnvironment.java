@@ -10,16 +10,16 @@ public class DefaultEnvironment implements Environment {
     private Frame currentFrame;
     private Dispatcher dispatcher;
     private InstructionSet instructionSet;
+    private SymbolTable symbolTable;
     
-    public DefaultEnvironment(ObjectLoader objectLoader, ObjectMapper objectMapper, World world, Dispatcher dispatcher, InstructionSet instructionSet, Instruction[] instructions) {
+    public DefaultEnvironment(ObjectLoader objectLoader, ObjectMapper objectMapper, World world, Dispatcher dispatcher, InstructionSet instructionSet, Instruction[] instructions, SymbolTable symbolTable) {
         this.objectLoader = objectLoader;
         this.objectMapper = objectMapper;
         this.world = world;
         this.dispatcher = dispatcher;
         this.instructionSet = instructionSet;
+        this.symbolTable = symbolTable;
         pushFrame(instructions);
-        
-        initSymbolTable();
     }
 
     @Override
@@ -62,34 +62,10 @@ public class DefaultEnvironment implements Environment {
     public void halt() {
         finished = true;
     }
-    
-    private Hashtable<String, Integer> stringToSymbolCodeMap;
-    private Hashtable<Integer, String> symbolCodeToStringMap;
 
     @Override
     public int getSymbolCode(String str) {
-        Integer symbolCode = stringToSymbolCodeMap.get(str);
-        
-        if(symbolCode == null) {
-            symbolCode = stringToSymbolCodeMap.size();
-            stringToSymbolCodeMap.put(str, symbolCode);
-            symbolCodeToStringMap.put(symbolCode, str);
-        }
-        
-        return symbolCode;
-    }
-
-    private void initSymbolTable() {
-        stringToSymbolCodeMap = new Hashtable<>();
-        symbolCodeToStringMap = new Hashtable<>();
-        
-        //this.dispatcher.registerSymbols(this);
-        
-        /*
-        // Use reflection to locate all primitive selectors
-        stringToSymbolCodeMap.put(PrimitiveSelectors.GET_SLOT_SELECTOR, PrimitiveSelectors.GET_SLOT);
-        stringToSymbolCodeMap.put(PrimitiveSelectors.SET_SLOT_SELECTOR, PrimitiveSelectors.SET_SLOT);
-        */
+        return symbolTable.getSymbolCode(str);
     }
 
     @Override
@@ -103,19 +79,13 @@ public class DefaultEnvironment implements Environment {
     }
 
     @Override
-    public void addSymbol(int symbolCode, String string) {
-        stringToSymbolCodeMap.put(string, symbolCode);
-        symbolCodeToStringMap.put(symbolCode, string);
-    }
-
-    @Override
     public World getWorld() {
         return world;
     }
 
     @Override
     public String getSymbolString(int symbolCode) {
-        return symbolCodeToStringMap.get(symbolCode);
+        return symbolTable.getSymbolString(symbolCode);
     }
 
     @Override

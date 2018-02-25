@@ -76,11 +76,10 @@ public class EvaluatorFrame extends JFrame {
                     String resultAsString = result.toString(environment);
                     resultTextPane.setText(resultAsString);
                 }
-            } catch (PrimitiveErrorException ex) {
+            } catch (InterruptedException | ExecutionException ex) {
                 String result = "Primitive error occurred:\n" + ex.getMessage();
                 resultTextPane.setText(result);
-            } catch (InterruptedException | ExecutionException ex) {
-                Logger.getLogger(EvaluatorFrame.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             } finally {
                 setTitle(origTitle);
             }

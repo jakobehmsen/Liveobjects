@@ -1,8 +1,9 @@
 package com.mycompany.liveobjects;
 
+import java.sql.Timestamp;
 import java.util.List;
 
-public interface ObjectSlotTransaction {
+public interface ObjectSlotTransaction extends AutoCloseable {
 
     public void deleteSlotIntegerValue();
 
@@ -33,7 +34,5 @@ public interface ObjectSlotTransaction {
     public void addSlotReference(int id);
 
     public void updateSlotReference(int id);
-
-    public void commit();
     
 }
