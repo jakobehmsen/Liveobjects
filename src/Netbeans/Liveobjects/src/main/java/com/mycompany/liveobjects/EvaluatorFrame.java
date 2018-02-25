@@ -79,7 +79,6 @@ public class EvaluatorFrame extends JFrame {
             } catch (InterruptedException | ExecutionException ex) {
                 String result = "Primitive error occurred:\n" + ex.getMessage();
                 resultTextPane.setText(result);
-                ex.printStackTrace();
             } finally {
                 setTitle(origTitle);
             }
