@@ -105,7 +105,8 @@ public class Expressions {
             @Override
             public Emitter compile(boolean asExpression) {
                 List<Emitter> emitters = 
-                    Stream.concat(items.stream().limit(items.size() - 1).map(x -> x.compile(false)),
+                    Stream.concat(
+                        items.stream().limit(items.size() - 1).map(x -> x.compile(false)).collect(Collectors.toList()).stream(),
                         Arrays.asList(items.get(items.size() - 1).compile(asExpression)).stream()
                     ).collect(Collectors.toList());
                 
@@ -299,7 +300,7 @@ public class Expressions {
         return new Expression() {
             @Override
             public Emitter compile(boolean asExpression) {
-                Emitter targetEmitter = targetExpression.compile(asExpression);
+                Emitter targetEmitter = targetExpression.compile(true);
                 List<Emitter> emitters = expressions.stream()
                     .map(e -> e.compile(false))
                     .collect(Collectors.toList());
