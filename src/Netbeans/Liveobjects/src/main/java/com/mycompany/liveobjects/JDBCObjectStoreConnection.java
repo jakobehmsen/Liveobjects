@@ -28,63 +28,12 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
     private Connection connection;
     private InstructionSet instructionSet;
     private ObjectLoader objectLoader;
-    
-    private PreparedStatement slotInsertStatement;
-    private PreparedStatement slotReferenceValueDeleteStatement;
-    private PreparedStatement slotReferenceValueInsertStatement;
-    private PreparedStatement slotTypeUpdateStatement;
-    private PreparedStatement slotLastUpdateUpdateStatement;
-    private PreparedStatement slotBlobValueDeleteStatement;
-    private PreparedStatement slotBlobValueInsertStatement;
-    private PreparedStatement objectSelectLastUpdateStatement;
-    private PreparedStatement objectLastUpdateUpdateStatement;
-    private PreparedStatement objectSelectChangedSlotsStatement;
 
     public JDBCObjectStoreConnection(ObjectStore objectStore, Connection connection, InstructionSet instructionSet, ObjectLoader objectLoader) {
         this.objectStore = objectStore;
         this.connection = connection;
         this.instructionSet = instructionSet;
         this.objectLoader = objectLoader;
-        
-        try {
-            slotInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot (object_holder_id, symbol, type) VALUES (?, ?, ?)");
-            slotReferenceValueDeleteStatement = connection.prepareStatement(
-                    "DELETE FROM slot_reference WHERE object_holder_id = ? AND symbol = ?");
-            slotReferenceValueInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id, type) VALUES (?, ?, ?, ?)");
-            slotBlobValueDeleteStatement = connection.prepareStatement(
-                    "DELETE FROM slot_blob WHERE object_holder_id = ? AND symbol = ?");
-            slotBlobValueInsertStatement = connection.prepareStatement(
-                    "INSERT INTO slot_blob (object_holder_id, symbol, value) VALUES (?, ?, ?)");
-            slotTypeUpdateStatement = connection.prepareStatement(
-                    "UPDATE slot SET type = ? WHERE object_holder_id = ? AND symbol = ?");
-            slotLastUpdateUpdateStatement = connection.prepareStatement(
-                    "UPDATE slot SET last_update = ? WHERE object_holder_id = ? AND symbol = ?");
-            objectSelectLastUpdateStatement = connection.prepareStatement(
-                    "SELECT last_update FROM object WHERE id = ?");
-            objectLastUpdateUpdateStatement = connection.prepareStatement(
-                    "UPDATE object SET last_update = ? WHERE id = ?");
-            objectSelectChangedSlotsStatement = connection.prepareStatement(
-                    "SELECT s.symbol, s.type, r.object_reference_id, r.type, null FROM slot s\n" +
-                    "   INNER JOIN slot_reference r\n" +
-                    "       ON r.object_holder_id = s.object_holder_id\n" +
-                    "       AND r.symbol = s.symbol\n" +
-                    "   WHERE\n" +
-                    "       s.object_holder_id = ?\n" +
-                    "       AND s.last_update > ?\n" +
-                    "UNION ALL\n" +
-                    "SELECT s.symbol, s.type, null, null, b.value FROM slot s\n" +
-                    "   INNER JOIN slot_blob b\n" +
-                    "       ON b.object_holder_id = s.object_holder_id\n" +
-                    "       AND b.symbol = s.symbol\n" +
-                    "   WHERE\n" +
-                    "       s.object_holder_id = ?\n" +
-                    "       AND s.last_update > ?\n" +
-                    "");
-        } catch (SQLException ex) {
-            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     @Override
@@ -167,6 +116,23 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
         }
         
         try {
+            PreparedStatement objectSelectChangedSlotsStatement = connection.prepareStatement(
+                    "SELECT s.symbol, s.type, r.object_reference_id, r.type, null FROM slot s\n" +
+                    "   INNER JOIN slot_reference r\n" +
+                    "       ON r.object_holder_id = s.object_holder_id\n" +
+                    "       AND r.symbol = s.symbol\n" +
+                    "   WHERE\n" +
+                    "       s.object_holder_id = ?\n" +
+                    "       AND s.last_update > ?\n" +
+                    "UNION ALL\n" +
+                    "SELECT s.symbol, s.type, null, null, b.value FROM slot s\n" +
+                    "   INNER JOIN slot_blob b\n" +
+                    "       ON b.object_holder_id = s.object_holder_id\n" +
+                    "       AND b.symbol = s.symbol\n" +
+                    "   WHERE\n" +
+                    "       s.object_holder_id = ?\n" +
+                    "       AND s.last_update > ?\n");
+            
             objectSelectChangedSlotsStatement.setInt(1, id);
             objectSelectChangedSlotsStatement.setTimestamp(2, lastUpdate);
             objectSelectChangedSlotsStatement.setInt(3, id);
@@ -233,6 +199,8 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
     @Override
     public Timestamp lastUpdateTime(int id) {
         try {
+            PreparedStatement objectSelectLastUpdateStatement = connection.prepareStatement(
+                    "SELECT last_update FROM object WHERE id = ?");
             objectSelectLastUpdateStatement.setInt(1, id);
             ResultSet rs = objectSelectLastUpdateStatement.executeQuery();
             if(rs.next()) {
@@ -262,9 +230,11 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void deleteSlotReferenceValue(int otherId) {
                 try {
+                    PreparedStatement slotReferenceValueDeleteStatement = connection.prepareStatement(
+                            "DELETE FROM slot_reference WHERE object_holder_id = ? AND symbol = ?");
                     slotReferenceValueDeleteStatement.setInt(1, id);
                     slotReferenceValueDeleteStatement.setString(2, selector);
-                    slotReferenceValueDeleteStatement.execute();
+                    slotReferenceValueDeleteStatement.executeUpdate();
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -273,16 +243,8 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void addSlotReference(int otherId) {
                 try {
-                    slotInsertStatement.setInt(1, id);
-                    slotInsertStatement.setString(2, selector);
-                    slotInsertStatement.setInt(3, JDBCObjectStore.SLOT_TYPE_REFERENCE);
-                    slotInsertStatement.execute();
-                    
-                    slotReferenceValueInsertStatement.setInt(1, id);
-                    slotReferenceValueInsertStatement.setString(2, selector);
-                    slotReferenceValueInsertStatement.setInt(3, otherId);
-                    slotReferenceValueInsertStatement.setInt(4, referenceType);
-                    slotReferenceValueInsertStatement.execute();
+                    insertSlot(JDBCObjectStore.SLOT_TYPE_REFERENCE);
+                    insertSlotReference(otherId);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -291,16 +253,21 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void updateSlotReference(int otherId) {
                 try {
-                    slotReferenceValueInsertStatement.setInt(1, id);
-                    slotReferenceValueInsertStatement.setString(2, selector);
-                    slotReferenceValueInsertStatement.setInt(3, otherId);
-                    slotReferenceValueInsertStatement.setInt(4, referenceType);
-                    slotReferenceValueInsertStatement.execute();
-                    
+                    insertSlotReference(otherId);
                     updateSlotType(id, selector, JDBCObjectStore.SLOT_TYPE_REFERENCE);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+            
+            private void insertSlotReference(int otherId) throws SQLException {
+                PreparedStatement slotReferenceValueInsertStatement = connection.prepareStatement(
+                        "INSERT INTO slot_reference (object_holder_id, symbol, object_reference_id, type) VALUES (?, ?, ?, ?)");
+                slotReferenceValueInsertStatement.setInt(1, id);
+                slotReferenceValueInsertStatement.setString(2, selector);
+                slotReferenceValueInsertStatement.setInt(3, otherId);
+                slotReferenceValueInsertStatement.setInt(4, referenceType);
+                slotReferenceValueInsertStatement.executeUpdate();
             }
 
             @Override
@@ -339,7 +306,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             
             private byte[] createBlockValue(int arity, int varCount, List<Instruction> instructions) throws IOException {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
                     
                 dataOutputStream.writeInt(arity);
                 dataOutputStream.writeInt(varCount);
@@ -377,9 +344,11 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void deleteSlotBlobValue() {
                 try {
+                    PreparedStatement slotBlobValueDeleteStatement = connection.prepareStatement(
+                            "DELETE FROM slot_blob WHERE object_holder_id = ? AND symbol = ?");
                     slotBlobValueDeleteStatement.setInt(1, id);
                     slotBlobValueDeleteStatement.setString(2, selector);
-                    slotBlobValueDeleteStatement.execute();
+                    slotBlobValueDeleteStatement.executeUpdate();
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -388,17 +357,8 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void addBlobSlot(int type, byte[] bytes) {
                 try {
-                    byte[] value = bytes;
-                    
-                    slotInsertStatement.setInt(1, id);
-                    slotInsertStatement.setString(2, selector);
-                    slotInsertStatement.setInt(3, type);
-                    slotInsertStatement.execute();
-                    
-                    slotBlobValueInsertStatement.setInt(1, id);
-                    slotBlobValueInsertStatement.setString(2, selector);
-                    slotBlobValueInsertStatement.setBytes(3, value);
-                    slotBlobValueInsertStatement.execute();
+                    insertSlot(type);
+                    insertSlotBlobValue(bytes);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -407,24 +367,31 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             @Override
             public void updateBlobSlot(int type, byte[] bytes) {
                 try {
-                    byte[] value = bytes;
-                    
-                    slotBlobValueInsertStatement.setInt(1, id);
-                    slotBlobValueInsertStatement.setString(2, selector);
-                    slotBlobValueInsertStatement.setBytes(3, value);
-                    slotBlobValueInsertStatement.execute();
-                    
+                    insertSlotBlobValue(bytes);
                     updateSlotType(id, selector, type);
                 } catch (SQLException ex) {
                     Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             
+            private void insertSlotBlobValue(byte[] bytes) throws SQLException {
+                byte[] value = bytes;
+                    
+                PreparedStatement slotBlobValueInsertStatement = connection.prepareStatement(
+                        "INSERT INTO slot_blob (object_holder_id, symbol, value) VALUES (?, ?, ?)");
+                slotBlobValueInsertStatement.setInt(1, id);
+                slotBlobValueInsertStatement.setString(2, selector);
+                slotBlobValueInsertStatement.setBytes(3, value);
+                slotBlobValueInsertStatement.executeUpdate();
+            }
+            
             private void updateSlotType(int id, String selector, int type) throws SQLException {
+                PreparedStatement slotTypeUpdateStatement = connection.prepareStatement(
+                        "UPDATE slot SET type = ? WHERE object_holder_id = ? AND symbol = ?");
                 slotTypeUpdateStatement.setInt(1, type);
                 slotTypeUpdateStatement.setInt(2, id);
                 slotTypeUpdateStatement.setString(3, selector);
-                slotTypeUpdateStatement.execute();
+                slotTypeUpdateStatement.executeUpdate();
             }
 
             @Override
@@ -432,17 +399,31 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                 try {
                     Timestamp lastUpdate = Timestamp.valueOf(LocalDateTime.now());
                     
+                    PreparedStatement slotLastUpdateUpdateStatement = connection.prepareStatement(
+                            "UPDATE slot SET last_update = ? WHERE object_holder_id = ? AND symbol = ?");
                     slotLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
                     slotLastUpdateUpdateStatement.setInt(2, id);
                     slotLastUpdateUpdateStatement.setString(3, selector);
-                    slotLastUpdateUpdateStatement.execute();
+                    slotLastUpdateUpdateStatement.executeUpdate();
                     
+                    PreparedStatement objectLastUpdateUpdateStatement = connection.prepareStatement(
+                            "UPDATE object SET last_update = ? WHERE id = ?");
                     objectLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
                     objectLastUpdateUpdateStatement.setInt(2, id);
                     objectLastUpdateUpdateStatement.executeUpdate();
                 } catch (SQLException ex) {
                     Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+            
+            private void insertSlot(int referenceType) throws SQLException {
+                PreparedStatement slotInsertStatement = connection.prepareStatement(
+                        "INSERT INTO slot (object_holder_id, symbol, type) VALUES (?, ?, ?)");
+                
+                slotInsertStatement.setInt(1, id);
+                slotInsertStatement.setString(2, selector);
+                slotInsertStatement.setInt(3, referenceType);
+                slotInsertStatement.executeUpdate();
             }
         };
     }
