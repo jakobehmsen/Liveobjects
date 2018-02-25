@@ -29,16 +29,16 @@ public class JavaDispatchGroup implements DispatchGroup {
                     return new Instructions.SendI(selector, arguments.length) {
                         @Override
                         public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
+                            Object[] javaArguments = Arrays.asList(arguments).stream()
+                                    .map(x -> environment.getObjectMapper().mapToNative(environment, x))
+                                    .toArray(s -> new Object[s]);
                             try {
-                                Object[] javaArguments = Arrays.asList(arguments).stream()
-                                        .map(x -> environment.getObjectMapper().mapToNative(environment, x))
-                                        .toArray(s -> new Object[s]);
                                 Object javaInstance = constructor.newInstance(javaArguments);
                                 LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
                                 environment.currentFrame().load(value);
                                 environment.currentFrame().incIP();
                             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                Logger.getLogger(DefaultDispatcher.class.getName()).log(Level.SEVERE, null, ex);
+                                throw new RuntimeException("Could not instantiate via " + constructor + " with " + Arrays.toString(javaArguments) + ".", ex);
                             }
                         }
                     };
@@ -78,7 +78,7 @@ public class JavaDispatchGroup implements DispatchGroup {
                                             environment.currentFrame().load(value);
                                             environment.currentFrame().incIP();
                                         } catch (IllegalAccessException | IllegalArgumentException ex) {
-                                            Logger.getLogger(DefaultDispatcher.class.getName()).log(Level.SEVERE, null, ex);
+                                            throw new RuntimeException("Could not access field " + field + ".", ex);
                                         }
                                     }
                                 };
@@ -154,7 +154,7 @@ public class JavaDispatchGroup implements DispatchGroup {
                         environment.currentFrame().load(value);
                         environment.currentFrame().incIP();
                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                        Logger.getLogger(DefaultDispatcher.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new RuntimeException("Could not invoke method " + method + " with " + Arrays.toString(arguments) + ".", ex);
                     }
                 }
             };

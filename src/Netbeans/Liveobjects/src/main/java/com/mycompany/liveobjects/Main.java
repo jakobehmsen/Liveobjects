@@ -4,7 +4,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -41,12 +40,6 @@ public class Main {
             @Override
             public void windowClosed(WindowEvent e) {
                 evaluator.close();
-                
-                /*try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                }*/
                 
                 configuration.writeFrame(frame);
                 

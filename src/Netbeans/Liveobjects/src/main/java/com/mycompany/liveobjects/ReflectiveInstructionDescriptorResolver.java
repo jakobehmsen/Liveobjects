@@ -45,24 +45,24 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                 @Override
                 public void writeInstruction(InstructionSet instructionSet, Instruction instruction, OutputStream outputStream) throws IOException {
                     DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-                    operands.forEach(f -> {
+                    for(Field f: operands) {
                         if(f.getType().equals(int.class)) {
                             try {
                                 dataOutputStream.writeInt(f.getInt(instruction));
-                            } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                throw new RuntimeException("Could not write int operand.", ex);
                             }
                         } else if(f.getType().equals(boolean.class)) {
                             try {
                                 dataOutputStream.writeBoolean((boolean)f.getBoolean(instruction));
-                            } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                throw new RuntimeException("Could not write boolean operand.", ex);
                             }
                         } else if(f.getType().equals(String.class)) {
                             try {
                                 dataOutputStream.writeUTF((String)f.get(instruction));
-                            } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                throw new RuntimeException("Could not write String operand.", ex);
                             }
                         } else if(f.getType().isArray() && f.getType().getComponentType().equals(Instruction.class)) {
                             Instruction[] instructions;
@@ -72,14 +72,13 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                                 for (Instruction childInstruction : instructions) {
                                     instructionSet.writeInstruction(childInstruction, outputStream);
                                 }
-                            } catch (IllegalArgumentException | IllegalAccessException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                throw new RuntimeException("Could not write Instruction[] operand.", ex);
                             }
                         } else {
-                            // How to handle unsupported types?
                             throw new RuntimeException("Unsupported operand type: " + f.getType());
                         }
-                    });
+                    }
                 }
                 
                 @Override
@@ -90,19 +89,19 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                             try {
                                 return dataInputStream.readInt();
                             } catch (IllegalArgumentException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                                throw new RuntimeException("Could not read int operand.", ex);
                             }
                         } else if(f.getType().equals(boolean.class)) {
                             try {
                                 return dataInputStream.readBoolean();
                             } catch (IllegalArgumentException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                                throw new RuntimeException("Could not read boolean operand.", ex);
                             }
                         } else if(f.getType().equals(String.class)) {
                             try {
                                 return dataInputStream.readUTF();
                             } catch (IllegalArgumentException | IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                                throw new RuntimeException("Could not read String operand.", ex);
                             }
                         } else if(f.getType().isArray() && f.getType().getComponentType().equals(Instruction.class)) {
                             try {
@@ -113,29 +112,22 @@ public class ReflectiveInstructionDescriptorResolver implements InstructionDescr
                                 }
                                 return instructions;
                             } catch (IOException ex) {
-                                Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                                throw new RuntimeException("Could not read Instruction[] operand.", ex);
                             }
                         } else {
-                            // How to handle unsupported types?
                             throw new RuntimeException("Unsupported operand type: " + f.getType());
                         }
-                        
-                        return null;
                     }).toArray(s -> new Object[s]);
                     try {
                         return (Instruction) cons.newInstance(initargs);
                     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                        Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new RuntimeException("Could not instantiate instruction via " + cons + " with " + Arrays.toString(initargs) + ".", ex);
                     }
-                    
-                    return null;
                 }
             };
         } catch (NoSuchMethodException | SecurityException ex) {
-            Logger.getLogger(ReflectiveInstructionDescriptorResolver.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not get descriptor for instruction with opcode " + opcode + ".", ex);
         }
-        
-        return null;
     }
     
     private int getOrdinal(Field f) {

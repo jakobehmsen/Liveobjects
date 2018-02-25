@@ -56,13 +56,15 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                         return new DefaultFrame(id, lastUpdate, objectStore);
                     case ObjectStore.OBJECT_TYPE_CLOSURE:
                         return new Closure(id, lastUpdate, objectStore);
+                    default:
+                        throw new IllegalArgumentException("Object with id has unsupported type " + type + ".");
                 }
+            } else {
+                throw new IllegalArgumentException("Could not find object with id " + id + ".");
             }
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not load object with id " + id + ".", ex);
         }
-        
-        return null;
     }
 
     @Override
@@ -95,18 +97,14 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                             createObjectSlotTransaction(generatedId, selector, ObjectStore.REFERENCE_TYPE_PARENT);
                     value.addSlot(objectSlotTransaction);
                 });
-
-                connection.commit();
             } else {
-                generatedId = -1;
+                throw new RuntimeException("Could not retrieve generated id for initial creation of object.");
             }
             
             return generatedId;
         } catch (SQLException ex) {
-            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not store initial state of object.", ex);
         }
-        
-        return -1;
     }
 
     @Override
@@ -176,7 +174,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                         object = new Block(arity, varCount, instructions);
                         break;
                     } default: {
-                        throw new RuntimeException("Unsupported type");
+                        throw new IllegalArgumentException("Slot '" + selector + "' of object with id " + id + " has unsupported slot type " + slotType + ".");
                     }
                 }
                 
@@ -188,11 +186,14 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                         break;
                     case ObjectStore.REFERENCE_TYPE_PARENT:
                         parentSlots.put(symbolCode, object);
-                        break;
+                        break; 
+                    default: {
+                        throw new IllegalArgumentException("Slot '" + selector + "' of object with id " + id + " has unsupported reference type " + referenceType + ".");
+                    }
                 }
             }
         } catch (SQLException | IOException ex) {
-            Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not read slots from object with id " + id + ".", ex);
         }
     }
 
@@ -206,17 +207,13 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
             if(rs.next()) {
                 Timestamp actualLastUpdate = rs.getTimestamp(1);
                 
-                /*if(actualLastUpdate == null) {
-                    actualLastUpdate = Timestamp.valueOf(LocalDateTime.MIN);
-                }*/
-                
                 return actualLastUpdate;
+            } else {
+                throw new IllegalArgumentException("Could not find object with id " + id + ".");
             }
         } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not read last update time for object with id " + id + ".", ex);
         }
-        
-        return null;
     }
     
     @Override
@@ -236,7 +233,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     slotReferenceValueDeleteStatement.setString(2, selector);
                     slotReferenceValueDeleteStatement.executeUpdate();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not delete slot reference '" + selector + "' from object with id " + id + " to object with id " + otherId + ".", ex);
                 }
             }
 
@@ -246,7 +243,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     insertSlot(JDBCObjectStore.SLOT_TYPE_REFERENCE);
                     insertSlotReference(otherId);
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not add slot reference '" + selector + "' from object with id " + id + " to object with id " + otherId + ".", ex);
                 }
             }
 
@@ -256,7 +253,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     insertSlotReference(otherId);
                     updateSlotType(id, selector, JDBCObjectStore.SLOT_TYPE_REFERENCE);
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not update slot reference '" + selector + "' from object with id " + id + " to object with id " + otherId + ".", ex);
                 }
             }
             
@@ -310,13 +307,11 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     
                 dataOutputStream.writeInt(arity);
                 dataOutputStream.writeInt(varCount);
-                instructions.forEach(i -> {
-                    try {
-                        instructionSet.writeInstruction(i, outputStream);
-                    } catch (IOException ex) {
-                        Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                });
+                
+                for(int i = 0; i < instructions.size(); i++) {
+                    Instruction instr = instructions.get(i);
+                    instructionSet.writeInstruction(instr, outputStream);
+                }
 
                 return outputStream.toByteArray();
             }
@@ -327,7 +322,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     addBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not add block slot '" + selector + "' for object with id.", ex);
                 }
             }
 
@@ -337,7 +332,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     byte[] value = createBlockValue(arity, varCount, instructions);
                     updateBlobSlot(JDBCObjectStore.SLOT_TYPE_BLOCK, value);
                 } catch (IOException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not update block slot '" + selector + "' for object with id.", ex);
                 }
             }
 
@@ -350,7 +345,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     slotBlobValueDeleteStatement.setString(2, selector);
                     slotBlobValueDeleteStatement.executeUpdate();
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not delete slot '" + selector + "' blob value for object with id.", ex);
                 }
             }
 
@@ -360,7 +355,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     insertSlot(type);
                     insertSlotBlobValue(bytes);
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not add slot '" + selector + "' blob for object with id.", ex);
                 }
             }
 
@@ -370,7 +365,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
                     insertSlotBlobValue(bytes);
                     updateSlotType(id, selector, type);
                 } catch (SQLException ex) {
-                    Logger.getLogger(AssociativeArrayLObject.class.getName()).log(Level.SEVERE, null, ex);
+                    throw new RuntimeException("Could not update slot '" + selector + "' blob for object with id.", ex);
                 }
             }
             
@@ -396,24 +391,20 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
 
             @Override
             public void close() throws Exception {
-                try {
-                    Timestamp lastUpdate = Timestamp.valueOf(LocalDateTime.now());
+                Timestamp lastUpdate = Timestamp.valueOf(LocalDateTime.now());
                     
-                    PreparedStatement slotLastUpdateUpdateStatement = connection.prepareStatement(
-                            "UPDATE slot SET last_update = ? WHERE object_holder_id = ? AND symbol = ?");
-                    slotLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
-                    slotLastUpdateUpdateStatement.setInt(2, id);
-                    slotLastUpdateUpdateStatement.setString(3, selector);
-                    slotLastUpdateUpdateStatement.executeUpdate();
-                    
-                    PreparedStatement objectLastUpdateUpdateStatement = connection.prepareStatement(
-                            "UPDATE object SET last_update = ? WHERE id = ?");
-                    objectLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
-                    objectLastUpdateUpdateStatement.setInt(2, id);
-                    objectLastUpdateUpdateStatement.executeUpdate();
-                } catch (SQLException ex) {
-                    Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                PreparedStatement slotLastUpdateUpdateStatement = connection.prepareStatement(
+                        "UPDATE slot SET last_update = ? WHERE object_holder_id = ? AND symbol = ?");
+                slotLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
+                slotLastUpdateUpdateStatement.setInt(2, id);
+                slotLastUpdateUpdateStatement.setString(3, selector);
+                slotLastUpdateUpdateStatement.executeUpdate();
+
+                PreparedStatement objectLastUpdateUpdateStatement = connection.prepareStatement(
+                        "UPDATE object SET last_update = ? WHERE id = ?");
+                objectLastUpdateUpdateStatement.setTimestamp(1, lastUpdate);
+                objectLastUpdateUpdateStatement.setInt(2, id);
+                objectLastUpdateUpdateStatement.executeUpdate();
             }
             
             private void insertSlot(int referenceType) throws SQLException {

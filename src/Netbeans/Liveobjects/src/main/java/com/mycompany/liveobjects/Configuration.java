@@ -29,7 +29,7 @@ public class Configuration {
         try {
             password = getPassword();
         } catch (Exception ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Could not create connection.", ex);
         }
         
         String dbName = properties.getProperty("database.schema");

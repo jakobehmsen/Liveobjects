@@ -57,34 +57,32 @@ public class JDBCObjectStore implements ObjectStore {
 
     @Override
     public ObjectStoreConnection getObjectStoreConnection() {
-        try {
-            if(connectionStack.isEmpty()) {
+        if(connectionStack.isEmpty()) {
+            try {
                 connection = connectionProvider.getConnection();
+            } catch (SQLException ex) {
+                throw new RuntimeException("Could not get connection from connection provider.", ex);
             }
-            
-            ObjectStoreConnection objectStoreConnection = new JDBCObjectStoreConnection(this, connection, instructionSet, objectLoader) {
-                @Override
-                public void close() throws Exception {
-                    if(connectionStack.peek() != this) {
-                        throw new IllegalStateException("Attempting to close object store connection that is not inner most.");
-                    }
-                    
-                    connectionStack.pop();
-                    
-                    if(connectionStack.isEmpty()) {
-                        connection.commit();
-                        connection.close();
-                    }
-                }
-            };
-            
-            connectionStack.push(objectStoreConnection);
-            
-            return objectStoreConnection;
-        } catch (SQLException ex) {
-            Logger.getLogger(JDBCObjectStore.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        return null;
+
+        ObjectStoreConnection objectStoreConnection = new JDBCObjectStoreConnection(this, connection, instructionSet, objectLoader) {
+            @Override
+            public void close() throws Exception {
+                if(connectionStack.peek() != this) {
+                    throw new IllegalStateException("Attempting to close object store connection that is not inner most.");
+                }
+
+                connectionStack.pop();
+
+                if(connectionStack.isEmpty()) {
+                    connection.commit();
+                    connection.close();
+                }
+            }
+        };
+
+        connectionStack.push(objectStoreConnection);
+
+        return objectStoreConnection;
     }
 }

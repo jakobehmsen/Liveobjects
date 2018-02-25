@@ -88,11 +88,12 @@ public class Block implements ScalarLObject, Behavior {
     @Override
     public String toString(Environment environment) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        for(Instruction i: instructions) {
+        for(int i = 0; i < instructions.size(); i++) {
+            Instruction instr = instructions.get(i);
             try {
-                environment.getInstructionSet().writeInstruction(i, byteArrayOutputStream);
+                environment.getInstructionSet().writeInstruction(instr, byteArrayOutputStream);
             } catch (IOException ex) {
-                Logger.getLogger(Block.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException("Could not write instruction at index " + i + ".", ex);
             }
         }
         String bytecodeStr = Arrays.toString(byteArrayOutputStream.toByteArray());
