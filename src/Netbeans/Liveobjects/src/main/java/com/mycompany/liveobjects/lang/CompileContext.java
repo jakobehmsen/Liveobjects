@@ -7,10 +7,7 @@ public interface CompileContext {
     boolean isLocal(String str);
     void declareLocal(String str);
     int getLocalOrdinal(String str);
-
-    public int localCount();
-
-    public CompileContext newForBlock(List<String> params, boolean isClosed);
-
-    public CompileContext atContext(int distanceToLocal);
+    int localCount();
+    CompileContext newForBlock(List<String> params, boolean isClosed);
+    CompileContext atContext(int distanceToLocal);
 }
