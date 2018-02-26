@@ -60,32 +60,8 @@ public class JavaDispatchGroup implements DispatchGroup {
                     }
 
                     @Override
-                    public Instructions.SendI noSuchMethod(LObject receiver, LObject[] arguments, Environment environment, int selector, String methodName, Class<?> c) {
-                        if(arguments.length == 0) {
-                            // Maybe a field matches
-                            String fieldName = methodName;
-                            try {
-                                Field field = c.getField(fieldName);
-
-                                return new Instructions.SendI(selector, 0) {
-                                    @Override
-                                    public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
-                                        try {
-                                            Object javaInstance = field.get(null);
-                                            LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
-                                            environment.currentFrame().load(value);
-                                            environment.currentFrame().incIP();
-                                        } catch (IllegalAccessException | IllegalArgumentException ex) {
-                                            throw new RuntimeException("Could not access field " + field + ".", ex);
-                                        }
-                                    }
-                                };
-                            } catch (NoSuchFieldException | SecurityException ex1) {
-                                throw new RuntimeException(ex1);
-                            }
-                        } else {
-                            throw new RuntimeException(new NoSuchMethodException(methodName));
-                        }
+                    public Object getField(LObject receiver, Environment environment, int symbolCode, Field field) throws IllegalAccessException {
+                        return field.get(null);
                     }
                 });
             }
@@ -118,17 +94,19 @@ public class JavaDispatchGroup implements DispatchGroup {
             }
 
             @Override
-            public Instructions.SendI noSuchMethod(LObject receiver, LObject[] arguments, Environment environment, int selector, String methodName, Class<?> c) {
-                throw new RuntimeException(new NoSuchMethodException(methodName));
+            public Object getField(LObject receiver, Environment environment, int symbolCode, Field field) throws IllegalAccessException {
+                Object target = receiver.toNative(environment);
+                return field.get(target);
             }
-            });
+        });
     }
     
     private interface MethodInvokeInstructionStrategy {
         Class<?> getClass(LObject receiver, LObject[] arguments, Environment environment, int selector);
         Object invoke(LObject receiver, LObject[] arguments, Environment environment, int selector, Method method)
                 throws IllegalAccessException, IllegalArgumentException, InvocationTargetException;
-        Instructions.SendI noSuchMethod(LObject receiver, LObject[] arguments, Environment environment, int selector, String methodName, Class<?> c);
+        Object getField(LObject receiver, Environment environment, int symbolCode, Field field)
+                throws IllegalAccessException;
     }
     
     private Instructions.SendI createMethodInvokeInstruction(LObject receiver, LObject[] arguments, Environment environment, int selector, MethodInvokeInstructionStrategy strategy) {
@@ -159,7 +137,31 @@ public class JavaDispatchGroup implements DispatchGroup {
         } catch (IllegalArgumentException ex) {
             throw new RuntimeException(ex);
         } catch (NoSuchMethodException ex) {
-            return strategy.noSuchMethod(receiver, arguments, environment, selector, methodName, c);
+            if(arguments.length == 0) {
+                // Maybe a field matches
+                String fieldName = methodName;
+                try {
+                    Field field = c.getField(fieldName);
+
+                    return new Instructions.SendI(selector, 0) {
+                        @Override
+                        public void send(Environment environment, LObject receiver, int symbolCode, LObject[] arguments) {
+                            try {
+                                Object javaInstance = strategy.getField(receiver, environment, symbolCode, field);
+                                LObject value = environment.getObjectMapper().mapToLObject(environment, javaInstance);
+                                environment.currentFrame().load(value);
+                                environment.currentFrame().incIP();
+                            } catch (IllegalAccessException | IllegalArgumentException ex) {
+                                throw new RuntimeException("Could not access field " + field + ".", ex);
+                            }
+                        }
+                    };
+                } catch (NoSuchFieldException | SecurityException ex1) {
+                    throw new RuntimeException(ex1);
+                }
+            } else {
+                throw new RuntimeException(new NoSuchMethodException(methodName));
+            }
         }
     }
     
