@@ -9,7 +9,6 @@ import java.util.function.Function;
 public class PrimitiveDispatchGroup implements DispatchGroup {
     private ObjectLoader objectLoader;
     private Hashtable<String, Behavior> primitives = new Hashtable<>();
-    //private Hashtable<Integer, String> primitiveSelectors = new Hashtable<>();
     
     public PrimitiveDispatchGroup(ObjectLoader objectLoader) {
         this.objectLoader = objectLoader;

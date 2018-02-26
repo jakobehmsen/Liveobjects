@@ -1,7 +1,5 @@
 package com.mycompany.liveobjects.runtime;
 
-import java.util.Hashtable;
-
 public class DefaultEnvironment implements Environment {
     private ObjectLoader objectLoader;
     private ObjectMapper objectMapper;

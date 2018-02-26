@@ -3,8 +3,6 @@ package com.mycompany.liveobjects.runtime;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JDBCObjectStore implements ObjectStore {
     public static final int SLOT_TYPE_REFERENCE = 0;
