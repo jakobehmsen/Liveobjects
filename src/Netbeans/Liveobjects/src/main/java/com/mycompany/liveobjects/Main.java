@@ -1,5 +1,12 @@
 package com.mycompany.liveobjects;
 
+import com.mycompany.liveobjects.runtime.ConnectionProvider;
+import com.mycompany.liveobjects.runtime.Instruction;
+import com.mycompany.liveobjects.runtime.InstructionSet;
+import com.mycompany.liveobjects.runtime.Instructions;
+import com.mycompany.liveobjects.runtime.OpcodeInstructionSet;
+import com.mycompany.liveobjects.runtime.Operation;
+import com.mycompany.liveobjects.runtime.ReflectiveInstructionDescriptorResolver;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
