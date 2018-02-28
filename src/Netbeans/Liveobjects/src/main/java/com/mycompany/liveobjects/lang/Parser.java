@@ -6,6 +6,10 @@ import com.mycompany.liveobjects.lang.antlr.langBaseVisitor;
 import com.mycompany.liveobjects.lang.antlr.langLexer;
 import com.mycompany.liveobjects.lang.antlr.langParser;
 import com.mycompany.liveobjects.lang.antlr.langParser.ExpressionsContext;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
@@ -15,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -24,54 +28,46 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-public class Parser {
-    private ErrorHandler errorHandler;
-    
-    public Parser() {
-        setErrorHandler(new ErrorHandler() {
-            @Override
-            public void syntaxError(int line, int column, String message) {
-                
-            }
-        });
-    }
-
-    public final Parser setErrorHandler(ErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
-        return this;
+public class Parser {    
+    public Compiler parse(String src) throws IOException, SyntaxErrorException {
+        return parse(new ByteArrayInputStream(src.getBytes()));
     }
     
-    public Compiler parse(String src) {
-        langLexer lexer = new langLexer(new ANTLRInputStream(src));
+    public Compiler parse(InputStream inputStream) throws IOException, SyntaxErrorException {
+        langLexer lexer = new langLexer(CharStreams.fromStream(inputStream));
+        lexer.removeErrorListeners();
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         langParser parser = new langParser(tokens);
+        parser.removeErrorListeners();
+        
+        ArrayList<String> formattedSyntaxErrors = new ArrayList<>();
                 
         lexer.addErrorListener(new ANTLRErrorListener() {
             @Override
             public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
-                errorHandler.syntaxError(i, i1, string);
+                formattedSyntaxErrors.add(i + "," + i1 + ": " + string);
             }
 
             @Override
             public void reportAmbiguity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, boolean bln, BitSet bitset, ATNConfigSet atncs) {
-   
+                
             }
 
             @Override
             public void reportAttemptingFullContext(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, BitSet bitset, ATNConfigSet atncs) {
-         
+                
             }
 
             @Override
             public void reportContextSensitivity(org.antlr.v4.runtime.Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atncs) {
-          
+                
             }
         });
         
         parser.addErrorListener(new ANTLRErrorListener() {
             @Override
             public void syntaxError(Recognizer<?, ?> rcgnzr, Object o, int i, int i1, String string, RecognitionException re) {
-                errorHandler.syntaxError(i, i1, string);
+                formattedSyntaxErrors.add(i + "," + i1 + ": " + string);
             }
 
             @Override
@@ -91,6 +87,10 @@ public class Parser {
         });
         
         ExpressionsContext expressionsCtx = parser.expressions();
+        
+        if(formattedSyntaxErrors.size() > 0) {
+            throw new SyntaxErrorException(formattedSyntaxErrors);
+        }
         
         Compiler expressionCompiler = parse(expressionsCtx);
         

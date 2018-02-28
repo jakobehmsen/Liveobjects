@@ -1,5 +1,13 @@
 package com.mycompany.liveobjects;
 
+import com.mycompany.liveobjects.runtime.ConnectionProvider;
+import com.mycompany.liveobjects.runtime.Evaluator;
+import com.mycompany.liveobjects.runtime.Instruction;
+import com.mycompany.liveobjects.runtime.InstructionSet;
+import com.mycompany.liveobjects.runtime.Instructions;
+import com.mycompany.liveobjects.runtime.OpcodeInstructionSet;
+import com.mycompany.liveobjects.runtime.Operation;
+import com.mycompany.liveobjects.runtime.ReflectiveInstructionDescriptorResolver;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,7 +16,10 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
@@ -98,5 +109,19 @@ public class Configuration {
         SecretKey secretKey = Security.decodeSecretKey(encodedKey);
         
         return Security.decrypt(pwde, secretKey);
+    }
+    
+    public ScriptEvaluator createScriptEvaluator() {
+        ConnectionProvider connectionProvider = () -> createConnection();
+        
+        List<Class<? extends Instruction>> instructionClasses =
+            Arrays.asList(Instructions.class.getClasses()).stream()
+                .filter(c -> Instruction.class.isAssignableFrom(c))
+                .map(c -> (Class<? extends Instruction>)c)
+                .filter(c -> c.isAnnotationPresent(Operation.class))
+                .collect(Collectors.toList());
+        InstructionSet instructionSet = new OpcodeInstructionSet(new ReflectiveInstructionDescriptorResolver(instructionClasses));
+        
+        return new ScriptEvaluator(new Evaluator(connectionProvider, instructionSet));
     }
 }

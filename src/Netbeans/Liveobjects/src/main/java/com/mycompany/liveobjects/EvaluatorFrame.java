@@ -1,20 +1,15 @@
 package com.mycompany.liveobjects;
 
-import com.mycompany.liveobjects.expr.Expression;
-import com.mycompany.liveobjects.lang.DefaultCompileContext;
-import com.mycompany.liveobjects.lang.ErrorHandler;
-import com.mycompany.liveobjects.lang.Parser;
+import com.mycompany.liveobjects.lang.SyntaxErrorException;
 import com.mycompany.liveobjects.runtime.Environment;
-import com.mycompany.liveobjects.runtime.Instruction;
 import com.mycompany.liveobjects.runtime.LObject;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -44,38 +39,18 @@ public class EvaluatorFrame extends JFrame {
                 setTitle(origTitle + " - Evaluating...");
                 
                 String src = srcTextPane.getText();
-                DefaultCompileContext compileContext = new DefaultCompileContext();
-                compileContext.declareLocal("self");
                 
-                ArrayList<String> syntaxErrors = new ArrayList<>();
-                com.mycompany.liveobjects.lang.Compiler compiler = new Parser()
-                    .setErrorHandler(new ErrorHandler() {
-                        @Override
-                        public void syntaxError(int line, int column, String message) {
-                            syntaxErrors.add(line + "," + column + ": " + message);
-                        }
-                    })
-                    .parse(src);
-                
-                if(syntaxErrors.size() > 0) {
-                    String resultAsString = syntaxErrors.stream().collect(Collectors.joining("\n"));
-                    resultTextPane.setText(resultAsString);
-                } else {
-                    Expression expression = compiler.compile(compileContext);
-
-                    ArrayList<Instruction> instructions = new ArrayList<>();
-                    expression.compile(true).emit(instructions);
-                    
-                    Future<Environment> environmentFuture = 
-                        evaluator.evaluate(compileContext.localCount() - 1, instructions.toArray(new Instruction[instructions.size()]));
-
-                    Environment environment = environmentFuture.get();
-
+                InputStream inputStream = new ByteArrayInputStream(src.getBytes());
+                try {
+                    Environment environment = evaluator.evaluate(inputStream);
                     LObject result = environment.currentFrame().peek();
                     String resultAsString = result.toString(environment);
                     resultTextPane.setText(resultAsString);
+                } catch (SyntaxErrorException ex) {
+                    String resultAsString = ex.getFormattedSyntaxErrors().stream().collect(Collectors.joining("\n"));
+                    resultTextPane.setText(resultAsString);
                 }
-            } catch (InterruptedException | ExecutionException ex) {
+            } catch (Exception ex) {
                 String result = "Primitive error occurred:\n" + ex.getMessage();
                 resultTextPane.setText(result);
             } finally {
