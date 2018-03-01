@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -112,7 +113,18 @@ public class Configuration {
     }
     
     public ScriptEvaluator createScriptEvaluator() {
-        ConnectionProvider connectionProvider = () -> createConnection();
+        ConnectionProvider connectionProvider = new ConnectionProvider() {
+            @Override
+            public Connection getConnection() throws SQLException {
+                Connection conn = createConnection();
+                return conn;
+            }
+
+            @Override
+            public void close() throws Exception {
+                
+            }
+        }.asPool();
         
         List<Class<? extends Instruction>> instructionClasses =
             Arrays.asList(Instructions.class.getClasses()).stream()

@@ -51,7 +51,7 @@ public class EvaluatorFrame extends JFrame {
                     resultTextPane.setText(resultAsString);
                 }
             } catch (Exception ex) {
-                String result = "Primitive error occurred:\n" + ex.getMessage();
+                String result = "Primitive error occurred:\n" + ex;
                 resultTextPane.setText(result);
             } finally {
                 setTitle(origTitle);
