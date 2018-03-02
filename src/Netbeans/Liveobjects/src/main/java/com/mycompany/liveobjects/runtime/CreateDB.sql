@@ -5,19 +5,21 @@ CREATE TABLE `object` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `parent_referer` int(11) DEFAULT NULL,
   `type` int(11) NOT NULL,
-  last_update TIMESTAMP(6),
+  `last_update` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`id`),
   KEY `fk_object_parent_referer_idx` (`parent_referer`),
+  KEY `idx_object_last_update` (`last_update`),
   CONSTRAINT `fk_object_parent_referer` FOREIGN KEY (`parent_referer`) REFERENCES `object` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 
 CREATE TABLE `slot` (
   `object_holder_id` int(11) NOT NULL,
   `symbol` varchar(128) CHARACTER SET utf8 NOT NULL,
   `type` int(11) NOT NULL,
-  last_update TIMESTAMP(6),
+  `last_update` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`object_holder_id`,`symbol`),
   KEY `holder_idx` (`object_holder_id`),
+  KEY `idx_slot_last_update` (`last_update`),
   CONSTRAINT `holder` FOREIGN KEY (`object_holder_id`) REFERENCES `object` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
