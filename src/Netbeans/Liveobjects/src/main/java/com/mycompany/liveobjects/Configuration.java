@@ -1,5 +1,6 @@
 package com.mycompany.liveobjects;
 
+import com.mycompany.liveobjects.lang.SyntaxErrorException;
 import com.mycompany.liveobjects.runtime.ConnectionProvider;
 import com.mycompany.liveobjects.runtime.Evaluator;
 import com.mycompany.liveobjects.runtime.Instruction;
@@ -8,6 +9,7 @@ import com.mycompany.liveobjects.runtime.Instructions;
 import com.mycompany.liveobjects.runtime.OpcodeInstructionSet;
 import com.mycompany.liveobjects.runtime.Operation;
 import com.mycompany.liveobjects.runtime.ReflectiveInstructionDescriptorResolver;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +22,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -63,7 +67,21 @@ public class Configuration {
         
         configuration.load(new FileInputStream(FilePath));
         
+        new Thread(() -> configuration.warmup()).start();
+        
         return configuration;
+    }
+    
+    private void warmup() {
+        System.out.println("Warming up...");
+        String warmupScript = "x := self\n1 addi: 1";
+        InputStream inputStream = new ByteArrayInputStream(warmupScript.getBytes());
+        try {
+            createScriptEvaluator().evaluate(inputStream);
+        } catch (IOException | SyntaxErrorException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Warmed up.");
     }
 
     public void writeFrame(EvaluatorFrame frame) {
