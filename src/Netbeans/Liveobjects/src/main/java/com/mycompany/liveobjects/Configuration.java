@@ -2,12 +2,15 @@ package com.mycompany.liveobjects;
 
 import com.mycompany.liveobjects.lang.SyntaxErrorException;
 import com.mycompany.liveobjects.runtime.ConnectionProvider;
+import com.mycompany.liveobjects.runtime.DispatchGroup;
 import com.mycompany.liveobjects.runtime.Evaluator;
 import com.mycompany.liveobjects.runtime.Instruction;
 import com.mycompany.liveobjects.runtime.InstructionSet;
 import com.mycompany.liveobjects.runtime.Instructions;
+import com.mycompany.liveobjects.runtime.JavaDispatchGroup;
 import com.mycompany.liveobjects.runtime.OpcodeInstructionSet;
 import com.mycompany.liveobjects.runtime.Operation;
+import com.mycompany.liveobjects.runtime.PrimitiveDispatchGroup;
 import com.mycompany.liveobjects.runtime.ReflectiveInstructionDescriptorResolver;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -151,6 +154,7 @@ public class Configuration {
                 .filter(c -> c.isAnnotationPresent(Operation.class))
                 .collect(Collectors.toList());
         InstructionSet instructionSet = new OpcodeInstructionSet(new ReflectiveInstructionDescriptorResolver(instructionClasses));
+        
         
         return new ScriptEvaluator(new Evaluator(connectionProvider, instructionSet));
     }

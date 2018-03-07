@@ -14,9 +14,14 @@ public class Evaluator {
         this.connectionProvider = connectionProvider;
         this.instructionSet = instructionSet;
         
-        objectLoader = new LazyObjectLoader(ol -> new JDBCObjectStore(connectionProvider, instructionSet, ol));
+        JDBCObjectStore objectStore = new JDBCObjectStore(connectionProvider, instructionSet);
+        objectLoader = new LazyObjectLoader(objectStore);
         objectMapper = new DefaultObjectMapper();
-        dispatcher = new DefaultDispatcher(objectLoader);
+        
+        DispatchGroup mainGroup = new JavaDispatchGroup()
+            .withFallback(new PrimitiveDispatchGroup(objectLoader, objectStore));
+        
+        dispatcher = new DefaultDispatcher(objectLoader, mainGroup);
         world = new ObjectLoaderWorld(objectLoader);
         
         symbolTable = new DefaultSymbolTable();

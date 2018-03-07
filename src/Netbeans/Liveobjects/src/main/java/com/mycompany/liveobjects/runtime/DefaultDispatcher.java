@@ -4,7 +4,7 @@ public class DefaultDispatcher implements Dispatcher {
     private ObjectLoader objectLoader;
     private DispatchGroup group;
     
-    public DefaultDispatcher(ObjectLoader objectLoader) {
+    public DefaultDispatcher(ObjectLoader objectLoader, DispatchGroup mainGroup) {
         this.objectLoader = objectLoader;
         
         DispatchGroup customGroup = new DispatchGroup() {
@@ -19,9 +19,11 @@ public class DefaultDispatcher implements Dispatcher {
             }
         };
         
-        group = new JavaDispatchGroup()
+        group = mainGroup.withFallback(customGroup);
+        
+        /*group = new JavaDispatchGroup()
             .withFallback(new PrimitiveDispatchGroup(objectLoader))
-            .withFallback(customGroup);
+            .withFallback(customGroup);*/
     }
 
     @Override

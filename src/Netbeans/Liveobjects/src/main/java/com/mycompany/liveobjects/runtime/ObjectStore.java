@@ -1,5 +1,7 @@
 package com.mycompany.liveobjects.runtime;
 
+import java.util.function.Consumer;
+
 public interface ObjectStore {
     public static final int REFERENCE_TYPE_NORMAL = 0;
     public static final int REFERENCE_TYPE_PARENT = 1;
@@ -15,4 +17,6 @@ public interface ObjectStore {
     Closure newClosure(Frame frame, Block behavior);
     LObject newJavaInstance(Object object);
     ObjectStoreConnection getObjectStoreConnection();
+    void excludeChanges();
+    void includeChanges();
 }

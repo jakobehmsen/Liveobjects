@@ -25,13 +25,11 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
     private ObjectStore objectStore;
     private Connection connection;
     private InstructionSet instructionSet;
-    private ObjectLoader objectLoader;
 
-    public JDBCObjectStoreConnection(ObjectStore objectStore, Connection connection, InstructionSet instructionSet, ObjectLoader objectLoader) {
+    public JDBCObjectStoreConnection(ObjectStore objectStore, Connection connection, InstructionSet instructionSet) {
         this.objectStore = objectStore;
         this.connection = connection;
         this.instructionSet = instructionSet;
-        this.objectLoader = objectLoader;
     }
 
     @Override
@@ -106,7 +104,7 @@ public abstract class JDBCObjectStoreConnection implements ObjectStoreConnection
     }
 
     @Override
-    public void readSlots(int id, Environment environment, Timestamp lastUpdate, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
+    public void readSlots(ObjectLoader objectLoader, int id, Environment environment, Timestamp lastUpdate, Map<Integer, LObject> slots, Map<Integer, LObject> parentSlots) {
         if(lastUpdate == null) {
             lastUpdate = Timestamp.valueOf(LocalDateTime.MIN);
         }

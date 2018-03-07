@@ -12,10 +12,11 @@ public class ObjectLoaderWorld implements World {
     private int stringPrototypeId;
     private int nilId;
     private int javaId;
+    private int storeId;
     private ObjectLoader objectLoader;
 
     public ObjectLoaderWorld(ObjectLoader objectLoader) {
-        this(objectLoader, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+        this(objectLoader, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
     }
 
     public ObjectLoaderWorld(ObjectLoader objectLoader, 
@@ -23,7 +24,7 @@ public class ObjectLoaderWorld implements World {
             int framePrototypeId, int closurePrototypeId,
             int trueId, int falseId, int arrayPrototypeId, 
             int blockPrototypeId, int stringPrototypeId, 
-            int nilId, int javaId) {
+            int nilId, int javaId, int storeId) {
         this.objectLoader = objectLoader;
         this.rootObjectId = rootObjectId;
         this.integerPrototypeId = integerPrototypeId;
@@ -36,6 +37,7 @@ public class ObjectLoaderWorld implements World {
         this.stringPrototypeId = stringPrototypeId;
         this.nilId = nilId;
         this.javaId = javaId;
+        this.storeId = storeId;
     }
     
     private ObjectLoader getObjectLoader() {
@@ -95,5 +97,10 @@ public class ObjectLoaderWorld implements World {
     @Override
     public LObject getJava() {
         return getObjectLoader().load(javaId);
+    }
+
+    @Override
+    public LObject getStore() {
+        return getObjectLoader().load(storeId);
     }
 }

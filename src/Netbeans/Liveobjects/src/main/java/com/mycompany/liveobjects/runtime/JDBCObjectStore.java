@@ -3,6 +3,7 @@ package com.mycompany.liveobjects.runtime;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Stack;
+import java.util.function.Consumer;
 
 public class JDBCObjectStore implements ObjectStore {
     public static final int SLOT_TYPE_REFERENCE = 0;
@@ -12,12 +13,10 @@ public class JDBCObjectStore implements ObjectStore {
     
     private ConnectionProvider connectionProvider;
     private InstructionSet instructionSet;
-    private ObjectLoader objectLoader;
     
-    public JDBCObjectStore(ConnectionProvider connectionProvider, InstructionSet instructionSet, ObjectLoader objectLoader) {
+    public JDBCObjectStore(ConnectionProvider connectionProvider, InstructionSet instructionSet) {
         this.connectionProvider = connectionProvider;
         this.instructionSet = instructionSet;
-        this.objectLoader = objectLoader;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class JDBCObjectStore implements ObjectStore {
             }
         }
 
-        ObjectStoreConnection objectStoreConnection = new JDBCObjectStoreConnection(this, connection, instructionSet, objectLoader) {
+        ObjectStoreConnection objectStoreConnection = new JDBCObjectStoreConnection(this, connection, instructionSet) {
             @Override
             public void close() throws Exception {
                 if(connectionStack.peek() != this) {
@@ -77,10 +76,37 @@ public class JDBCObjectStore implements ObjectStore {
                     connection.close();
                 }
             }
+
+            @Override
+            public void execute(Consumer<ObjectStoreConnection> change) {
+                if(persist) {
+                    change.accept(this);
+                }
+            }
         };
 
         connectionStack.push(objectStoreConnection);
 
         return objectStoreConnection;
+    }
+    
+    private boolean persist = true;
+
+    @Override
+    public void excludeChanges() {
+        if(!persist) {
+            throw new IllegalStateException("Already excluding changes.");
+        }
+        
+        persist = false;
+    }
+
+    @Override
+    public void includeChanges() {
+        if(persist) {
+            throw new IllegalStateException("Already including changes.");
+        }
+        
+        persist = true;
     }
 }

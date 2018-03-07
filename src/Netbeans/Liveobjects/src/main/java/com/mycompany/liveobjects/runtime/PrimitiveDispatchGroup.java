@@ -8,10 +8,12 @@ import java.util.function.Function;
 
 public class PrimitiveDispatchGroup implements DispatchGroup {
     private ObjectLoader objectLoader;
+    private ObjectStore objectStore;
     private Hashtable<String, Behavior> primitives = new Hashtable<>();
     
-    public PrimitiveDispatchGroup(ObjectLoader objectLoader) {
+    public PrimitiveDispatchGroup(ObjectLoader objectLoader, ObjectStore objectStore) {
         this.objectLoader = objectLoader;
+        this.objectStore = objectStore;
         
         addPrimitive("clone", (receiver, arguments, environment) -> {
             LObject value = receiver.cloneObject(environment);
@@ -117,6 +119,24 @@ public class PrimitiveDispatchGroup implements DispatchGroup {
                 resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("sender"));
             }
         });
+        addPrimitive("excludeChanges", (receiver, arguments, environment) -> {
+            if(receiver == environment.getWorld().getStore()) {
+                objectStore.excludeChanges();
+                environment.currentFrame().load(receiver);;
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("excludeChanges"));
+            }
+        });
+        addPrimitive("includeChanges", (receiver, arguments, environment) -> {
+            if(receiver == environment.getWorld().getStore()) {
+                objectStore.includeChanges();
+                environment.currentFrame().load(receiver);;
+                environment.currentFrame().incIP();
+            } else {
+                resolveAndSend(receiver, arguments, environment, environment.getSymbolCode("includeChanges"));
+            }
+        });
         addPrimitive(PrimitiveSelectors.RESOLVE_SLOT, (receiver, arguments, environment) -> {
             StringLObject selector = (StringLObject)arguments[0];
             int symbolCode = environment.getSymbolCode(selector.getValue());
@@ -219,6 +239,11 @@ public class PrimitiveDispatchGroup implements DispatchGroup {
         });
         addPrimitive("primJava", (receiver, arguments, environment) -> {
             LObject value = environment.getWorld().getJava();
+            environment.currentFrame().load(value);
+            environment.currentFrame().incIP();
+        });
+        addPrimitive("primStore", (receiver, arguments, environment) -> {
+            LObject value = environment.getWorld().getStore();
             environment.currentFrame().load(value);
             environment.currentFrame().incIP();
         });

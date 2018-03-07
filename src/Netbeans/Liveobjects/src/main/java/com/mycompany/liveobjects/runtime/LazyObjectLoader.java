@@ -3,25 +3,16 @@ package com.mycompany.liveobjects.runtime;
 import java.util.Hashtable;
 
 public class LazyObjectLoader implements ObjectLoader {
-    private ObjectStoreSupplier objectStoreSupplier;
     private ObjectStore objectStore;
     private Hashtable<Integer, LObject> objectCache;
 
-    public LazyObjectLoader(ObjectStoreSupplier objectStoreSupplier) {
-        this.objectStoreSupplier = objectStoreSupplier;
+    public LazyObjectLoader(ObjectStore objectStore) {
+        this.objectStore = objectStore;
         objectCache = new Hashtable<>();
-    }
-    
-    private void ensureObjectStoreInitalized() {
-        if(objectStore == null) {
-            objectStore = objectStoreSupplier.getObjectStore(this);
-        }
     }
 
     @Override
     public LObject load(int id) {
-        ensureObjectStoreInitalized();
-        
         return objectCache.computeIfAbsent(id, i -> {
             try(ObjectStoreConnection objectStoreConnection = objectStore.getObjectStoreConnection()) {
                 return objectStoreConnection.load(id);
@@ -33,15 +24,11 @@ public class LazyObjectLoader implements ObjectLoader {
 
     @Override
     public Frame newFrame(LObject sender, Instruction[] instructions, Frame lexicalContext) {
-        ensureObjectStoreInitalized();
-        
         return objectStore.newFrame(sender, instructions, lexicalContext);
     }
 
     @Override
     public Frame newFrame(LObject sender, Instruction[] instructions) {
-        ensureObjectStoreInitalized();
-        
         return objectStore.newFrame(sender, instructions);
     }
 

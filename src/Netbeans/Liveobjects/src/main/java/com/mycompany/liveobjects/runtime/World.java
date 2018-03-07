@@ -12,6 +12,7 @@ public interface World {
     LObject getStringPrototype();
     LObject getNil();
     LObject getJava();
+    LObject getStore();
 
     default LObject getBoolean(boolean b) {
         return b ? getTrue() : getFalse();

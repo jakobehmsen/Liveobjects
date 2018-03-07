@@ -54,7 +54,9 @@ public abstract class IdentityLObject implements LObject {
     protected void writeSlot(Environment environment, int referenceType, int symbolCode, LObject newValue) {
         if(id != 0) {
             try(ObjectStoreConnection objectStoreConnection = objectStore.getObjectStoreConnection()) {
-                writeSlot(environment, objectStoreConnection, referenceType, symbolCode, newValue);
+                objectStoreConnection.execute(osc -> {
+                    writeSlot(environment, objectStoreConnection, referenceType, symbolCode, newValue);
+                });
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
@@ -93,10 +95,12 @@ public abstract class IdentityLObject implements LObject {
     public void nowUsedFrom(int id, Environment environment) {
         if(this.id == 0) {
             try(ObjectStoreConnection objectStoreConnection = objectStore.getObjectStoreConnection()) {
-                Hashtable<Integer, LObject> slots = new Hashtable<>();
-                Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-                writeSlots(environment, slots, parentSlots, WRITE_CREATE);
-                this.id = objectStoreConnection.nowUsedFrom(id, environment, slots, parentSlots, getObjectType());
+                objectStoreConnection.execute(osc -> {
+                    Hashtable<Integer, LObject> slots = new Hashtable<>();
+                    Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
+                    writeSlots(environment, slots, parentSlots, WRITE_CREATE);
+                    this.id = objectStoreConnection.nowUsedFrom(id, environment, slots, parentSlots, getObjectType());
+                });
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
@@ -110,10 +114,12 @@ public abstract class IdentityLObject implements LObject {
             writeSlots(environment, slots, parentSlots, WRITE_UPDATE);
 
             try(ObjectStoreConnection objectStoreConnection = objectStore.getObjectStoreConnection()) {
-                slots.entrySet().forEach(e -> 
-                    writeSlot(environment, objectStoreConnection, ObjectStore.REFERENCE_TYPE_NORMAL, e.getKey(), e.getValue()));
-                parentSlots.entrySet().forEach(e -> 
-                    writeSlot(environment, objectStoreConnection, ObjectStore.REFERENCE_TYPE_PARENT, e.getKey(), e.getValue()));
+                objectStoreConnection.execute(osc -> {
+                    slots.entrySet().forEach(e -> 
+                        writeSlot(environment, objectStoreConnection, ObjectStore.REFERENCE_TYPE_NORMAL, e.getKey(), e.getValue()));
+                    parentSlots.entrySet().forEach(e -> 
+                        writeSlot(environment, objectStoreConnection, ObjectStore.REFERENCE_TYPE_PARENT, e.getKey(), e.getValue()));
+                });
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
@@ -140,7 +146,7 @@ public abstract class IdentityLObject implements LObject {
     protected void readSlots(Environment environment, ObjectStoreConnection objectStoreConnection, boolean initialization) {
         Hashtable<Integer, LObject> slots = new Hashtable<>();
         Hashtable<Integer, LObject> parentSlots = new Hashtable<>();
-        objectStoreConnection.readSlots(id, environment, initialization ? null : lastUpdate, slots, parentSlots);
+        objectStoreConnection.readSlots(environment.getObjectLoader(), id, environment, initialization ? null : lastUpdate, slots, parentSlots);
         readSlots(environment, slots, parentSlots, initialization);
     }
     
