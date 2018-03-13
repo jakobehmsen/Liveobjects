@@ -1,6 +1,6 @@
 CREATE DATABASE `<db_name>`;
 USE `<db_name>`;
-CREATE TABLE `message_journal` (
+CREATE TABLE `message_send_journal` (
   `sequence_number` int(11) NOT NULL AUTO_INCREMENT,
   `serialized_message_send` blob,
   PRIMARY KEY (`sequence_number`)
