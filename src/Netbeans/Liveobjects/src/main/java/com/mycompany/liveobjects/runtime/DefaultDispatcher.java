@@ -20,10 +20,6 @@ public class DefaultDispatcher implements Dispatcher {
         };
         
         group = mainGroup.withFallback(customGroup);
-        
-        /*group = new JavaDispatchGroup()
-            .withFallback(new PrimitiveDispatchGroup(objectLoader))
-            .withFallback(customGroup);*/
     }
 
     @Override
